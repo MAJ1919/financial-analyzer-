@@ -148,6 +148,7 @@ def parse_template_upload(file_bytes: bytes) -> dict:
                 excel_data_lookup[label.lower()] = row
 
         fin_rows = []
+        used_labels = set()
         
         # Map STRICTLY by matching the template label to the Excel label
         for i, t_row in enumerate(template_rows):
@@ -156,6 +157,7 @@ def parse_template_upload(file_bytes: bytes) -> dict:
 
             year_values = {}
             if excel_row:
+                used_labels.add(t_label.lower())
                 for target_year in global_years:
                     col_idx = next((c for c, y in years_col_map.items() if y == target_year), None)
                     if col_idx is not None and col_idx < len(excel_row):
@@ -187,6 +189,20 @@ def parse_template_upload(file_bytes: bytes) -> dict:
 
         statement = FinancialStatement(years=global_years, rows=fin_rows)
         result[stmt_type] = statement.model_dump()
+
+        # Track unmapped labels for this sheet
+        unmapped = []
+        for label in excel_data_lookup:
+            if label not in used_labels:
+                # Store the original casing from the excel row, not the lowercased key
+                original_label = str(excel_data_lookup[label][0]).strip()
+                if original_label:
+                    unmapped.append(original_label)
+        
+        if "unmapped_rows" not in result:
+            result["unmapped_rows"] = {}
+        if unmapped:
+            result["unmapped_rows"][sheet_name] = unmapped
 
     # 3. Ensure all 3 statements exist in the result using empty templates if missing
     # THIS FIXES THE MANUAL ENTRY BUG: Frontend always expects these keys to exist.

@@ -163,7 +163,7 @@ def compute_forecast(
     """
     project = (
         db.table("projects")
-        .select("income_statement, balance_sheet, cash_flow_statement")
+        .select("income_statement, balance_sheet, cash_flow_statement, dcf_assumptions")
         .eq("id", project_id)
         .execute()
     )
@@ -178,6 +178,7 @@ def compute_forecast(
         inputs=payload.inputs.model_dump(),
         scenarios=payload.scenarios,
         forecast_years=payload.forecast_years,
+        dcf_assumptions=pdata.get("dcf_assumptions"),
     )
 
     # Auto-save the forecast result alongside inputs for persistence

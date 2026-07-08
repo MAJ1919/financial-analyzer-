@@ -131,7 +131,7 @@ export default function Valuation() {
   // ── Assumptions (user-editable, auto-saved) ───────────────
   const [wacc, setWacc]                = useState(10)
   const [terminalGrowthRate, setTGR]   = useState(2.5)
-  const [sharesOutstanding, setShares] = useState(0)
+  const [sharesOutstanding, setShares] = useState('')
   const [valuationMethod, setMethod]   = useState('perpetuity')  // 'perpetuity' | 'multiple'
   const [exitMultiple, setExitMultiple] = useState(12.0)
   const [forecastPeriod]               = useState(5)
@@ -319,7 +319,7 @@ export default function Valuation() {
                   type="number" step="1" min="0"
                   style={{ ...styles.inlineInput, width: 100 }}
                   value={sharesOutstanding}
-                  onChange={(e) => setShares(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setShares(e.target.value === '' ? '' : (parseFloat(e.target.value) || 0))}
                 />
                 <span style={{ fontSize: 14 }}>M</span>
               </AssumptionRow>

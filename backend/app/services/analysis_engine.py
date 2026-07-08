@@ -100,6 +100,7 @@ def _get_compat(lookup: dict[str, dict[str, float]], key: str, year: str) -> flo
         "depreciationCogs": ["depreciationCostOfSales"],
         "propertyPlantEquipment": ["grossPPE", "netPPE"],
         "accountsReceivable": ["netReceivables", "tradeAccountsReceivable"],
+        "inventory": ["totalInventory"],
         "stBorrowings": ["stBorrowingsData"],
         "currentDebt": ["currentPortionLTDebt"],
         "longTermDebt": ["ltDebtData"],
@@ -194,8 +195,8 @@ def calculate_ratio(
 
     # ── Common line items (mirrors reference TS) ─────────────────
     revenue = isg("totalRevenue")
-    cost_of_goods_sold = isg("costOfRevenue")
-    gross_profit = isg("grossProfit") or (revenue - cost_of_goods_sold)
+    cost_of_goods_sold = abs(isg("costOfRevenue"))
+    gross_profit = isg("grossProfit") or (revenue - isg("costOfRevenue"))
     operating_income = isg("operatingIncome")
     net_income = isg("netIncome")
     interest_expense = abs(isg("financeCosts") + isg("financeCosts"))

@@ -214,6 +214,7 @@ def extract_base_data(
     balance_sheet: dict | None,
     cash_flow: dict | None = None,
     latest_year: str | None = None,
+    dcf_assumptions: dict | None = None,
 ) -> BaseFinancialData:
     """
     Pull the most-recent-year values from stored JSONB statements
@@ -268,7 +269,7 @@ def extract_base_data(
         accounts_receivable=bsg("accountsReceivable") + bsg("notesReceivable"),
         accounts_payable=bsg("accountsPayable"),
         cash=bsg("cashAndEquivalents"),
-        shares_outstanding=isg("basicSharesOutstanding") or isg("dilutedAverageShares") or 0.0,
+        shares_outstanding=isg("basicSharesOutstanding") or isg("dilutedAverageShares") or (dcf_assumptions or {}).get("shares_outstanding") or 0.0,
 
         operating_cash_flow=op_cf,
         capital_expenditure=capex,
@@ -651,6 +652,7 @@ def run_forecast(
     inputs: dict,
     scenarios: list[str] | None = None,
     forecast_years: int = 5,
+    dcf_assumptions: dict | None = None,
 ) -> dict:
     """
     Full forecasting pipeline:
@@ -659,7 +661,7 @@ def run_forecast(
       3. Run base + optional scenario forecasts
       4. Return structured response
     """
-    base = extract_base_data(income_statement, balance_sheet, cash_flow)
+    base = extract_base_data(income_statement, balance_sheet, cash_flow, dcf_assumptions=dcf_assumptions)
 
     fi = ForecastInputs(
         revenue_growth_rate         = float(inputs.get("revenue_growth_rate", 10.0)),
@@ -720,30 +722,46 @@ def run_forecast(
             ast_mult = (f.total_assets / base.total_assets) if base.total_assets else 1.0
             
             is_overrides = {
-                "totalRevenue": f.revenue, "costOfRevenue": f.cost_of_revenue,
-                "grossProfit": f.gross_profit, "sgaExpense": f.sga_expenses,
-                "rdExpense": f.rd_expenses, "depreciation": f.depreciation,
-                "operatingIncome": f.operating_income, "interestExpense": f.interest_expense,
-                "incomeBeforeTax": f.income_before_tax, "currentIncomeTax": f.tax_expense,
+                "totalRevenue": f.revenue,
+                "totalCostOfRevenue": f.cost_of_revenue,
+                "grossProfit": f.gross_profit,
+                "totalGeneralAdminExpense": -f.sga_expenses,
+                "researchAndDevelopment": -f.rd_expenses,
+                "depreciationOpex": -f.depreciation,
+                "operatingIncome": f.operating_income,
+                "financeCosts": -f.interest_expense,
+                "incomeBeforeTax": f.income_before_tax,
+                "currentIncomeTax": -f.tax_expense,
                 "netIncome": f.net_income
             }
             d["full_income_statement"] = _project_statement(income_statement, rev_mult, base_year_str, f, is_overrides)
             
             bs_overrides = {
-                "cashAndEquivalents": f.cash, "accountsReceivable": f.accounts_receivable,
-                "rawMaterials": f.inventory, "totalCurrentAssets": f.total_current_assets,
-                "propertyPlantEquipment": f.ppe, "accumulatedDepreciation": f.accumulated_depreciation,
-                "totalAssets": f.total_assets, "accountsPayable": f.accounts_payable,
-                "totalCurrentLiabilities": f.total_current_liabilities, "longTermDebt": f.long_term_debt,
-                "totalLiabilities": f.total_liabilities, "retainedEarnings": f.retained_earnings,
+                "cashAndEquivalents": f.cash,
+                "netReceivables": f.accounts_receivable,
+                "totalInventory": f.inventory,
+                "totalCurrentAssets": f.total_current_assets,
+                "netPPE": f.ppe,
+                "accumulatedDepreciation": -f.accumulated_depreciation,
+                "totalAssets": f.total_assets,
+                "accountsPayable": f.accounts_payable,
+                "totalCurrentLiabilities": f.total_current_liabilities,
+                "ltDebtData": f.long_term_debt,
+                "totalLiabilities": f.total_liabilities,
+                "retainedEarnings": f.retained_earnings,
                 "totalEquity": f.total_equity
             }
             d["full_balance_sheet"] = _project_statement(balance_sheet, ast_mult, base_year_str, f, bs_overrides)
             
             cf_overrides = {
-                "netIncome": f.net_income, "depreciationAmortization": f.depreciation,
-                "operatingCashFlow": f.operating_cash_flow, "capitalExpenditure": -f.capex,
-                "investingCashFlow": f.investing_cash_flow, "financingCashFlow": f.financing_cash_flow,
+                "netIncome": f.net_income,
+                "depreciationOpex": f.depreciation,
+                "depreciationCostOfSales": 0.0,
+                "operatingCashFlow": f.operating_cash_flow,
+                "capitalExpenditures": -f.capex,
+                "investingCashFlow": f.investing_cash_flow,
+                "cfDividendsPaid": -f.dividends_paid,
+                "financingCashFlow": f.financing_cash_flow,
                 "freeCashFlow": f.free_cash_flow
             }
             d["full_cash_flow_statement"] = _project_statement(cash_flow, rev_mult, base_year_str, f, cf_overrides)

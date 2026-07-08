@@ -1,7 +1,7 @@
 import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-quartz.css'
-import { useMemo, useRef, useCallback } from 'react'
+import { useMemo, useRef, useCallback, useState } from 'react'
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
 
 // Register AG Grid modules (required in v32+)
@@ -25,6 +25,8 @@ export default function FinancialGrid({
   projectIndustry = 'general',
 }) {
   const gridRef = useRef()
+
+  const [decimals, setDecimals] = useState(0)
 
   // Determine if a row is editable (not a header, not a subtotal, and matches industry)
   const isRowEditable = useCallback((params) => {
@@ -96,7 +98,7 @@ export default function FinancialGrid({
         
         if (p.value == null || p.value === '') return '—'
         const num = Number(p.value)
-        const formatted = num.toLocaleString('en-US', { maximumFractionDigits: 0 })
+        const formatted = num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
         if (p.data?.key === 'balanceCheck') {
           if (num > 0.5) return `+${formatted}`
           if (num < -0.5) return formatted // already has negative sign
@@ -147,7 +149,7 @@ export default function FinancialGrid({
         }
       },
     })),
-  [years, isRowEditable, onCellEdit])
+  [years, isRowEditable, onCellEdit, decimals, projectIndustry])
 
   // Flatten rows for AG Grid (values dict → flat object)
   const rowData = useMemo(() =>
@@ -165,27 +167,79 @@ export default function FinancialGrid({
   [rows])
 
   return (
-    <div className="ag-theme-quartz" style={{ width: '100%', marginBottom: '20px' }}>
-      <AgGridReact
-        ref={gridRef}
-        rowData={rowData}
-        columnDefs={[labelCol, ...yearCols]}
-        defaultColDef={{ resizable: true, sortable: false }}
-        suppressMovableColumns
-        domLayout="autoHeight"
-        rowGroupPanelShow="never"
-        getRowId={(p) => p.data.row_id}
-        singleClickEdit={true}
-        stopEditingWhenCellsLoseFocus={true}
-        onCellValueChanged={(e) => {
-          if (onCellEdit && e.colDef.field !== 'label') {
-            onCellEdit(e.data.row_id, e.colDef.field, e.newValue)
-          }
-          if (onCellEditingStopped) {
-            onCellEditingStopped(e)
-          }
-        }}
-      />
+    <div style={{ width: '100%', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px', gap: '6px' }}>
+        <button 
+          onClick={() => setDecimals(prev => prev + 1)}
+          title="Increase Decimal"
+          style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '2px 6px',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            color: 'var(--color-navy)',
+            lineHeight: 1.1,
+            fontFamily: 'monospace',
+            width: '36px',
+            height: '32px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <span style={{ color: '#0078D4', fontSize: '13px', fontWeight: 'bold' }}>←</span>
+            <span style={{ fontSize: '10px' }}>.0</span>
+          </div>
+          <div style={{ fontSize: '10px', alignSelf: 'flex-end', paddingRight: '2px' }}>.00</div>
+        </button>
+        <button 
+          onClick={() => setDecimals(prev => Math.max(0, prev - 1))}
+          title="Decrease Decimal"
+          style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '2px 6px',
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '4px',
+            cursor: decimals > 0 ? 'pointer' : 'not-allowed',
+            color: 'var(--color-navy)',
+            lineHeight: 1.1,
+            fontFamily: 'monospace',
+            width: '36px',
+            height: '32px',
+            opacity: decimals > 0 ? 1 : 0.5
+          }}
+          disabled={decimals === 0}
+        >
+          <div style={{ fontSize: '10px', alignSelf: 'flex-start', paddingLeft: '2px' }}>.00</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <span style={{ color: '#0078D4', fontSize: '13px', fontWeight: 'bold' }}>→</span>
+            <span style={{ fontSize: '10px' }}>.0</span>
+          </div>
+        </button>
+      </div>
+      <div className="ag-theme-quartz" style={{ width: '100%' }}>
+        <AgGridReact
+          ref={gridRef}
+          rowData={rowData}
+          columnDefs={[labelCol, ...yearCols]}
+          defaultColDef={{ resizable: true, sortable: false }}
+          suppressMovableColumns
+          domLayout="autoHeight"
+          rowGroupPanelShow="never"
+          getRowId={(p) => p.data.row_id}
+          singleClickEdit={true}
+          stopEditingWhenCellsLoseFocus={true}
+          onCellValueChanged={(e) => {
+            if (onCellEdit && e.colDef.field !== 'label') {
+              onCellEdit(e.data.row_id, e.colDef.field, e.newValue)
+            }
+            if (onCellEditingStopped) {
+              onCellEditingStopped(e)
+            }
+          }}
+        />
+      </div>
     </div>
   )
 }

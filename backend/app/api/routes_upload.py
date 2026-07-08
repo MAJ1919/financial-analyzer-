@@ -38,7 +38,9 @@ async def upload_template(
     if "cash_flow_statement" in parsed_data:
         update_data["cash_flow_statement"] = parsed_data["cash_flow_statement"]
 
+    # Clear stale forecast data so the user is forced to re-run it with the new line items
     if update_data:
+        update_data["forecast_data"] = None
         result = db.table("projects").update(update_data).eq("id", project_id).execute()
         if not result.data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
@@ -63,7 +65,9 @@ async def save_manual_entry(
     if payload.cash_flow_statement is not None:
         update_data["cash_flow_statement"] = payload.cash_flow_statement.model_dump()
 
+    # Clear stale forecast data
     if update_data:
+        update_data["forecast_data"] = None
         result = db.table("projects").update(update_data).eq("id", project_id).execute()
         if not result.data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")

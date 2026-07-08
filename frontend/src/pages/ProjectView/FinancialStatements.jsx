@@ -70,6 +70,7 @@ export default function FinancialStatements() {
   const { project, setProject } = useProjectStore()
 
   const [error, setError] = useState('')
+  const [unmappedWarning, setUnmappedWarning] = useState(null)
 
   // Upload and Mapping state
   const fileInputRef = useRef(null)
@@ -98,10 +99,15 @@ export default function FinancialStatements() {
 
     setIsUploading(true)
     setError('')
+    setUnmappedWarning(null)
     try {
-      await uploadApi.uploadTemplate(projectId, file)
+      const res = await uploadApi.uploadTemplate(projectId, file)
       const updatedProject = await projectsApi.get(projectId)
       setProject(updatedProject)
+      
+      if (res?.data?.unmapped_rows && Object.keys(res.data.unmapped_rows).length > 0) {
+        setUnmappedWarning(res.data.unmapped_rows)
+      }
     } catch (err) {
       setError(err.message || 'Failed to upload Excel file')
     } finally {
@@ -147,6 +153,28 @@ export default function FinancialStatements() {
       />
       <div className="page-body">
         {error && <p className="field-error" style={{ marginBottom: 12 }}>{error}</p>}
+        {unmappedWarning && (
+          <div className="card" style={{ marginBottom: 20, borderLeft: '4px solid #ff9800', backgroundColor: '#fff8e1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+              <i className="fa-solid fa-triangle-exclamation" style={{ color: '#ff9800', marginRight: 10, fontSize: 18 }}></i>
+              <h4 style={{ margin: 0, color: '#b26a00' }}>Unmapped Rows Detected</h4>
+            </div>
+            <p style={{ fontSize: 14, marginBottom: 12, color: 'var(--color-text)' }}>
+              The following rows were found in your Excel file but could not be mapped because their labels did not exactly match the template:
+            </p>
+            {Object.entries(unmappedWarning).map(([sheet, rows]) => (
+              <div key={sheet} style={{ marginBottom: 8 }}>
+                <strong style={{ fontSize: 13, color: 'var(--color-navy)' }}>{sheet}:</strong>
+                <ul style={{ margin: '4px 0 0 20px', fontSize: 13, color: 'var(--color-text-light)' }}>
+                  {rows.map((row, idx) => <li key={idx}>{row}</li>)}
+                </ul>
+              </div>
+            ))}
+            <p style={{ fontSize: 12, marginTop: 12, color: '#b26a00' }}>
+              * To fix this, update your Excel file so that these labels exactly match the provided template, then re-upload.
+            </p>
+          </div>
+        )}
 
           <ManualEntryTemplate projectId={projectId} />
       </div>

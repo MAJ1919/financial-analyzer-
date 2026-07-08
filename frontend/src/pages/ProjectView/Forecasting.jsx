@@ -284,45 +284,58 @@ export default function Forecasting() {
                         </tr>
                       </thead>
                       <tbody>
-                        {activeRows.map(row => (
-                          <tr key={row.key} style={{ 
-                            background: row.is_subtotal ? 'var(--color-bg)' : undefined,
-                            borderTop: row.is_header ? '1px solid var(--color-border)' : 'none'
-                          }}>
-                            <td style={{
-                              ...styles.td,
-                              textAlign: 'left', // Fix Left-to-Right layout issue
-                              paddingLeft: row.level === 3 ? 24 : 12,
-                              fontWeight: (row.level === 1 || row.level === 2 || row.is_subtotal) ? 700 : 400,
-                              color: row.is_header ? 'var(--color-navy)' : undefined,
+                        {activeRows.map(row => {
+                          let level = row.level || (row.is_subtotal ? 1 : row.is_header ? 2 : 3);
+                          if (row.is_subtotal) level = 1;
+                          else if (row.is_header && level > 2) level = 2;
+                          
+                          const bg = (row.is_header || row.is_subtotal) ? '#f5f5f5' : undefined;
+                          const fw = level === 1 ? 700 : level === 2 ? 600 : 400;
+                          const fs = level === 1 ? '15px' : level === 2 ? '14px' : '13px';
+                          
+                          return (
+                            <tr key={row.key} style={{ 
+                              background: bg,
+                              borderTop: level === 1 ? '1px solid var(--color-border)' : 'none'
                             }}>
-                              {row.label}
-                            </td>
-                            {forecasts.map(f => {
-                              const source = f[`full_${activeTab}`] || {};
-                              const val = source[row.key];
-                              
-                              let txtColor = undefined;
-                              if (row.key === 'balanceCheck') {
-                                  if (val > 0.5) txtColor = '#10B981';
-                                  else if (val < -0.5) txtColor = '#3B82F6';
-                                  else txtColor = 'var(--color-text)';
-                              } else if (val < 0) {
-                                  txtColor = 'var(--color-danger, #EF4444)';
-                              }
-
-                              return (
-                                <td key={f.year} style={{
-                                  ...styles.td,
-                                  fontWeight: (row.level === 1 || row.level === 2 || row.is_subtotal) ? 700 : 400,
-                                  color: txtColor,
-                                }}>
-                                  {row.is_header ? '' : fmt(val, currency)}
-                                </td>
-                              )
-                            })}
-                          </tr>
-                        ))}
+                              <td style={{
+                                ...styles.td,
+                                textAlign: 'left',
+                                paddingLeft: `${(level - 1) * 20 + 8}px`,
+                                fontWeight: fw,
+                                fontSize: fs,
+                                color: level <= 2 ? 'var(--color-navy)' : 'var(--color-text)',
+                                whiteSpace: 'pre',
+                              }}>
+                                {row.label}
+                              </td>
+                              {forecasts.map(f => {
+                                const source = f[`full_${activeTab}`] || {};
+                                const val = source[row.key];
+                                
+                                let txtColor = undefined;
+                                if (row.key === 'balanceCheck') {
+                                    if (val > 0.5) txtColor = '#DC2626';
+                                    else if (val < -0.5) txtColor = '#DC2626';
+                                    else txtColor = '#10B981';
+                                } else if (val < 0) {
+                                    txtColor = 'var(--color-error, #EF4444)';
+                                }
+  
+                                return (
+                                  <td key={f.year} style={{
+                                    ...styles.td,
+                                    fontWeight: fw,
+                                    fontSize: fs,
+                                    color: txtColor,
+                                  }}>
+                                    {row.is_header && !row.is_subtotal ? '' : fmt(val, currency)}
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
