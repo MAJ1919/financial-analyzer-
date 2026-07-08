@@ -1,0 +1,2121 @@
+{
+  "balance_sheet": [
+    {
+      "label": "Assets",
+      "key": "assetsHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Current Assets",
+      "key": "currentAssetsHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Cash & Cash Equivalents",
+      "key": "cashAndEquivalents",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Restricted Cash",
+      "key": "restrictedCash",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Short-Term Investments",
+      "key": "shortTermInvestments",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Prepaid Expenses",
+      "key": "prepaidExpenses",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "VAT Recoverable",
+      "key": "vatRecoverable",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Advances to Suppliers",
+      "key": "advancesToSuppliers",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Receivables",
+      "key": "receivablesHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Trade Accounts Receivable",
+      "key": "tradeAccountsReceivable",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Contract Assets",
+      "key": "contractAssets",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Due from Related Parties",
+      "key": "dueFromRelatedParties",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Notes Receivable",
+      "key": "notesReceivable",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Receivables",
+      "key": "otherReceivables",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Allowance for Doubtful Accounts",
+      "key": "allowanceForDoubtfulAccounts",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Receivables",
+      "key": "netReceivables",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Inventory",
+      "key": "inventoryHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Raw Materials",
+      "key": "rawMaterials",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Work in Process",
+      "key": "workInProcess",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Finished Goods",
+      "key": "finishedGoods",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Spare Parts & Consumables",
+      "key": "sparePartsAndConsumables",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Other Inventory",
+      "key": "otherInventory",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Inventory",
+      "key": "totalInventory",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Other Current Assets",
+      "key": "otherCurrentAssetsData",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Current Assets",
+      "key": "totalCurrentAssets",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Current Assets",
+      "key": "nonCurrentAssetsHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Property, Plant & Equipment",
+      "key": "ppeHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Land",
+      "key": "land",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Buildings",
+      "key": "buildings",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Machinery & Equipment",
+      "key": "machineryAndEquipment",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Capital Work in Progress",
+      "key": "capitalWorkInProgress",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Furniture & Fixtures",
+      "key": "furnitureAndFixtures",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Vehicles",
+      "key": "vehicles",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Right-of-Use Assets",
+      "key": "rightOfUseAssets",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Property, Plant & Equipment",
+      "key": "otherPPE",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Gross Property, Plant & Equipment",
+      "key": "grossPPE",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Accumulated Depreciation",
+      "key": "accumulatedDepreciation",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Property, Plant & Equipment",
+      "key": "netPPE",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Intangible Assets",
+      "key": "intangibleAssetsHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Goodwill",
+      "key": "goodwill",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Software",
+      "key": "software",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Intangible Assets",
+      "key": "otherIntangibleAssets",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Gross Intangible Assets",
+      "key": "grossIntangibleAssets",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Accumulated Amortization",
+      "key": "accumulatedAmortization",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Intangible Assets",
+      "key": "netIntangibleAssets",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Investments",
+      "key": "investmentsHeader",
+      "section": "Assets",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Investment Property",
+      "key": "investmentProperty",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Equity Investments",
+      "key": "equityInvestments",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Debt Investments",
+      "key": "debtInvestments",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Investments in Associates",
+      "key": "investmentsInAssociates",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Investments",
+      "key": "otherInvestments",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Deferred Tax Assets",
+      "key": "deferredTaxAssets",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Long-Term Receivables",
+      "key": "longTermReceivables",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Non-Current Assets",
+      "key": "otherNonCurrentAssetsData",
+      "section": "Assets",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Non-Current Assets",
+      "key": "totalNonCurrentAssets",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Total Assets",
+      "key": "totalAssets",
+      "section": "Assets",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Liabilities",
+      "key": "liabilitiesHeader",
+      "section": "Liabilities",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Current Liabilities",
+      "key": "currentLiabilitiesHeader",
+      "section": "Liabilities",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Trade Payables",
+      "key": "tradePayablesHeader",
+      "section": "Liabilities",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Accounts Payable",
+      "key": "accountsPayable",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "VAT Payable",
+      "key": "vatPayable",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Zakat Payable",
+      "key": "zakatPayable",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Due to Related Parties",
+      "key": "dueToRelatedParties",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Notes Payable",
+      "key": "notesPayable",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Payables",
+      "key": "otherPayables",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Warranty Provision",
+      "key": "warrantyProvision",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Accrued Liabilities",
+      "key": "accruedLiabilitiesHeader",
+      "section": "Liabilities",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Accrued Expenses",
+      "key": "accruedExpenses",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Accrued Payroll",
+      "key": "accruedPayroll",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Accrued Interest",
+      "key": "accruedInterest",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Customer Advances",
+      "key": "customerAdvances",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Short-Term Borrowings",
+      "key": "stBorrowingsData",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Current Portion of Long-Term Debt",
+      "key": "currentPortionLTDebt",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Current Lease Liabilities",
+      "key": "currentLeaseLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Deferred Revenue",
+      "key": "deferredRevenue",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Contract Liabilities",
+      "key": "contractLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Income Tax Payable",
+      "key": "incomeTaxPayable",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Current Liabilities",
+      "key": "otherCurrentLiabilitiesData",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Current Liabilities",
+      "key": "totalCurrentLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Current Liabilities",
+      "key": "nonCurrentLiabilitiesHeader",
+      "section": "Liabilities",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Long-Term Debt",
+      "key": "ltDebtData",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Lease Liabilities",
+      "key": "leaseLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Long-Term Borrowings",
+      "key": "otherLongTermBorrowings",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Deferred Tax Liabilities",
+      "key": "deferredTaxLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Employee End-of-Service Benefits",
+      "key": "employeeEndOfServiceBenefits",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Asset Retirement Obligations",
+      "key": "assetRetirementObligations",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Long-Term Liabilities",
+      "key": "otherLTLiabilitiesData",
+      "section": "Liabilities",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Non-Current Liabilities",
+      "key": "totalNonCurrentLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Total Liabilities",
+      "key": "totalLiabilities",
+      "section": "Liabilities",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Equity",
+      "key": "equityHeader",
+      "section": "Equity",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Share Capital",
+      "key": "shareCapital",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Preferred Stock",
+      "key": "preferredStock",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Additional Paid-In Capital",
+      "key": "additionalPaidInCapital",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Treasury Stock",
+      "key": "treasuryStock",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Retained Earnings",
+      "key": "retainedEarnings",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Statutory Reserve",
+      "key": "statutoryReserve",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Accumulated Other Comprehensive Income",
+      "key": "accumulatedOCI",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Reserves",
+      "key": "otherReserves",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Controlling Interest",
+      "key": "nonControllingInterest",
+      "section": "Equity",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Equity",
+      "key": "totalEquity",
+      "section": "Equity",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Total Liabilities & Equity",
+      "key": "totalLiabilitiesAndEquity",
+      "section": "Equity",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Balance Check (Assets - Liab & Equity)",
+      "key": "balanceCheck",
+      "section": "Equity",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    }
+  ],
+  "income_statement": [
+    {
+      "label": "Revenue",
+      "key": "revenueHeader",
+      "section": "Revenue",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Product Revenue",
+      "key": "productRevenue",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Service Revenue",
+      "key": "serviceRevenue",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Revenue",
+      "key": "otherRevenue",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Revenue",
+      "key": "totalRevenue",
+      "section": "Revenue",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Cost of Revenue",
+      "key": "costOfRevenueDisplayHeader",
+      "section": "Revenue",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Manufacturing",
+      "key": "manufacturingCostsHeader",
+      "section": "Revenue",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Raw Materials",
+      "key": "rawMaterialsExpense",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Direct Labor",
+      "key": "directLabor",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Manufacturing Overhead",
+      "key": "manufacturingOverhead",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Production Supplies",
+      "key": "productionSupplies",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Inventory Write-down",
+      "key": "inventoryWriteDown",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "manufacturing"
+    },
+    {
+      "label": "Services",
+      "key": "servicesCostsHeader",
+      "section": "Revenue",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "service"
+    },
+    {
+      "label": "Cost of Services",
+      "key": "costOfServices",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "service"
+    },
+    {
+      "label": "Professional Labor",
+      "key": "professionalLabor",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "service"
+    },
+    {
+      "label": "Project Costs",
+      "key": "projectCosts",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "service"
+    },
+    {
+      "label": "Subcontractor Costs",
+      "key": "subcontractorCosts",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "service"
+    },
+    {
+      "label": "Shared",
+      "key": "sharedCostsHeader",
+      "section": "Revenue",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Other Cost of Revenue",
+      "key": "otherCostOfRevenue",
+      "section": "Revenue",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Cost of Revenue",
+      "key": "totalCostOfRevenue",
+      "section": "Revenue",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Gross Profit",
+      "key": "grossProfit",
+      "section": "Revenue",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Operating Expenses",
+      "key": "operatingExpensesHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Selling Expenses",
+      "key": "sellingExpensesHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Selling Expense",
+      "key": "sellingExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Advertising & Marketing",
+      "key": "advertisingAndMarketing",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Distribution Expense",
+      "key": "distributionExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Selling Expense",
+      "key": "otherSellingExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Selling Expense",
+      "key": "totalSellingExpense",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "General & Administrative",
+      "key": "generalAdminHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "General & Administrative Expense",
+      "key": "generalAdminExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Professional Fees",
+      "key": "professionalFees",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Information Technology Expense",
+      "key": "informationTechnologyExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Administrative Expense",
+      "key": "otherAdministrativeExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total General & Administrative Expense",
+      "key": "totalGeneralAdminExpense",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Research & Development",
+      "key": "researchDevHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Research & Development Expense",
+      "key": "researchDevExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Operating Expenses",
+      "key": "otherOperatingExpensesHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Depreciation",
+      "key": "depreciationOpex",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Amortization",
+      "key": "amortizationOpex",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Share-Based Compensation",
+      "key": "shareBasedCompensation",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Impairment Losses",
+      "key": "impairmentLosses",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Restructuring Charges",
+      "key": "restructuringCharges",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Operating Expense",
+      "key": "otherOperatingExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Other Operating Expense",
+      "key": "totalOtherOperatingExpense",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Operating Income",
+      "key": "operatingIncomeDisplayHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Operating Income (EBIT)",
+      "key": "operatingIncome",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Operating Income / Expense",
+      "key": "nonOperatingHeader",
+      "section": "Non-Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Finance Income",
+      "key": "financeIncome",
+      "section": "Non-Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Finance Costs",
+      "key": "financeCosts",
+      "section": "Non-Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Non-Operating Income / Expense",
+      "key": "otherNonOpIncomeExpense",
+      "section": "Non-Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Earnings Before Tax",
+      "key": "earningsBeforeTax",
+      "section": "Non-Operating",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Income Tax",
+      "key": "incomeTaxHeader",
+      "section": "Taxes",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Income Tax Expense",
+      "key": "incomeTaxExpense",
+      "section": "Taxes",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Income",
+      "key": "netIncome",
+      "section": "Bottom Line",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Controlling Interest",
+      "key": "nonControllingInterest",
+      "section": "Bottom Line",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Income Attributable to Parent",
+      "key": "netIncomeAttributableToParent",
+      "section": "Bottom Line",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Earnings Per Share",
+      "key": "earningsPerShareHeader",
+      "section": "Metrics",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Basic EPS",
+      "key": "basicEps",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Diluted EPS",
+      "key": "dilutedEps",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Shares Outstanding",
+      "key": "sharesOutstandingHeader",
+      "section": "Metrics",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Weighted Average Basic Shares",
+      "key": "weightedAvgBasicShares",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Weighted Average Diluted Shares",
+      "key": "weightedAvgDilutedShares",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Supplemental Metrics",
+      "key": "supplementalMetricsHeader",
+      "section": "Metrics",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "EBITDA",
+      "key": "ebitda",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Adjusted EBITDA",
+      "key": "adjustedEbitda",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "EBIT",
+      "key": "ebit",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Comprehensive Income",
+      "key": "comprehensiveIncomeHeader",
+      "section": "Metrics",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Other Comprehensive Income",
+      "key": "otherComprehensiveIncome",
+      "section": "Metrics",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Comprehensive Income",
+      "key": "totalComprehensiveIncome",
+      "section": "Metrics",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    }
+  ],
+  "cash_flow_statement": [
+    {
+      "label": "Operating Activities",
+      "key": "operatingActivitiesHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Net Income",
+      "key": "cfNetIncomeData",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Cash Adjustments",
+      "key": "nonCashAdjustmentsHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Depreciation - Cost of Sales",
+      "key": "depreciationCostOfSales",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Depreciation",
+      "key": "depreciationOpex",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Amortization",
+      "key": "amortizationOpex",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Bad Debt Expense",
+      "key": "badDebtExpense",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Unrealized Gain/Loss on Investments / Derivatives",
+      "key": "unrealizedGainLossInvestments",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Foreign Exchange Gain/Loss",
+      "key": "foreignExchangeGainLoss",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Gain/Loss on Sale of Assets",
+      "key": "gainLossSaleAssets",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Gain/Loss on Investments",
+      "key": "gainLossInvestments",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Share-Based Compensation",
+      "key": "shareBasedCompensation",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Deferred Tax",
+      "key": "deferredTax",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Non-Cash Adjustments",
+      "key": "otherNonCashAdjustments",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Provision Movements",
+      "key": "provisionMovements",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Total Non-Cash Adjustments",
+      "key": "totalNonCashAdjustments",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Working Capital Changes",
+      "key": "workingCapitalHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Receivables",
+      "key": "receivablesChangeHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Trade Accounts Receivable",
+      "key": "changeTradeAccountsReceivable",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Contract Assets / Unbilled Revenue",
+      "key": "changeContractAssetsUnbilledRevenue",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Related Party Receivables",
+      "key": "changeRelatedPartyReceivables",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Receivables",
+      "key": "changeOtherReceivables",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Inventory",
+      "key": "inventoryChangeHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Raw Materials",
+      "key": "changeRawMaterials",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Work in Process",
+      "key": "changeWorkInProcess",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Finished Goods",
+      "key": "changeFinishedGoods",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Inventory",
+      "key": "changeOtherInventory",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Other Current Assets",
+      "key": "otherCurrentAssetsChangeHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Current Assets",
+      "key": "changeOtherCurrentAssets",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Payables",
+      "key": "payablesChangeHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Accounts Payable",
+      "key": "changeAccountsPayable",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Payables",
+      "key": "changeOtherPayables",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Related Party Payables",
+      "key": "changeRelatedPartyPayables",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Other Liabilities",
+      "key": "otherLiabilitiesChangeHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Accrued Expenses",
+      "key": "changeAccruedExpenses",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Customer Advances",
+      "key": "changeCustomerAdvances",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Deferred Revenue / Contract Liabilities",
+      "key": "changeDeferredRevenueContractLiab",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Income Tax Payable",
+      "key": "changeIncomeTaxPayable",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Interest Payable",
+      "key": "changeInterestPayable",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in End of Service Benefits",
+      "key": "changeEndOfServiceBenefits",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Current Liabilities",
+      "key": "changeOtherCurrentLiabilities",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Change in Other Operating Liabilities",
+      "key": "changeOtherOperatingLiabilities",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 4,
+      "industry": "general"
+    },
+    {
+      "label": "Total Working Capital Adjustments",
+      "key": "totalWorkingCapitalAdjustments",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Other Operating Activities",
+      "key": "otherOperatingActivitiesHeader",
+      "section": "Operating",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Interest Paid",
+      "key": "interestPaid",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Interest Received",
+      "key": "interestReceived",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Income Taxes Paid",
+      "key": "incomeTaxesPaid",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Dividends Received",
+      "key": "dividendsReceived",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Operating Cash Flow",
+      "key": "otherOperatingCashFlow",
+      "section": "Operating",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Cash from Operating Activities",
+      "key": "operatingCashFlow",
+      "section": "Operating",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Investing Activities",
+      "key": "investingActivitiesHeader",
+      "section": "Investing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Capital Expenditures",
+      "key": "capitalExpenditures",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Business Acquisitions / Disposals",
+      "key": "businessAcquisitionsDisposals",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Proceeds from Sale of Property, Plant & Equipment",
+      "key": "proceedsSalePPE",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Purchase of Investments",
+      "key": "purchaseInvestments",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Sale of Investments",
+      "key": "saleInvestments",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Investment in Associates",
+      "key": "investmentInAssociates",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Purchase of Intangible Assets",
+      "key": "purchaseIntangibleAssets",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Investing Cash Flow",
+      "key": "otherInvestingCashFlow",
+      "section": "Investing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Cash from Investing Activities",
+      "key": "investingCashFlow",
+      "section": "Investing",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Financing Activities",
+      "key": "financingActivitiesHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Borrowings",
+      "key": "borrowingsHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Short-Term Borrowings",
+      "key": "cfShortTermBorrowings",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Long-Term Borrowings",
+      "key": "cfLongTermBorrowings",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Debt Repayments",
+      "key": "debtRepaymentsHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Lease Liability Payments",
+      "key": "leaseLiabilityPayments",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Equity",
+      "key": "equityHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Issuance of Share Capital",
+      "key": "issuanceShareCapital",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Share Repurchases",
+      "key": "shareRepurchases",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Additional Paid-In Capital",
+      "key": "cfAdditionalPaidInCapital",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Shareholder Returns",
+      "key": "shareholderReturnsHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Dividends Paid",
+      "key": "cfDividendsPaid",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Financing Activities",
+      "key": "otherFinancingActivitiesHeader",
+      "section": "Financing",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 2,
+      "industry": "general"
+    },
+    {
+      "label": "Related Party Borrowings / Repayments",
+      "key": "relatedPartyBorrowings",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Minority Interest Transactions",
+      "key": "minorityInterestTransactions",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Other Financing Cash Flow",
+      "key": "otherFinancingCashFlow",
+      "section": "Financing",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Cash from Financing Activities",
+      "key": "financingCashFlow",
+      "section": "Financing",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Cash Reconciliation",
+      "key": "cashReconciliationHeader",
+      "section": "Bottom Line",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Effect of Exchange Rate Changes",
+      "key": "cfEffectOfExchangeRates",
+      "section": "Bottom Line",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Net Increase (Decrease) in Cash",
+      "key": "netIncreaseDecreaseCash",
+      "section": "Bottom Line",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Beginning Cash & Cash Equivalents",
+      "key": "cfBeginningCashBalance",
+      "section": "Bottom Line",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Ending Cash & Cash Equivalents",
+      "key": "cfEndingCashBalance",
+      "section": "Bottom Line",
+      "is_subtotal": true,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Supplemental Disclosure",
+      "key": "supplementalDisclosureHeader",
+      "section": "Supplemental",
+      "is_header": true,
+      "is_subtotal": false,
+      "level": 1,
+      "industry": "general"
+    },
+    {
+      "label": "Cash Paid for Interest",
+      "key": "cashPaidInterest",
+      "section": "Supplemental",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Cash Paid for Income Taxes",
+      "key": "cashPaidIncomeTaxes",
+      "section": "Supplemental",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Cash Investing Activities",
+      "key": "nonCashInvestingActivities",
+      "section": "Supplemental",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    },
+    {
+      "label": "Non-Cash Financing Activities",
+      "key": "nonCashFinancingActivities",
+      "section": "Supplemental",
+      "is_subtotal": false,
+      "level": 3,
+      "industry": "general"
+    }
+  ]
+}

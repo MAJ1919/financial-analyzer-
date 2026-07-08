@@ -1,0 +1,23 @@
+# Runtime
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+pydantic==2.7.1
+pydantic-settings==2.3.1
+
+# Database
+supabase==2.5.0
+
+# Excel Parsing
+openpyxl==3.1.2
+rapidfuzz==3.9.1
+
+# Data Processing (all financial arithmetic in Python)
+pandas==2.2.2
+numpy==1.26.4
+
+# File handling
+python-multipart>=0.0.18
+
+# Optional: PDF export (stretch goal)
+# reportlab==4.2.0
+# weasyprint==62.3

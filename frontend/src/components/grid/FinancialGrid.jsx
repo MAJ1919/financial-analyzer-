@@ -1,0 +1,192 @@
+import { AgGridReact } from 'ag-grid-react'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+import { useMemo, useRef, useCallback } from 'react'
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
+
+// Register AG Grid modules (required in v32+)
+ModuleRegistry.registerModules([AllCommunityModule])
+
+/**
+ * FinancialGrid — AG Grid Community Edition wrapper.
+ *
+ * Props:
+ *   rows       {Array}    — Internal FinancialRow objects from the API
+ *   years      {string[]} — Ordered fiscal year columns ["2021","2022",...]
+ *   editable   {boolean}  — Enable cell editing (default: false)
+ *   onCellEdit {function} — Callback (rowId, year, newValue) on cell change
+ */
+export default function FinancialGrid({
+  rows = [],
+  years = [],
+  editable = false,
+  onCellEdit,
+  onCellEditingStopped,
+  projectIndustry = 'general',
+}) {
+  const gridRef = useRef()
+
+  // Determine if a row is editable (not a header, not a subtotal, and matches industry)
+  const isRowEditable = useCallback((params) => {
+    if (!editable) return false
+    const data = params.data
+    if (!data) return false
+    if (data.is_header === true) return false
+    if (data.is_subtotal === true) return false
+    
+    // Check industry relevance
+    if (projectIndustry !== 'general' && data.industry && data.industry !== 'general' && data.industry !== projectIndustry) {
+      return false; // Disable if row is for a different specific industry
+    }
+    
+    return true
+  }, [editable, projectIndustry])
+
+  // Label column — always pinned left, never editable
+  const labelCol = {
+    field: 'label',
+    headerName: 'Line Item',
+    pinned: 'left',
+    width: 300,
+    editable: false,
+    cellStyle: (params) => {
+      // Fallback for legacy rows without a level property
+      let level = params.data?.level || (params.data?.is_subtotal ? 1 : params.data?.is_header ? 2 : 3)
+      
+      // Override level based on is_subtotal/is_header to ensure consistency
+      if (params.data?.is_subtotal) level = 1
+      else if (params.data?.is_header && level > 2) level = 2
+      
+      let bg = undefined
+      if (params.data?.is_header || params.data?.is_subtotal) bg = '#f5f5f5'
+      
+      let opacity = 1
+      if (projectIndustry !== 'general' && params.data?.industry && params.data?.industry !== 'general' && params.data?.industry !== projectIndustry) {
+        opacity = 0.35 // Fade out rows that don't apply to the selected industry
+      }
+      
+      return {
+        fontWeight: level === 1 ? '700' : level === 2 ? '600' : '400',
+        fontSize: level === 1 ? '15px' : level === 2 ? '14px' : '13px',
+        color: level <= 2 ? 'var(--color-navy)' : 'var(--color-text)',
+        background: bg,
+        paddingLeft: `${(level - 1) * 20 + 8}px`, // Adjusted indentation for clearer hierarchy
+        borderTop: level === 1 ? '1px solid var(--color-border)' : 'none',
+        whiteSpace: 'pre',
+        opacity: opacity,
+        cursor: opacity < 1 ? 'not-allowed' : 'default',
+      }
+    },
+  }
+
+  // Year value columns — generated dynamically
+  const yearCols = useMemo(() =>
+    years.map((year) => ({
+      field: String(year),
+      headerName: String(year),
+      width: 150,
+      headerClass: 'ag-header-cell-center',
+      editable: isRowEditable,
+      cellEditor: 'agTextCellEditor',
+      valueFormatter: (p) => {
+        // If row is for a different specific industry, render as a dash
+        if (projectIndustry !== 'general' && p.data?.industry && p.data?.industry !== 'general' && p.data?.industry !== projectIndustry) {
+          return '—'
+        }
+        
+        if (p.value == null || p.value === '') return '—'
+        const num = Number(p.value)
+        const formatted = num.toLocaleString('en-US', { maximumFractionDigits: 0 })
+        if (p.data?.key === 'balanceCheck') {
+          if (num > 0.5) return `+${formatted}`
+          if (num < -0.5) return formatted // already has negative sign
+          return '0' // exactly balanced
+        }
+        return formatted
+      },
+      valueParser: (p) => {
+        let cleaned = String(p.newValue).replace(/,/g, '').trim()
+        if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
+          cleaned = '-' + cleaned.slice(1, -1)
+        }
+        const num = Number(cleaned)
+        return isNaN(num) ? 0 : num
+      },
+      cellStyle: (params) => {
+        let level = params.data?.level || (params.data?.is_subtotal ? 1 : params.data?.is_header ? 2 : 3)
+        if (params.data?.is_subtotal) level = 1
+        else if (params.data?.is_header && level > 2) level = 2
+        
+        let bg = undefined
+        if (params.data?.is_header || params.data?.is_subtotal) bg = '#f5f5f5'
+        
+        let txtColor = undefined;
+        if (params.data?.key === 'balanceCheck') {
+            if (params.value > 0.5) txtColor = '#DC2626'; // Red for positive imbalance
+            else if (params.value < -0.5) txtColor = '#DC2626'; // Red for negative imbalance
+            else txtColor = '#10B981'; // Green for perfectly balanced (0)
+        } else if (params.value < 0) {
+            txtColor = 'var(--color-error)';
+        }
+        
+        let opacity = 1
+        if (projectIndustry !== 'general' && params.data?.industry && params.data?.industry !== 'general' && params.data?.industry !== projectIndustry) {
+          opacity = 0.35 // Fade out rows that don't apply to the selected industry
+          txtColor = 'var(--color-text-muted)' // Override any red/green colors if disabled
+        }
+        
+        return {
+          textAlign: 'center',
+          color: txtColor,
+          fontWeight: level === 1 ? '700' : level === 2 ? '600' : '400',
+          fontSize: level === 1 ? '15px' : level === 2 ? '14px' : '13px',
+          background: bg,
+          borderTop: level === 1 ? '1px solid var(--color-border)' : 'none',
+          opacity: opacity,
+          cursor: opacity < 1 ? 'not-allowed' : (params.data?.is_header || params.data?.is_subtotal ? 'default' : 'text'),
+        }
+      },
+    })),
+  [years, isRowEditable, onCellEdit])
+
+  // Flatten rows for AG Grid (values dict → flat object)
+  const rowData = useMemo(() =>
+    rows.map((row) => ({
+      row_id: row.row_id,
+      label: row.label_raw || row.label,
+      section: row.section,
+      level: row.level,
+      is_subtotal: row.is_subtotal,
+      is_header: row.is_header,
+      industry: row.industry || 'general',
+      key: row.key,
+      ...row.values,
+    })),
+  [rows])
+
+  return (
+    <div className="ag-theme-quartz" style={{ width: '100%', marginBottom: '20px' }}>
+      <AgGridReact
+        ref={gridRef}
+        rowData={rowData}
+        columnDefs={[labelCol, ...yearCols]}
+        defaultColDef={{ resizable: true, sortable: false }}
+        suppressMovableColumns
+        domLayout="autoHeight"
+        rowGroupPanelShow="never"
+        getRowId={(p) => p.data.row_id}
+        singleClickEdit={true}
+        stopEditingWhenCellsLoseFocus={true}
+        onCellValueChanged={(e) => {
+          if (onCellEdit && e.colDef.field !== 'label') {
+            onCellEdit(e.data.row_id, e.colDef.field, e.newValue)
+          }
+          if (onCellEditingStopped) {
+            onCellEditingStopped(e)
+          }
+        }}
+      />
+    </div>
+  )
+}
+
