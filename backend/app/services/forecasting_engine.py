@@ -36,17 +36,19 @@ def _get_compat(lookup: dict[str, dict[str, float]], key: str, year: str) -> flo
     
     # Fallback mappings for the new Manufacturing Template keys
     compat = {
-        "costOfRevenue": ["totalCostOfRevenue", "manufacturingCostsHeader"],
+        "costOfRevenue": ["costOfRevenueDisplayHeader", "totalCostOfRevenue", "manufacturingCostsHeader"],
+        "totalRevenue": ["revenueHeader"],
+        "sgaExpense": ["generalAdminHeader", "sellingExpensesHeader"],
+        "rdExpense": ["researchDevHeader", "researchAndDevelopment"],
         "depreciationCogs": ["depreciationCostOfSales"],
-        "propertyPlantEquipment": ["grossPPE", "netPPE"], "accountsReceivable": ["tradeAccountsReceivable", "netReceivables"], "stBorrowings": ["stBorrowingsData"], "longTermDebt": ["ltDebtData"], "capitalExpenditure": ["capitalExpenditures"], "currentIncomeTax": ["incomeTaxExpense"],
+        "propertyPlantEquipment": ["grossPPE", "netPPE"], 
         "accountsReceivable": ["netReceivables", "tradeAccountsReceivable"],
         "stBorrowings": ["stBorrowingsData"],
         "currentDebt": ["currentPortionLTDebt"],
         "longTermDebt": ["ltDebtData"],
         "incomeBeforeTax": ["earningsBeforeTax"],
-        "interestExpense": ["financialExpense"],
-        "interestExpenseNet": ["financialExpense"],
-        "currentIncomeTax": ["incomeTaxExpense"],
+        "financeCosts": ["financeCosts", "interestExpense", "financialExpense"],
+        "currentIncomeTax": ["incomeTaxExpense", "currentIncomeTax"],
         "basicSharesOutstanding": ["weightedAvgBasicShares"],
         "basicAverageShares": ["weightedAvgBasicShares"],
         "dilutedAverageShares": ["weightedAvgDilutedShares"],
@@ -252,8 +254,8 @@ def extract_base_data(
         operating_income=operating_income,
         net_income=isg("netIncome"),
         depreciation=depreciation,
-        interest_expense=abs(isg("financeCosts") + isg("financeCosts")),
-        tax_expense=abs(isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses")),
+        interest_expense=abs(isg("financeCosts") + isg("interestExpense") + isg("financialExpense")),
+        tax_expense=abs(isg("incomeTaxExpense") + isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses")),
         ebitda=ebitda,
 
         total_assets=bsg("totalAssets"),
@@ -314,8 +316,8 @@ def calculate_historical_assumptions(
         except ValueError:
             pass # if not integers, proceed anyway (e.g. FY21, FY22)
             
-        rev_curr = is_l.get("totalRevenue", {}).get(y_curr_str, 0.0) or 0.0
-        rev_prev = is_l.get("totalRevenue", {}).get(y_prev_str, 0.0) or 0.0
+        rev_curr = _get_compat(is_l, "totalRevenue", y_curr_str)
+        rev_prev = _get_compat(is_l, "totalRevenue", y_prev_str)
         if rev_prev > 0:
             revenue_growths.append(((rev_curr - rev_prev) / rev_prev) * 100)
     avg_rev_growth = (sum(revenue_growths) / len(revenue_growths)) if revenue_growths else 10.0
@@ -323,8 +325,8 @@ def calculate_historical_assumptions(
     # ── CapEx as % of revenue ────────────────────────────────
     capex_pcts = []
     for y in years:
-        rev = is_l.get("totalRevenue", {}).get(y, 0.0) or 0.0
-        capex = abs(cf_l.get("capitalExpenditure", {}).get(y, 0.0) or 0.0)
+        rev = _get_compat(is_l, "totalRevenue", y)
+        capex = abs(_get_compat(cf_l, "capitalExpenditure", y))
         if rev > 0:
             capex_pcts.append((capex / rev) * 100)
     avg_capex_pct = (sum(capex_pcts) / len(capex_pcts)) if capex_pcts else 3.0
@@ -332,8 +334,8 @@ def calculate_historical_assumptions(
     # ── Effective tax rate ───────────────────────────────────
     tax_rates = []
     for y in years:
-        ebt = is_l.get("incomeBeforeTax", {}).get(y, 0.0) or 0.0
-        tax = is_l.get("incomeTaxExpense", {}).get(y, 0.0) or 0.0
+        ebt = _get_compat(is_l, "incomeBeforeTax", y)
+        tax = _get_compat(is_l, "incomeTaxExpense", y)
         if ebt > 0:
             tax_rates.append((tax / ebt) * 100)
     avg_tax_rate = (sum(tax_rates) / len(tax_rates)) if tax_rates else 25.0
@@ -341,8 +343,8 @@ def calculate_historical_assumptions(
     # ── Depreciation as % of revenue ────────────────────────
     dep_pcts = []
     for y in years:
-        rev = is_l.get("totalRevenue", {}).get(y, 0.0) or 0.0
-        dep = abs(is_l.get("depreciation", {}).get(y, 0.0) or 0.0)
+        rev = _get_compat(is_l, "totalRevenue", y)
+        dep = abs(_get_compat(is_l, "depreciation", y))
         if rev > 0:
             dep_pcts.append((dep / rev) * 100)
     avg_dep_pct = (sum(dep_pcts) / len(dep_pcts)) if dep_pcts else 8.0
@@ -350,7 +352,7 @@ def calculate_historical_assumptions(
     # ── DSO (Days Sales Outstanding) ────────────────────────
     dso_vals = []
     for y in years:
-        rev = is_l.get("totalRevenue", {}).get(y, 0.0) or 0.0
+        rev = _get_compat(is_l, "totalRevenue", y)
         ar  = bs_l.get("accountsReceivable", {}).get(y, 0.0) or 0.0
         if rev > 0 and ar > 0:
             dso_vals.append((ar / rev) * 365)
@@ -723,16 +725,24 @@ def run_forecast(
             
             is_overrides = {
                 "totalRevenue": f.revenue,
+                "revenueHeader": f.revenue,
                 "totalCostOfRevenue": f.cost_of_revenue,
+                "costOfRevenueDisplayHeader": f.cost_of_revenue,
                 "grossProfit": f.gross_profit,
-                "totalGeneralAdminExpense": -f.sga_expenses,
-                "researchAndDevelopment": -f.rd_expenses,
-                "depreciationOpex": -f.depreciation,
+                "totalGeneralAdminExpense": f.sga_expenses,
+                "generalAdminHeader": f.sga_expenses,
+                "researchDevHeader": f.rd_expenses,
+                "researchAndDevelopment": f.rd_expenses,
+                "depreciationOpex": f.depreciation,
                 "operatingIncome": f.operating_income,
-                "financeCosts": -f.interest_expense,
+                "financeCosts": f.interest_expense,
                 "incomeBeforeTax": f.income_before_tax,
-                "currentIncomeTax": -f.tax_expense,
-                "netIncome": f.net_income
+                "earningsBeforeTax": f.income_before_tax,
+                "incomeTaxExpense": f.tax_expense,
+                "currentIncomeTax": f.tax_expense,
+                "netIncome": f.net_income,
+                "netIncomeAttributableToParent": f.net_income,
+                "totalComprehensiveIncome": f.net_income
             }
             d["full_income_statement"] = _project_statement(income_statement, rev_mult, base_year_str, f, is_overrides)
             
@@ -740,29 +750,42 @@ def run_forecast(
                 "cashAndEquivalents": f.cash,
                 "netReceivables": f.accounts_receivable,
                 "totalInventory": f.inventory,
-                "totalCurrentAssets": f.total_current_assets,
-                "netPPE": f.ppe,
-                "accumulatedDepreciation": -f.accumulated_depreciation,
+                "totalCurrentAssets": f.current_assets,
+                "netPPE": f.ppe - f.accumulated_depreciation,
+                "grossPPE": f.ppe,
+                "netIntangibleAssets": f.intangible_assets,
+                "grossIntangibleAssets": f.intangible_assets,
+                "totalNonCurrentAssets": f.non_current_assets,
                 "totalAssets": f.total_assets,
-                "accountsPayable": f.accounts_payable,
-                "totalCurrentLiabilities": f.total_current_liabilities,
+                "stBorrowingsData": f.short_term_debt,
+                "currentPortionLTDebt": f.current_portion_lt_debt,
+                "totalCurrentLiabilities": f.current_liabilities,
                 "ltDebtData": f.long_term_debt,
+                "totalNonCurrentLiabilities": f.non_current_liabilities,
                 "totalLiabilities": f.total_liabilities,
-                "retainedEarnings": f.retained_earnings,
-                "totalEquity": f.total_equity
+                "totalEquity": f.total_equity,
+                "totalLiabilitiesAndEquity": f.total_liabilities_and_equity,
+                "balanceCheck": f.total_assets - f.total_liabilities_and_equity
             }
             d["full_balance_sheet"] = _project_statement(balance_sheet, ast_mult, base_year_str, f, bs_overrides)
             
             cf_overrides = {
                 "netIncome": f.net_income,
-                "depreciationOpex": f.depreciation,
-                "depreciationCostOfSales": 0.0,
+                "cfNetIncomeData": f.net_income,
+                "depreciationAmortization": f.depreciation,
+                "totalNonCashAdjustments": f.depreciation,
+                "changeInWorkingCapital": f.change_in_working_capital,
+                "totalWorkingCapitalAdjustments": f.change_in_working_capital,
                 "operatingCashFlow": f.operating_cash_flow,
-                "capitalExpenditures": -f.capex,
+                "capitalExpenditures": -f.capital_expenditures,
                 "investingCashFlow": f.investing_cash_flow,
+                "cfStBorrowings": f.change_in_short_term_debt,
+                "cfLtDebtIssued": f.change_in_long_term_debt if f.change_in_long_term_debt > 0 else 0,
+                "cfDebtRepaid": f.change_in_long_term_debt if f.change_in_long_term_debt < 0 else 0,
                 "cfDividendsPaid": -f.dividends_paid,
                 "financingCashFlow": f.financing_cash_flow,
-                "freeCashFlow": f.free_cash_flow
+                "netIncreaseDecreaseCash": f.net_change_in_cash,
+                "cfEndingCashBalance": f.cash
             }
             d["full_cash_flow_statement"] = _project_statement(cash_flow, rev_mult, base_year_str, f, cf_overrides)
             

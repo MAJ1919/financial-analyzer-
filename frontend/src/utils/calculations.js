@@ -60,7 +60,7 @@ export function recalculateTotals(statementType, rows) {
     if (statementType === 'income_statement') {
       // --- Revenue ---
       const totalRev = getVal('productRevenue', year) + getVal('serviceRevenue', year) + getVal('otherRevenue', year);
-      setVal('revenueHeader', year, totalRev, { label: 'Revenue', section: 'Revenue', is_header: true });
+      setVal('totalRevenue', year, totalRev, { label: 'Total Revenue', section: 'Revenue', is_subtotal: true });
 
       // --- Cost of Revenue ---
       const cogs = getVal('rawMaterialsExpense', year) + getVal('directLabor', year) + getVal('manufacturingOverhead', year) + getVal('productionSupplies', year) + getVal('inventoryWriteDown', year);
@@ -70,7 +70,7 @@ export function recalculateTotals(statementType, rows) {
       setVal('manufacturingCostsHeader', year, cogs, { label: 'Manufacturing', section: 'Cost of Revenue', is_header: true });
       setVal('servicesCostsHeader', year, services, { label: 'Services', section: 'Cost of Revenue', is_header: true });
       setVal('sharedCostsHeader', year, shared, { label: 'Shared', section: 'Cost of Revenue', is_header: true });
-      setVal('costOfRevenueDisplayHeader', year, totalCOR, { label: 'Cost of Revenue', section: 'Cost of Revenue', is_header: true });
+      setVal('totalCostOfRevenue', year, totalCOR, { label: 'Total Cost of Revenue', section: 'Cost of Revenue', is_subtotal: true });
 
       // --- Gross Profit ---
       const grossProfit = totalRev - totalCOR;
@@ -78,19 +78,19 @@ export function recalculateTotals(statementType, rows) {
 
       // --- Operating Expenses ---
       const totalSelling = getVal('sellingExpense', year) + getVal('advertisingAndMarketing', year) + getVal('distributionExpense', year) + getVal('otherSellingExpense', year);
-      setVal('sellingExpensesHeader', year, totalSelling, { label: 'Selling Expenses', section: 'Operating Expenses', is_header: true });
+      setVal('totalSellingExpense', year, totalSelling, { label: 'Total Selling Expense', section: 'Operating Expenses', is_subtotal: true });
 
       const totalGA = getVal('generalAdminExpense', year) + getVal('professionalFees', year) + getVal('informationTechnologyExpense', year) + getVal('otherAdministrativeExpense', year);
-      setVal('generalAdminHeader', year, totalGA, { label: 'General & Administrative', section: 'Operating Expenses', is_header: true });
+      setVal('totalGeneralAdminExpense', year, totalGA, { label: 'Total General & Administrative', section: 'Operating Expenses', is_subtotal: true });
 
       const totalOtherOpEx = getVal('depreciationOpex', year) + getVal('amortizationOpex', year) + getVal('shareBasedCompensation', year) + getVal('impairmentLosses', year) + getVal('restructuringCharges', year) + getVal('otherOperatingExpense', year);
-      setVal('otherOperatingExpensesHeader', year, totalOtherOpEx, { label: 'Other Operating Expenses', section: 'Operating Expenses', is_header: true });
+      setVal('totalOtherOperatingExpense', year, totalOtherOpEx, { label: 'Total Other Operating Expenses', section: 'Operating Expenses', is_subtotal: true });
 
       const researchDev = getVal('researchDevExpense', year);
       setVal('researchDevHeader', year, researchDev, { label: 'Research & Development', section: 'Operating Expenses', is_header: true });
 
       const totalOpEx = totalSelling + totalGA + researchDev + totalOtherOpEx;
-      setVal('operatingExpensesHeader', year, totalOpEx, { label: 'Operating Expenses', section: 'Operating Expenses', is_header: true });
+      setVal('totalOperatingExpenses', year, totalOpEx, { label: 'Total Operating Expenses', section: 'Operating Expenses', is_subtotal: true });
 
       // --- Operating Income ---
       const opIncome = grossProfit - totalOpEx;
@@ -115,7 +115,10 @@ export function recalculateTotals(statementType, rows) {
       setVal('netIncomeAttributableToParent', year, netIncParent, { label: 'Net Income Attributable to Parent', section: 'Net Income', is_subtotal: true, level: 2 });
 
       // --- Supplemental Metrics ---
-      setVal('ebitda', year, opIncome + getVal('depreciationOpex', year) + getVal('amortizationOpex', year) + getVal('depreciationCostOfSales', year), { label: 'EBITDA', section: 'Supplemental' });
+      setVal('ebitda', year, opIncome + getVal('depreciationOpex', year) + getVal('amortizationOpex', year) + getVal('depreciationCostOfSales', year), { label: 'EBITDA', section: 'Supplemental', is_subtotal: true });
+      
+      const compInc = netInc + getVal('otherComprehensiveIncome', year);
+      setVal('totalComprehensiveIncome', year, compInc, { label: 'Total Comprehensive Income', section: 'Comprehensive Income', is_subtotal: true, level: 2 });
     }
     
     if (statementType === 'balance_sheet') {
@@ -123,35 +126,35 @@ export function recalculateTotals(statementType, rows) {
       
       // --- Current Assets ---
       const netRec = getVal('tradeAccountsReceivable', year) + getVal('notesReceivable', year) + getVal('otherReceivables', year) + getVal('contractAssets', year) + getVal('dueFromRelatedParties', year) - getVal('allowanceForDoubtfulAccounts', year);
-      setVal('receivablesHeader', year, netRec, { label: 'Receivables', section: 'Current Assets', is_header: true });
+      setVal('netReceivables', year, netRec, { label: 'Net Receivables', section: 'Current Assets', is_subtotal: true });
 
       const totalInv = getVal('rawMaterials', year) + getVal('workInProcess', year) + getVal('finishedGoods', year) + getVal('sparePartsAndConsumables', year) + getVal('otherInventory', year);
-      setVal('inventoryHeader', year, totalInv, { label: 'Inventory', section: 'Current Assets', is_header: true });
+      setVal('totalInventory', year, totalInv, { label: 'Total Inventory', section: 'Current Assets', is_subtotal: true });
 
       const currentAssets = getVal('cashAndEquivalents', year) + getVal('restrictedCash', year) + getVal('shortTermInvestments', year) + getVal('prepaidExpenses', year) + getVal('vatRecoverable', year) + getVal('advancesToSuppliers', year) + netRec + totalInv + getVal('otherCurrentAssetsData', year);
-      setVal('currentAssetsHeader', year, currentAssets, { label: 'Current Assets', section: 'Current Assets', is_header: true });
+      setVal('totalCurrentAssets', year, currentAssets, { label: 'Total Current Assets', section: 'Current Assets', is_subtotal: true });
       
       // --- Non-Current Assets ---
       const grossPPE = getVal('land', year) + getVal('buildings', year) + getVal('machineryAndEquipment', year) + getVal('capitalWorkInProgress', year) + getVal('furnitureAndFixtures', year) + getVal('vehicles', year) + getVal('rightOfUseAssets', year) + getVal('otherPPE', year);
       setVal('grossPPE', year, grossPPE, { label: 'Gross PPE', section: 'Non-Current Assets', is_subtotal: true, level: 2 });
       const netPPE = grossPPE - getVal('accumulatedDepreciation', year);
-      setVal('ppeHeader', year, netPPE, { label: 'Property, Plant & Equipment', section: 'Non-Current Assets', is_header: true });
+      setVal('netPPE', year, netPPE, { label: 'Net Property, Plant & Equipment', section: 'Non-Current Assets', is_subtotal: true });
 
       const grossIntangibles = getVal('goodwill', year) + getVal('software', year) + getVal('otherIntangibleAssets', year);
       setVal('grossIntangibleAssets', year, grossIntangibles, { label: 'Gross Intangible Assets', section: 'Non-Current Assets', is_subtotal: true, level: 2 });
       const netIntangibleAssets = grossIntangibles - getVal('accumulatedAmortization', year);
-      setVal('intangibleAssetsHeader', year, netIntangibleAssets, { label: 'Intangible Assets', section: 'Non-Current Assets', is_header: true });
+      setVal('netIntangibleAssets', year, netIntangibleAssets, { label: 'Net Intangible Assets', section: 'Non-Current Assets', is_subtotal: true });
 
       const investments = getVal('equityInvestments', year) + getVal('debtInvestments', year) + getVal('investmentsInAssociates', year) + getVal('otherInvestments', year) + getVal('investmentProperty', year);
       setVal('investmentsHeader', year, investments, { label: 'Investments', section: 'Non-Current Assets', is_header: true });
       const otherNonCurrAssets = getVal('deferredTaxAssets', year) + getVal('longTermReceivables', year) + getVal('otherNonCurrentAssetsData', year);
 
       const nonCurrentAssets = netPPE + netIntangibleAssets + investments + otherNonCurrAssets;
-      setVal('nonCurrentAssetsHeader', year, nonCurrentAssets, { label: 'Non-Current Assets', section: 'Non-Current Assets', is_header: true });
+      setVal('totalNonCurrentAssets', year, nonCurrentAssets, { label: 'Total Non-Current Assets', section: 'Non-Current Assets', is_subtotal: true });
       
       // --- Total Assets ---
       const totalAssets = currentAssets + nonCurrentAssets;
-      setVal('assetsHeader', year, totalAssets, { label: 'Assets', section: 'Total Assets', is_header: true });
+      setVal('totalAssets', year, totalAssets, { label: 'Total Assets', section: 'Total Assets', is_subtotal: true });
 
       // --- Current Liabilities ---
       const tradePayables = getVal('accountsPayable', year) + getVal('notesPayable', year) + getVal('otherPayables', year) + getVal('dueToRelatedParties', year);
@@ -162,21 +165,21 @@ export function recalculateTotals(statementType, rows) {
       const otherCurrLiab = getVal('deferredRevenue', year) + getVal('contractLiabilities', year) + getVal('incomeTaxPayable', year) + getVal('vatPayable', year) + getVal('zakatPayable', year) + getVal('otherCurrentLiabilitiesData', year);
 
       const totalCurrentLiab = tradePayables + accruedLiab + stDebt + otherCurrLiab;
-      setVal('currentLiabilitiesHeader', year, totalCurrentLiab, { label: 'Current Liabilities', section: 'Current Liabilities', is_header: true });
+      setVal('totalCurrentLiabilities', year, totalCurrentLiab, { label: 'Total Current Liabilities', section: 'Current Liabilities', is_subtotal: true });
       
       // --- Non-Current Liabilities ---
       const ltDebt = getVal('ltDebtData', year) + getVal('leaseLiabilities', year) + getVal('otherLongTermBorrowings', year);
       const otherLTLiab = getVal('deferredTaxLiabilities', year) + getVal('employeeEndOfServiceBenefits', year) + getVal('assetRetirementObligations', year) + getVal('otherLTLiabilitiesData', year);
 
       const totalNonCurrentLiab = ltDebt + otherLTLiab;
-      setVal('nonCurrentLiabilitiesHeader', year, totalNonCurrentLiab, { label: 'Non-Current Liabilities', section: 'Non-Current Liabilities', is_header: true });
+      setVal('totalNonCurrentLiabilities', year, totalNonCurrentLiab, { label: 'Total Non-Current Liabilities', section: 'Non-Current Liabilities', is_subtotal: true });
       
       // --- Totals ---
       const totalLiab = totalCurrentLiab + totalNonCurrentLiab;
-      setVal('liabilitiesHeader', year, totalLiab, { label: 'Liabilities', section: 'Total Liabilities & Equity', is_header: true });
+      setVal('totalLiabilities', year, totalLiab, { label: 'Total Liabilities', section: 'Total Liabilities & Equity', is_subtotal: true });
       
       const equity = getVal('shareCapital', year) + getVal('preferredStock', year) + getVal('additionalPaidInCapital', year) - getVal('treasuryStock', year) + getVal('retainedEarnings', year) + getVal('statutoryReserve', year) + getVal('accumulatedOCI', year) + getVal('otherReserves', year) + getVal('nonControllingInterest', year);
-      setVal('equityHeader', year, equity, { label: 'Equity', section: 'Total Liabilities & Equity', is_header: true });
+      setVal('totalEquity', year, equity, { label: 'Total Equity', section: 'Total Liabilities & Equity', is_subtotal: true });
       
       const totalLiabAndEq = totalLiab + equity;
       setVal('totalLiabilitiesAndEquity', year, totalLiabAndEq, { label: 'Total Liabilities and Equity', section: 'Total Liabilities & Equity', is_subtotal: true, level: 0 });
@@ -202,15 +205,15 @@ export function recalculateTotals(statementType, rows) {
 
       // --- Operating Cash Flow ---
       const opCash = getVal('cfNetIncomeData', year) + totalNonCash + totalWCChange + getVal('interestPaid', year) + getVal('interestReceived', year) + getVal('incomeTaxesPaid', year) + getVal('dividendsReceived', year) + getVal('otherOperatingCashFlow', year);
-      setVal('operatingActivitiesHeader', year, opCash, { label: 'Operating Activities', section: 'Operating Activities', is_header: true });
+      setVal('operatingCashFlow', year, opCash, { label: 'Operating Cash Flow', section: 'Operating Activities', is_subtotal: true });
       
       // --- Investing Cash Flow ---
       const invCash = -getVal('capitalExpenditures', year) + getVal('proceedsSalePPE', year) - getVal('purchaseInvestments', year) + getVal('saleInvestments', year) - getVal('investmentInAssociates', year) - getVal('purchaseIntangibleAssets', year) + getVal('businessAcquisitionsDisposals', year) + getVal('otherInvestingCashFlow', year);
-      setVal('investingActivitiesHeader', year, invCash, { label: 'Investing Activities', section: 'Investing Activities', is_header: true });
+      setVal('investingCashFlow', year, invCash, { label: 'Investing Cash Flow', section: 'Investing Activities', is_subtotal: true });
       
       // --- Financing Cash Flow ---
       const finCash = getVal('cfShortTermBorrowings', year) + getVal('cfLongTermBorrowings', year) - getVal('leaseLiabilityPayments', year) + getVal('issuanceShareCapital', year) - getVal('shareRepurchases', year) + getVal('cfAdditionalPaidInCapital', year) - getVal('cfDividendsPaid', year) + getVal('relatedPartyBorrowings', year) + getVal('minorityInterestTransactions', year) + getVal('otherFinancingCashFlow', year);
-      setVal('financingActivitiesHeader', year, finCash, { label: 'Financing Activities', section: 'Financing Activities', is_header: true });
+      setVal('financingCashFlow', year, finCash, { label: 'Financing Cash Flow', section: 'Financing Activities', is_subtotal: true });
       
       // --- Reconciliation ---
       const netChange = opCash + invCash + finCash + getVal('cfEffectOfExchangeRates', year);

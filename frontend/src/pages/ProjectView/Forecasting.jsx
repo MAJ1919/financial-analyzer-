@@ -293,6 +293,9 @@ export default function Forecasting() {
                           const fw = level === 1 ? 700 : level === 2 ? 600 : 400;
                           const fs = level === 1 ? '15px' : level === 2 ? '14px' : '13px';
                           
+                          // Hide ALL headers that are not subtotals to keep them as clean labels
+                          const hideValue = (row.is_header && !row.is_subtotal);
+                          
                           return (
                             <tr key={row.key} style={{ 
                               background: bg,
@@ -329,7 +332,7 @@ export default function Forecasting() {
                                     fontSize: fs,
                                     color: txtColor,
                                   }}>
-                                    {row.is_header && !row.is_subtotal ? '' : fmt(val, currency)}
+                                    {hideValue ? '' : fmt(val, currency)}
                                   </td>
                                 )
                               })}
@@ -369,16 +372,19 @@ const styles = {
     fontSize: 13,
   },
   th: {
-    padding: '10px 14px',
+    padding: '12px 16px',
     background: 'var(--color-bg)',
-    fontWeight: 700,
-    fontSize: 12,
-    borderBottom: '2px solid var(--color-border)',
     textAlign: 'right',
+    borderBottom: '2px solid var(--color-border)',
+    color: 'var(--color-text-muted)',
+    fontWeight: 600,
+    fontSize: '13px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
     whiteSpace: 'nowrap',
   },
   td: {
-    padding: '8px 14px',
+    padding: '10px 16px',
     borderBottom: '1px solid var(--color-border)',
     textAlign: 'right',
     whiteSpace: 'nowrap',

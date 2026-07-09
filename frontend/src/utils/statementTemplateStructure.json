@@ -1067,7 +1067,7 @@
       "industry": "general"
     },
     {
-      "label": "Operating Income",
+      "label": "Operating Income (EBIT)",
       "key": "operatingIncome",
       "section": "Operating",
       "is_subtotal": true,
@@ -1220,8 +1220,8 @@
       "label": "EBITDA",
       "key": "ebitda",
       "section": "Metrics",
-      "is_subtotal": false,
-      "level": 3,
+      "is_subtotal": true,
+      "level": 1,
       "industry": "general"
     },
     {

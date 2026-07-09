@@ -96,6 +96,11 @@ export default function FinancialGrid({
           return '—'
         }
         
+        // Hide values for ALL headers that are not subtotals to keep them as clean labels
+        if (p.data?.is_header && !p.data?.is_subtotal) {
+          return ''
+        }
+        
         if (p.value == null || p.value === '') return '—'
         const num = Number(p.value)
         const formatted = num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
