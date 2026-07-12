@@ -3,26 +3,9 @@ import { useParams, useOutletContext } from 'react-router-dom'
 import Header from '../../components/layout/Header'
 
 import { analysisApi } from '../../services/api'
+import { fmtRatioValue, fmtNumber } from '../../utils/formatters'
 
 const TABS = ['Financial Ratios', 'Horizontal Analysis']
-
-function formatRatioValue(value, format) {
-  if (value == null) return '-';
-  const num = Number(value);
-  if (isNaN(num)) return '-';
-  
-  switch (format) {
-    case 'percent':
-      return (num * 100).toFixed(2) + '%';
-    case 'days':
-      return num.toFixed(2) + ' d';
-    case 'ratio':
-      return num.toFixed(2) + 'x';
-    case 'currency':
-    default:
-      return num.toFixed(2);
-  }
-}
 
 export default function Analysis() {
   const { projectId } = useParams()
@@ -98,7 +81,7 @@ export default function Analysis() {
                               const val = values[year]
                               return (
                                 <td key={year} style={{ textAlign: 'center', fontSize: '13px' }}>
-                                  {formatRatioValue(val, values.format)}
+                                  {fmtRatioValue(val, values.format)}
                                 </td>
                               )
                             })}
@@ -195,15 +178,11 @@ export default function Analysis() {
                                 <td style={labelStyle}>{displayLabel}</td>
                                 
                                 {/* Base Year Values */}
-                                {baseYears.map(year => {
-                                  const val = rowMeta.values?.[year]
-                                  const displayVal = (val != null && val !== '') ? Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '—'
-                                  return (
-                                    <td key={year} style={{ ...valStyle, textAlign: 'right' }}>
-                                      {displayVal}
-                                    </td>
-                                  )
-                                })}
+                                {baseYears.map(year => (
+                                  <td key={year} style={{ ...valStyle, textAlign: 'right' }}>
+                                    {fmtNumber(rowMeta.values?.[year])}
+                                  </td>
+                                ))}
 
                                 {/* YoY Columns */}
                                 {globalColumns.map((col) => {

@@ -3,6 +3,7 @@ import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-quartz.css'
 import { useMemo, useRef, useCallback, useState } from 'react'
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
+import { fmtNumber } from '../../utils/formatters'
 
 // Register AG Grid modules (required in v32+)
 ModuleRegistry.registerModules([AllCommunityModule])
@@ -105,7 +106,7 @@ export default function FinancialGrid({
         }
         
         const num = Number(p.value)
-        const formatted = num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        const formatted = fmtNumber(num, decimals)
         if (p.data?.key === 'balanceCheck') {
           if (num > 0.5)  return `+${formatted}` // assets surplus
           if (num < -0.5) return formatted        // E+L surplus (negative sign already present)

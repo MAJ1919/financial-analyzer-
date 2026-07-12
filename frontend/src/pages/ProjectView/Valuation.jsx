@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
 import Header from '../../components/layout/Header'
 import { projectsApi, analysisApi } from '../../services/api'
+import { fmtCurrency, fmtPercent } from '../../utils/formatters'
 
 // ============================================================
 // DCF Formula Engine — port of dcfValuation.ts DCFValuationEngine
@@ -128,22 +129,6 @@ function buildSensitivityGrid(baseWACC, baseTGR, baseMultiple, params) {
     })
   )
   return { waccRange, tgrRange, grid, mode: 'perpetuity' }
-}
-
-function fmtCurrency(n, currency = 'SAR') {
-  if (n == null || !isFinite(n)) return '—'
-  const abs = Math.abs(n)
-  let formatted
-  if (abs >= 1e9)      formatted = `${(n / 1e9).toFixed(1)}B`
-  else if (abs >= 1e6) formatted = `${(n / 1e6).toFixed(1)}M`
-  else if (abs >= 1e3) formatted = `${(n / 1e3).toFixed(1)}K`
-  else                 formatted = n.toLocaleString('en-US', { maximumFractionDigits: 0 })
-  return `${formatted} ${currency}`
-}
-
-function fmtPct(n) {
-  if (n == null || !isFinite(n)) return '—'
-  return `${Number(n).toFixed(1)}%`
 }
 
 // ============================================================
@@ -498,7 +483,7 @@ export default function Valuation() {
                     ["EBITDA",         fmtCurrency(baseMetrics.ebitda, currency)],
                     ["Net Debt",       fmtCurrency(baseMetrics.net_debt, currency)],
                     ["Shares (M)",     sharesOutstanding || '—'],
-                    ["Historical WACC", fmtPct(baseMetrics.wacc?.historical_wacc)],
+                    ["Historical WACC", fmtPercent(baseMetrics.wacc?.historical_wacc)],
                   ].map(([label, val]) => (
                     <div key={label} style={styles.metricItem}>
                       <p className="text-muted" style={{ fontSize: 12 }}>{label}</p>

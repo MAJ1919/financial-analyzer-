@@ -3,6 +3,7 @@ import { useParams, useOutletContext } from 'react-router-dom'
 import Header from '../../components/layout/Header'
 import { analysisApi } from '../../services/api'
 import { recalculateTotals } from '../../utils/calculations'
+import { fmtNumber, fmtCurrency, fmtPercent } from '../../utils/formatters'
 
 // ── Core assumptions (user-facing form) ────────────────────────
 // Revenue growth is rendered separately (single-rate vs per-year modes).
@@ -74,13 +75,6 @@ const SCENARIO_CONFIG = {
 }
 
 // Dynamic rows will be fetched from project templates
-
-// ── Helpers ──────────────────────────────────────────────────────
-function fmt(n) {
-  if (n == null || !isFinite(n)) return '—'
-  return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
-}
-function fmtPct(n) { return n == null ? '—' : `${Number(n).toFixed(1)}%` }
 
 export default function Forecasting() {
   const { projectId } = useParams()
@@ -479,7 +473,7 @@ export default function Forecasting() {
                     fontSize: 12.5, color: '#92400E', lineHeight: 1.5,
                   }}>
                     ⚠ <strong>Base-year balance sheet does not reconcile:</strong>{' '}
-                    Assets − (Liabilities + Equity) = {fmt(results.base_imbalance)}.{' '}
+                    Assets − (Liabilities + Equity) = {fmtNumber(results.base_imbalance)}.{' '}
                     {results.balance_mode === 'faithful'
                       ? 'Faithful mode carries this imbalance through every forecast year (see Balance Check row).'
                       : 'Balanced mode absorbs this into the cash/revolver plug — the forecast will balance, but the source data should be corrected.'}
@@ -490,10 +484,10 @@ export default function Forecasting() {
                 {cumulative && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                     {[
-                      { label: 'Revenue CAGR', value: fmtPct(cumulative.revenue_cagr) },
-                      { label: 'Total FCF', value: fmt(cumulative.total_free_cash_flow, currency) },
-                      { label: 'Avg. Operating Margin', value: fmtPct(cumulative.avg_operating_margin) },
-                      { label: 'Avg. Net Margin', value: fmtPct(cumulative.avg_net_margin) },
+                      { label: 'Revenue CAGR', value: fmtPercent(cumulative.revenue_cagr) },
+                      { label: 'Total FCF', value: fmtCurrency(cumulative.total_free_cash_flow, currency) },
+                      { label: 'Avg. Operating Margin', value: fmtPercent(cumulative.avg_operating_margin) },
+                      { label: 'Avg. Net Margin', value: fmtPercent(cumulative.avg_net_margin) },
                     ].map(({ label, value }) => (
                       <div key={label} className="card" style={{ padding: 0 }}>
                         <div className="card-body">
@@ -595,7 +589,7 @@ export default function Forecasting() {
                                     fontSize: fs,
                                     color: txtColor,
                                   }}>
-                                    {hideValue ? '' : fmt(val)}
+                                    {hideValue ? '' : fmtNumber(val)}
                                   </td>
                                 )
                               })}
