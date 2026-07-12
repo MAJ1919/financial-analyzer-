@@ -48,7 +48,7 @@ export default function ProjectLayout() {
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: '1rem' }}>
         <h2 style={{ color: '#ff6b6b', margin: 0 }}>Project Load Error</h2>
         <p style={{ color: '#8b8a91', margin: 0 }}>{error}</p>
-        <button className="btn" onClick={() => navigate('/companies')}>Return to Dashboard</button>
+        <button className="btn" onClick={() => navigate('/')}>Return to Dashboard</button>
       </div>
     )
   }

@@ -267,7 +267,6 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
     const year = sortedYears[i];
     const prevYear = i > 0 ? sortedYears[i - 1] : null;
 
-    console.log(`📊 Deriving Cash Flow for ${year}, prevYear: ${prevYear}`);
 
     // --- Operating ---
     const netIncome = getIs('netIncome', year);
@@ -289,28 +288,24 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       const prevNetRec = getBs('netReceivables', prevYear) || (getBs('tradeAccountsReceivable', prevYear) + getBs('notesReceivable', prevYear) + getBs('otherReceivables', prevYear) - getBs('allowanceForDoubtfulAccounts', prevYear));
       const recChange = prevNetRec - currNetRec;
       setCfs('changeTradeAccountsReceivable', year, recChange);
-      console.log(`  Receivables: prev=${prevNetRec}, curr=${currNetRec}, change=${recChange}`);
 
       // Inventory
       const currInv = getBs('totalInventory', year) || (getBs('rawMaterials', year) + getBs('workInProcess', year) + getBs('finishedGoods', year) + getBs('otherInventory', year));
       const prevInv = getBs('totalInventory', prevYear) || (getBs('rawMaterials', prevYear) + getBs('workInProcess', prevYear) + getBs('finishedGoods', prevYear) + getBs('otherInventory', prevYear));
       const invChange = prevInv - currInv;
       setCfs('changeRawMaterials', year, invChange);
-      console.log(`  Inventory: prev=${prevInv}, curr=${currInv}, change=${invChange}`);
 
       // Payables
       const currAP = getBs('accountsPayable', year) + getBs('notesPayable', year) + getBs('otherPayables', year);
       const prevAP = getBs('accountsPayable', prevYear) + getBs('notesPayable', prevYear) + getBs('otherPayables', prevYear);
       const apChange = currAP - prevAP;
       setCfs('changeAccountsPayable', year, apChange);
-      console.log(`  Payables: prev=${prevAP}, curr=${currAP}, change=${apChange}`);
       
       // Accrued & Deferred Revenue
       const currAccrued = getBs('accruedExpenses', year) + getBs('accruedPayroll', year) + getBs('accruedInterest', year) + getBs('customerAdvances', year) + getBs('deferredRevenue', year) + getBs('contractLiabilities', year);
       const prevAccrued = getBs('accruedExpenses', prevYear) + getBs('accruedPayroll', prevYear) + getBs('accruedInterest', prevYear) + getBs('customerAdvances', prevYear) + getBs('deferredRevenue', prevYear) + getBs('contractLiabilities', prevYear);
       const accruedChange = currAccrued - prevAccrued;
       setCfs('changeAccruedExpenses', year, accruedChange);
-      console.log(`  Accrued: prev=${prevAccrued}, curr=${currAccrued}, change=${accruedChange}`);
 
 
       // EOSB
@@ -318,19 +313,16 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       const prevEosb = getBs('employeeEndOfServiceBenefits', prevYear);
       const eosbChange = currEosb - prevEosb;
       setCfs('changeEndOfServiceBenefits', year, eosbChange);
-      console.log(`  EOSB: prev=${prevEosb}, curr=${currEosb}, change=${eosbChange}`);
 
       // Total Working Capital
       const totalWC = recChange + invChange + apChange + accruedChange + eosbChange;
       setCfs('totalWorkingCapitalAdjustments', year, totalWC);
-      console.log(`  Total WC Change: ${totalWC}`);
 
       // --- Investing ---
       const currPpe = getBs('grossPPE', year);
       const prevPpe = getBs('grossPPE', prevYear);
       const capEx = -(currPpe - prevPpe);
       setCfs('capitalExpenditures', year, capEx);
-      console.log(`  CapEx: prevPPE=${prevPpe}, currPPE=${currPpe}, capEx=${capEx}`);
 
       // --- Financing ---
       const currStDebt = getBs('stBorrowingsData', year) + getBs('currentPortionLTDebt', year);
@@ -345,7 +337,6 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       const expectedDividends = netIncome - deltaRE;
       if (expectedDividends > 0) {
         setCfs('cfDividendsPaid', year, expectedDividends);
-        console.log(`  Dividends: netIncome=${netIncome}, deltaRE=${deltaRE}, dividends=${expectedDividends}`);
       }
       
       const currEq = getBs('shareCapital', year) + getBs('additionalPaidInCapital', year) - getBs('treasuryStock', year);
@@ -353,7 +344,6 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       setCfs('issuanceShareCapital', year, currEq - prevEq);
     } else {
       // For the first year, set WC and CapEx to 0
-      console.log(`  First year - setting derived values to 0`);
       setCfs('changeTradeAccountsReceivable', year, 0);
       setCfs('changeRawMaterials', year, 0);
       setCfs('changeAccountsPayable', year, 0);

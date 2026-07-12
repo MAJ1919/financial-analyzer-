@@ -39,8 +39,12 @@ export default function CompaniesLanding() {
 
   async function handleDelete(id) {
     if (!confirm('Delete this project? This cannot be undone.')) return
-    await projectsApi.delete(id)
-    setProjects((prev) => prev.filter((p) => p.id !== id))
+    try {
+      await projectsApi.delete(id)
+      setProjects((prev) => prev.filter((p) => p.id !== id))
+    } catch (e) {
+      setError(e.message)
+    }
   }
 
   return (

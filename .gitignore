@@ -32,3 +32,6 @@ npm-debug.log*
 
 # Test caches
 .pytest_cache/
+
+# Agent scratch directories
+.agents/
