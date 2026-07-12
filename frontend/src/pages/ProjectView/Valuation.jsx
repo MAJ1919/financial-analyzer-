@@ -80,19 +80,46 @@ function computeDCF({
 }
 
 /**
- * Generate sensitivity grid: WACC ±3% (0.5 steps) × TGR ±1.5% (0.25 steps)
- * Returns value per share for each cell.
+ * Build sensitivity grid.
+ * Perpetuity mode:  WACC (cols) × Terminal Growth Rate (rows)
+ * Exit multiple:    WACC (cols) × Exit Multiple (rows)
+ *
+ * Limits:
+ *  - WACC range: baseWACC ± 2% in 0.5% steps (always 9 columns, no hard clamp)
+ *  - TGR range:  baseTGR ± 1.5% in 0.25% steps, filtered to stay below WACC − 0.25%
+ *  - Exit range: baseMultiple ± 4× in 1× steps (always up to 9 rows)
  */
-function buildSensitivityGrid(baseWACC, baseTGR, params) {
+function buildSensitivityGrid(baseWACC, baseTGR, baseMultiple, params) {
+  // ── WACC axis (always 9 cols centred on baseWACC) ─────────────────
   const waccRange = []
-  for (let i = -6; i <= 6; i++) {
+  for (let i = -4; i <= 4; i++) {
     const v = Number((baseWACC + i * 0.5).toFixed(1))
-    if (v >= 3 && v <= 20) waccRange.push(v)
+    if (v > 0) waccRange.push(v)
   }
+
+  if (params.valuationMethod === 'multiple') {
+    // ── Exit Multiple mode: rows = exit multiple ───────────────────
+    const exitRange = []
+    for (let i = -4; i <= 4; i++) {
+      const v = Number((baseMultiple + i * 1).toFixed(1))
+      if (v > 0) exitRange.push(v)
+    }
+    const grid = exitRange.map(em =>
+      waccRange.map(w => {
+        const r = computeDCF({ ...params, wacc: w, exitMultiple: em })
+        return r?.valuePerShare ?? null
+      })
+    )
+    return { waccRange, tgrRange: exitRange, grid, mode: 'multiple' }
+  }
+
+  // ── Perpetuity mode: rows = TGR ────────────────────────────────
+  const minWACC = Math.min(...waccRange)
   const tgrRange = []
   for (let i = -6; i <= 6; i++) {
     const v = Number((baseTGR + i * 0.25).toFixed(2))
-    if (v >= 0.5 && v < baseWACC - 0.5) tgrRange.push(v)
+    // TGR must be < WACC − 0.25% to keep Gordon Growth valid; allow negative TGR
+    if (v < minWACC - 0.25) tgrRange.push(v)
   }
   const grid = tgrRange.map(tgr =>
     waccRange.map(w => {
@@ -100,7 +127,7 @@ function buildSensitivityGrid(baseWACC, baseTGR, params) {
       return r?.valuePerShare ?? null
     })
   )
-  return { waccRange, tgrRange, grid }
+  return { waccRange, tgrRange, grid, mode: 'perpetuity' }
 }
 
 function fmtCurrency(n, currency = 'SAR') {
@@ -221,7 +248,7 @@ export default function Valuation() {
   const result = computeDCF(dcfParams)
 
   // ── Sensitivity grid (WACC ±3% × TGR ±1.5%) ─────────────
-  const sensitivity = buildSensitivityGrid(wacc, terminalGrowthRate, dcfParams)
+  const sensitivity = buildSensitivityGrid(wacc, terminalGrowthRate, exitMultiple, dcfParams)
 
   return (
     <>
@@ -336,7 +363,7 @@ export default function Valuation() {
             <div className="card-header"><span className="card-title">Valuation Components</span></div>
             <div className="card-body">
               {[
-                ["PV of Projected FCF:",    fmtCurrency(result?.pvFCFs, currency)],
+                ["PV of Projected FCFs:",  fmtCurrency(result?.totalPVFCF, currency)],
                 ["PV of Terminal Value:",   fmtCurrency(result?.pvTerminal, currency)],
               ].map(([label, val]) => (
                 <div key={label} style={styles.compRow}>
@@ -375,14 +402,29 @@ export default function Valuation() {
           {showSensitivity && (
             <div className="card-body" style={{ overflowX: 'auto' }}>
               <p className="text-muted" style={{ fontSize: 12, marginBottom: 12 }}>
-                Value per Share across WACC (columns) × Terminal Growth Rate (rows)
+                {sensitivity.mode === 'multiple'
+                  ? 'Value per Share across WACC (columns) × Exit Multiple (rows)'
+                  : 'Value per Share across WACC (columns) × Terminal Growth Rate (rows)'}
               </p>
+              {sensitivity.tgrRange.length === 0 ? (
+                <div style={{ padding: '20px', color: 'var(--color-text-muted)', fontSize: 13, textAlign: 'center' }}>
+                  ⚠️ No valid TGR values in range — all growth rates are too close to WACC.
+                  Try lowering your Terminal Growth Rate or raising WACC.
+                </div>
+              ) : (
               <table style={styles.sensTable}>
                 <thead>
                   <tr>
-                    <th style={styles.sensCell}>TGR \ WACC</th>
+                    <th style={styles.sensCell}>
+                      {sensitivity.mode === 'multiple' ? 'Multiple \ WACC' : 'TGR \ WACC'}
+                    </th>
                     {sensitivity.waccRange.map((w) => (
-                      <th key={w} style={{ ...styles.sensCell, color: w === wacc ? 'var(--color-teal)' : undefined }}>
+                      <th key={w} style={{
+                        ...styles.sensCell,
+                        background: w === wacc ? 'rgba(13,115,119,0.12)' : undefined,
+                        color: w === wacc ? 'var(--color-teal)' : undefined,
+                        fontWeight: w === wacc ? 700 : 400,
+                      }}>
                         {w.toFixed(1)}%
                       </th>
                     ))}
@@ -391,18 +433,38 @@ export default function Valuation() {
                 <tbody>
                   {sensitivity.grid.map((row, ri) => (
                     <tr key={ri}>
-                      <td style={{ ...styles.sensCell, color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                        {sensitivity.tgrRange[ri]?.toFixed(2)}%
+                      <td style={{
+                        ...styles.sensCell,
+                        background: sensitivity.tgrRange[ri] === (sensitivity.mode === 'multiple' ? exitMultiple : terminalGrowthRate)
+                          ? 'rgba(13,115,119,0.12)' : undefined,
+                        color: 'var(--color-text-muted)',
+                        fontWeight: 600,
+                      }}>
+                        {sensitivity.mode === 'multiple'
+                          ? `${sensitivity.tgrRange[ri]?.toFixed(1)}×`
+                          : `${sensitivity.tgrRange[ri]?.toFixed(2)}%`}
                       </td>
                       {row.map((val, ci) => {
-                        const isBase = sensitivity.waccRange[ci] === wacc && sensitivity.tgrRange[ri] === terminalGrowthRate
+                        const isBase =
+                          sensitivity.waccRange[ci] === wacc &&
+                          sensitivity.tgrRange[ri] === (sensitivity.mode === 'multiple' ? exitMultiple : terminalGrowthRate)
+                        // Colour scale: positive = green shades, negative = red
+                        const positiveMax = Math.max(...sensitivity.grid.flat().filter(v => v != null && v > 0), 1)
+                        const bg = isBase
+                          ? 'var(--color-teal-muted)'
+                          : val == null
+                            ? '#f8f8f8'
+                            : val < 0
+                              ? `rgba(239,68,68,${Math.min(0.35, Math.abs(val) / positiveMax * 0.5)})`
+                              : `rgba(16,185,129,${Math.min(0.35, val / positiveMax * 0.5)})`
                         return (
                           <td key={ci} style={{
                             ...styles.sensCell,
-                            background: isBase ? 'var(--color-teal-muted)' : undefined,
+                            background: bg,
                             fontWeight: isBase ? 700 : 400,
+                            color: val != null && val < 0 ? '#DC2626' : undefined,
                           }}>
-                            {val != null && val > 0 ? `${Number(val).toFixed(2)} ${currency}` : '—'}
+                            {val != null ? `${Number(val).toFixed(2)} ${currency}` : '—'}
                           </td>
                         )
                       })}
@@ -410,6 +472,7 @@ export default function Valuation() {
                   ))}
                 </tbody>
               </table>
+              )}
             </div>
           )}
         </div>

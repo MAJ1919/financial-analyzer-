@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # ---- CORS ----
     # Comma-separated list of allowed origins in .env,
     # e.g. CORS_ORIGINS=http://localhost:5173,https://yourdomain.com
-    CORS_ORIGINS: Any = ["http://localhost:5173"]
+    CORS_ORIGINS: Any = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

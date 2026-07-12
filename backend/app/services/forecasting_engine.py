@@ -10,70 +10,13 @@ All arithmetic is in Python, as required by SRS §2.5.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from typing import Literal
 
 from app.models.financial import statement_to_lookup
-import re
-
-def _parse_year(y: str) -> int:
-    """Extract the last block of digits from a string to form a valid year."""
-    digits = re.findall(r'\d+', str(y))
-    if not digits:
-        return 2024
-    last_block = digits[-1]
-    if len(last_block) == 2:
-        return 2000 + int(last_block)
-    return int(last_block)
-
-
-
-def _get_compat(lookup: dict[str, dict[str, float]], key: str, year: str) -> float:
-    """Fetch value supporting both old and new Manufacturing Template keys."""
-    val = lookup.get(key, {}).get(year, 0.0) or 0.0
-    if val != 0.0:
-        return val
-    
-    # Fallback mappings for the new Manufacturing Template keys
-    compat = {
-        "costOfRevenue": ["costOfRevenueDisplayHeader", "totalCostOfRevenue", "manufacturingCostsHeader"],
-        "totalRevenue": ["revenueHeader"],
-        "sgaExpense": ["generalAdminHeader", "sellingExpensesHeader"],
-        "rdExpense": ["researchDevHeader", "researchAndDevelopment"],
-        "depreciationCogs": ["depreciationCostOfSales"],
-        "propertyPlantEquipment": ["grossPPE", "netPPE"], 
-        "accountsReceivable": ["netReceivables", "tradeAccountsReceivable"],
-        "stBorrowings": ["stBorrowingsData"],
-        "currentDebt": ["currentPortionLTDebt"],
-        "longTermDebt": ["ltDebtData"],
-        "incomeBeforeTax": ["earningsBeforeTax"],
-        "financeCosts": ["financeCosts", "interestExpense", "financialExpense"],
-        "currentIncomeTax": ["incomeTaxExpense", "currentIncomeTax"],
-        "basicSharesOutstanding": ["weightedAvgBasicShares"],
-        "basicAverageShares": ["weightedAvgBasicShares"],
-        "dilutedAverageShares": ["weightedAvgDilutedShares"],
-        "dividendsPaid": ["cfDividendsPaid"],
-        "commonStockDividendPaid": ["cfDividendsPaid"],
-        "capitalExpenditure": ["capitalExpenditures"],
-    }
-    
-    if key in compat:
-        for new_key in compat[key]:
-            val = lookup.get(new_key, {}).get(year, 0.0) or 0.0
-            if val != 0.0:
-                return val
-                
-    # Special sum fallbacks
-    if key == "depreciation":
-        return abs(lookup.get("depreciationOpex", {}).get(year, 0.0) or 0.0) + \
-               abs(lookup.get("amortizationOpex", {}).get(year, 0.0) or 0.0) + \
-               abs(lookup.get("depreciationCostOfSales", {}).get(year, 0.0) or 0.0)
-               
-    if key == "sgaExpense":
-        return (lookup.get("totalSellingExpense", {}).get(year, 0.0) or 0.0) + \
-               (lookup.get("totalGeneralAdminExpense", {}).get(year, 0.0) or 0.0)
-
-    return 0.0
+# Shared helpers — the compat key mapping is maintained ONLY in shared_utils
+# (also used by analysis_engine, keeping ratios and forecasts consistent).
+from app.services.shared_utils import _get_compat, _parse_year
 
 # ============================================================
 # DATA CLASSES
@@ -81,18 +24,45 @@ def _get_compat(lookup: dict[str, dict[str, float]], key: str, year: str) -> flo
 
 @dataclass
 class ForecastInputs:
-    revenue_growth_rate: float          = 10.0   # % per year
-    operating_margin_expansion: float   = 0.5    # % per year added to operating margin
-    capex_as_pct_of_revenue: float      = 3.0    # % of revenue
-    working_capital_change: float       = 1.0    # % of revenue
+    """
+    Forecast assumptions, split in two tiers:
+
+    CORE (user-facing form):
+      revenue_growth_rate / revenue_growth_rates, tax_rate,
+      capex_as_pct_of_revenue, dividend_payout_ratio, interest_rate_on_debt.
+
+    ADVANCED (auto-derived from historicals, overridable in the UI):
+      dso, dio, dpo, depreciation_rate — these are operating RATIOS, not
+      true assumptions, so they default from calculate_historical_assumptions().
+
+    Removed (dead/redundant knobs):
+      operating_margin_expansion — margin is an OUTPUT of the cost structure
+      working_capital_change     — WC now derived from actual DSO/DIO/DPO deltas
+      share_repurchase_rate      — no share-count model existed to support it
+    """
+    # ── Core assumptions ────────────────────────────────────
+    revenue_growth_rate: float          = 10.0   # % per year (single rate for all years)
+    revenue_growth_rates: list[float] | None = None  # optional per-year override, e.g. [12, 10, 8, 6, 5]
     tax_rate: float                     = 25.0   # %
-    depreciation_rate: float            = 8.0    # % of revenue
+    capex_as_pct_of_revenue: float      = 3.0    # % of revenue
+    dividend_payout_ratio: float        = 30.0   # % of net income
+    interest_rate_on_debt: float        = 4.0    # % on debt balance
+
+    # ── Advanced operating ratios (auto-derived, overridable) ──
     dso: float                          = 45.0   # Days Sales Outstanding
     dio: float                          = 60.0   # Days Inventory Outstanding
     dpo: float                          = 30.0   # Days Payable Outstanding
-    interest_rate_on_debt: float        = 4.0    # % on long-term debt
-    share_repurchase_rate: float        = 2.0    # % of net income
-    dividend_payout_ratio: float        = 30.0   # % of net income
+    depreciation_rate: float            = 8.0    # % of revenue
+
+    def growth_for_year(self, idx: int) -> float:
+        """Growth rate (%) for forecast year `idx` (0-based).
+
+        Per-year list wins when provided; if it's shorter than the horizon,
+        the last entry carries forward for the remaining years.
+        """
+        if self.revenue_growth_rates:
+            return float(self.revenue_growth_rates[min(idx, len(self.revenue_growth_rates) - 1)])
+        return self.revenue_growth_rate
 
 
 @dataclass
@@ -137,8 +107,7 @@ class BaseFinancialData:
 @dataclass
 class ForecastScenario:
     scenario: Literal['base', 'optimistic', 'pessimistic'] = 'base'
-    revenue_growth_multiplier: float      = 1.0
-    margin_expansion_multiplier: float    = 1.0
+    revenue_growth_multiplier: float      = 1.0   # applied to each year's growth rate
 
 
 @dataclass
@@ -174,6 +143,7 @@ class YearlyForecast:
     total_assets: float                 = 0.0
     accounts_payable: float             = 0.0
     other_current_liabilities: float    = 0.0
+    revolver: float                     = 0.0   # short-term borrowing plug (drawn when cash would go negative)
     total_current_liabilities: float    = 0.0
     long_term_debt: float               = 0.0
     deferred_tax: float                 = 0.0
@@ -192,8 +162,8 @@ class YearlyForecast:
     acquisitions: float             = 0.0
     investing_cash_flow: float      = 0.0
     dividends_paid: float           = 0.0
-    share_repurchases: float        = 0.0
     debt_issuance: float            = 0.0
+    revolver_change: float          = 0.0   # YoY draw (+) / repayment (−) of the revolver
     financing_cash_flow: float      = 0.0
     net_cash_change: float          = 0.0
     free_cash_flow: float           = 0.0
@@ -254,8 +224,8 @@ def extract_base_data(
         operating_income=operating_income,
         net_income=isg("netIncome"),
         depreciation=depreciation,
-        interest_expense=abs(isg("financeCosts") + isg("interestExpense") + isg("financialExpense")),
-        tax_expense=abs(isg("incomeTaxExpense") + isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses")),
+        interest_expense=abs(isg("financeCosts")),
+        tax_expense=abs(isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses")),
         ebitda=ebitda,
 
         total_assets=bsg("totalAssets"),
@@ -353,7 +323,7 @@ def calculate_historical_assumptions(
     dso_vals = []
     for y in years:
         rev = _get_compat(is_l, "totalRevenue", y)
-        ar  = bs_l.get("accountsReceivable", {}).get(y, 0.0) or 0.0
+        ar  = _get_compat(bs_l, "accountsReceivable", y)
         if rev > 0 and ar > 0:
             dso_vals.append((ar / rev) * 365)
     avg_dso = (sum(dso_vals) / len(dso_vals)) if dso_vals else 45.0
@@ -361,8 +331,8 @@ def calculate_historical_assumptions(
     # ── DIO (Days Inventory Outstanding) ────────────────────
     dio_vals = []
     for y in years:
-        cogs = is_l.get("costOfRevenue", {}).get(y, 0.0) or 0.0
-        inv  = bs_l.get("inventory", {}).get(y, 0.0) or 0.0
+        cogs = abs(_get_compat(is_l, "costOfRevenue", y))
+        inv  = _get_compat(bs_l, "totalInventory", y)
         if cogs > 0 and inv > 0:
             dio_vals.append((inv / cogs) * 365)
     avg_dio = (sum(dio_vals) / len(dio_vals)) if dio_vals else 60.0
@@ -370,25 +340,23 @@ def calculate_historical_assumptions(
     # ── DPO (Days Payable Outstanding) ──────────────────────
     dpo_vals = []
     for y in years:
-        cogs = is_l.get("costOfRevenue", {}).get(y, 0.0) or 0.0
-        ap   = bs_l.get("accountsPayable", {}).get(y, 0.0) or 0.0
+        cogs = abs(_get_compat(is_l, "costOfRevenue", y))
+        ap   = _get_compat(bs_l, "tradePayables", y)
         if cogs > 0 and ap > 0:
             dpo_vals.append((ap / cogs) * 365)
     avg_dpo = (sum(dpo_vals) / len(dpo_vals)) if dpo_vals else 30.0
 
     return ForecastInputs(
         revenue_growth_rate=round(avg_rev_growth, 1),
-        operating_margin_expansion=0.5,
-        capex_as_pct_of_revenue=round(avg_capex_pct, 1),
-        working_capital_change=1.0,
         tax_rate=round(avg_tax_rate, 1),
-        depreciation_rate=round(avg_dep_pct, 1),
+        capex_as_pct_of_revenue=round(avg_capex_pct, 1),
+        dividend_payout_ratio=30.0,
+        interest_rate_on_debt=4.0,
+        # Advanced ratios — derived from historicals
         dso=round(avg_dso, 1),
         dio=round(avg_dio, 1),
         dpo=round(avg_dpo, 1),
-        interest_rate_on_debt=4.0,
-        share_repurchase_rate=2.0,
-        dividend_payout_ratio=30.0,
+        depreciation_rate=round(avg_dep_pct, 1),
     )
 
 
@@ -398,8 +366,16 @@ def calculate_historical_assumptions(
 
 class ForecastingEngine:
     """
-    Python port of forecastingEngine.ts ForecastingEngine class.
     Generates complete 5-year IS + BS + CFS projections.
+
+    Two balance modes:
+      "balanced" — cash (+ revolver) is the plug: Assets = Liabilities + Equity
+                   is FORCED every year regardless of input data quality.
+      "faithful" — cash is driven by the cash flow statement
+                   (cash = prior cash + OCF + ICF + FCF). Nothing is plugged,
+                   so any imbalance in the base-year balance sheet carries
+                   through UNCHANGED into every forecast year. Balanced input
+                   stays balanced; imbalanced input stays imbalanced.
     """
 
     def __init__(
@@ -407,10 +383,12 @@ class ForecastingEngine:
         base_data: BaseFinancialData,
         inputs: ForecastInputs,
         forecast_years: int = 5,
+        balance_mode: Literal["balanced", "faithful"] = "balanced",
     ):
         self.base = base_data
         self.inputs = inputs
         self.forecast_years = forecast_years
+        self.balance_mode = balance_mode
 
     def generate_forecast(
         self,
@@ -427,26 +405,42 @@ class ForecastingEngine:
         sga_pct  = max(0.05, ((b.operating_income / b.revenue) - (1 - cogs_pct - inp.depreciation_rate / 100) + 0.08)) if b.revenue else 0.25
         rd_pct   = 0.08  # Default — not separately tracked in most IS uploads
 
+        faithful = self.balance_mode == "faithful"
+
+        # ── Faithful mode: base-year residuals held CONSTANT ────────
+        # These are the parts of the base BS not explicitly modeled
+        # (other current assets, non-PPE non-current assets, other
+        # liabilities). Holding them fixed — instead of fabricating them
+        # as % of revenue — means every forecast flow touches assets and
+        # liabilities+equity symmetrically, so the base-year imbalance
+        # (if any) carries through each year EXACTLY, never amplified.
+        base_other_ca  = b.current_assets - b.cash - b.accounts_receivable - b.inventory
+        base_other_nca = b.total_assets - b.current_assets - (b.ppe - b.accumulated_depreciation)
+        base_other_cl  = b.current_liabilities - b.accounts_payable
+        base_other_ltl = b.total_liabilities - b.current_liabilities - b.long_term_debt
+
         # Cumulative / stateful values
         current_revenue           = b.revenue
-        current_margin            = b.operating_margin
         cumulative_retained       = b.retained_earnings
         cumulative_ppe            = b.ppe
         cumulative_depreciation   = b.accumulated_depreciation
         current_cash              = b.cash
         current_debt              = b.long_term_debt
+        current_revolver          = 0.0   # short-term borrowing plug (balanced mode only)
+        # Prior-year working-capital balances (for actual Δ-based WC change)
+        prev_ar, prev_inv, prev_ap = b.accounts_receivable, b.inventory, b.accounts_payable
 
         forecasts: list[YearlyForecast] = []
 
         for idx in range(self.forecast_years):
             year = b.last_year + idx + 1
 
-            adj_growth     = inp.revenue_growth_rate * scenario.revenue_growth_multiplier
-            adj_margin_exp = inp.operating_margin_expansion * scenario.margin_expansion_multiplier
+            # Per-year growth when revenue_growth_rates is provided,
+            # otherwise the single flat rate; scenario multiplier on top.
+            adj_growth = inp.growth_for_year(idx) * scenario.revenue_growth_multiplier
 
-            # ── Revenue & Margin ─────────────────────────────
+            # ── Revenue ──────────────────────────────────────
             current_revenue *= (1 + adj_growth / 100)
-            current_margin  += adj_margin_exp
 
             # ── INCOME STATEMENT ─────────────────────────────
             cost_of_revenue   = current_revenue * cogs_pct
@@ -461,82 +455,143 @@ class ForecastingEngine:
             ebitda            = operating_income + depreciation
 
             interest_income   = current_cash * 0.02
-            interest_expense  = current_debt * (inp.interest_rate_on_debt / 100)
+            # Interest is charged on LT debt plus the PRIOR year's revolver
+            # balance (using prior balance avoids a circular reference with
+            # this year's cash plug below).
+            interest_expense  = (current_debt + current_revolver) * (inp.interest_rate_on_debt / 100)
             income_before_tax = operating_income + interest_income - interest_expense
             tax_expense       = income_before_tax * (inp.tax_rate / 100)
             net_income        = income_before_tax - tax_expense
 
-            # ── BALANCE SHEET (PRE-CASH PLUG) ────────────────
-            accounts_receivable  = current_revenue * (inp.dso / 365)
-            inventory            = cost_of_revenue * (inp.dio / 365)
-            other_current_assets = current_revenue * 0.05
-            non_cash_current_assets = accounts_receivable + inventory + other_current_assets
+            # ── BALANCE SHEET — modeled working-capital items ─
+            # AR/Inv/AP are ratio-driven (DSO/DIO/DPO) in BOTH modes.
+            accounts_receivable = current_revenue * (inp.dso / 365)
+            inventory           = cost_of_revenue * (inp.dio / 365)
+            accounts_payable    = cost_of_revenue * (inp.dpo / 365)
 
-            # Calculate CapEx and update PPE BEFORE calculating Total Assets
+            # CapEx & PPE roll-forward (both modes)
+            # BUGFIX: gross PPE grows by capex ONLY. The old code did
+            # `cumulative_ppe += capex - depreciation` while ALSO accumulating
+            # depreciation separately, shrinking net PPE by depreciation twice
+            # per year (the balanced-mode plug silently absorbed the error).
             capex = current_revenue * (inp.capex_as_pct_of_revenue / 100)
-            acquisitions = current_revenue * 0.01
-            
-            cumulative_ppe          += capex - depreciation
+            cumulative_ppe          += capex
             cumulative_depreciation += depreciation
             net_ppe = cumulative_ppe - cumulative_depreciation
 
-            goodwill         = b.total_assets * 0.10
-            other_intangibles = b.total_assets * 0.05
-            
-            # Sum of all assets EXCEPT cash
-            non_cash_assets = non_cash_current_assets + net_ppe + goodwill + other_intangibles
+            # Working-capital change from ACTUAL YoY deltas (replaces the old
+            # "% of revenue" knob). Stored using the CFS adjustment convention:
+            # negative when working capital grows (a use of cash).
+            wc_adjustment = -((accounts_receivable - prev_ar)
+                              + (inventory - prev_inv)
+                              - (accounts_payable - prev_ap))
 
-            accounts_payable          = cost_of_revenue * (inp.dpo / 365)
-            other_current_liabilities = current_revenue * 0.03
-            total_current_liabilities = accounts_payable + other_current_liabilities
+            # ── Equity (both modes) ──────────────────────────
+            # Dividends floored at 0 — no negative payout when NI < 0.
+            common_stock   = b.total_equity - b.retained_earnings or 100_000_000
+            dividends_paid = max(0.0, net_income * (inp.dividend_payout_ratio / 100))
+            cumulative_retained += net_income - dividends_paid
+            total_equity   = common_stock + cumulative_retained
 
-            # Use non_cash_assets as proxy to prevent circular dependency on deferred tax
-            deferred_tax        = non_cash_assets * 0.02
-            other_lt_liabilities = non_cash_assets * 0.03
-            total_liabilities   = total_current_liabilities + current_debt + deferred_tax + other_lt_liabilities
+            if faithful:
+                # ═════════ FAITHFUL MODE — CFS-driven cash, no plug ═════════
+                # Unmodeled BS lines stay at base-year values; no fabricated
+                # SBC / acquisitions / deferred tax / debt issuance. Every flow
+                # hits assets and L+E symmetrically, so the base imbalance
+                # carries through each year exactly.
+                other_current_assets      = base_other_ca
+                goodwill                  = base_other_nca   # all other non-current assets
+                other_intangibles         = 0.0
+                other_current_liabilities = base_other_cl
+                deferred_tax              = 0.0
+                other_lt_liabilities      = base_other_ltl
+                acquisitions              = 0.0
+                stock_based_comp          = 0.0
+                deferred_tax_change       = 0.0
+                debt_issuance             = 0.0
+                revolver_change           = 0.0   # no revolver in faithful mode
 
-            common_stock    = b.total_equity - b.retained_earnings or 100_000_000
-            retained_add    = net_income * (1 - inp.dividend_payout_ratio / 100)
-            cumulative_retained += retained_add
-            total_equity    = common_stock + cumulative_retained
+                operating_cash_flow = net_income + depreciation + wc_adjustment
+                investing_cash_flow = -capex
+                financing_cash_flow = -dividends_paid
 
-            total_liab_and_eq = total_liabilities + total_equity
+                # CASH IS DRIVEN BY THE CFS — not solved for.
+                net_cash_change = operating_cash_flow + investing_cash_flow + financing_cash_flow
+                current_cash    = current_cash + net_cash_change
 
-            # CASH IS THE PLUG. This guarantees Assets = Liabilities + Equity perfectly.
-            current_cash = total_liab_and_eq - non_cash_assets
-            if current_cash < 0: 
-                current_cash = 0  # Floor at 0 to prevent negative cash visuals in basic model
+                non_cash_current_assets   = accounts_receivable + inventory + other_current_assets
+                total_current_assets      = current_cash + non_cash_current_assets
+                total_assets              = total_current_assets + net_ppe + goodwill
+                total_current_liabilities = accounts_payable + other_current_liabilities
+                total_liabilities         = total_current_liabilities + current_debt + other_lt_liabilities
 
-            # Final Asset calculations
-            total_current_assets = current_cash + non_cash_current_assets
-            total_assets = total_current_assets + net_ppe + goodwill + other_intangibles
+            else:
+                # ═════════ BALANCED MODE — cash/revolver plug ═════════
+                other_current_assets    = current_revenue * 0.05
+                non_cash_current_assets = accounts_receivable + inventory + other_current_assets
+                acquisitions            = current_revenue * 0.01
+                goodwill                = b.total_assets * 0.10
+                other_intangibles       = b.total_assets * 0.05
 
-            # ── CASH FLOW STATEMENT ──────────────────────────
-            stock_based_comp       = current_revenue * 0.02
-            deferred_tax_change    = non_cash_assets * 0.001
-            wc_change_amount       = current_revenue * (inp.working_capital_change / 100)
-            operating_cash_flow    = (
-                net_income + depreciation + stock_based_comp
-                + deferred_tax_change - wc_change_amount
-            )
+                # Sum of all assets EXCEPT cash
+                non_cash_assets = non_cash_current_assets + net_ppe + goodwill + other_intangibles
 
-            investing_cash_flow = -(capex + acquisitions)
+                other_current_liabilities = current_revenue * 0.03
+                # Use non_cash_assets as proxy to prevent circular dependency on deferred tax
+                deferred_tax         = non_cash_assets * 0.02
+                other_lt_liabilities = non_cash_assets * 0.03
 
-            dividends_paid      = net_income * (inp.dividend_payout_ratio / 100)
-            share_repurchases   = net_income * (inp.share_repurchase_rate / 100)
-            debt_issuance       = (current_revenue * 0.05) if idx == 0 else 0.0
-            financing_cash_flow = -dividends_paid - share_repurchases + debt_issuance
+                # ── CASH / REVOLVER PLUG ─────────────────────
+                # Pre-revolver L+E − non-cash assets = cash surplus (or shortfall).
+                # Positive → cash balance (revolver repaid to 0).
+                # Negative → cash floors at 0, shortfall drawn on a short-term
+                # revolver, so Assets = Liabilities + Equity ALWAYS holds.
+                prev_revolver = current_revolver
+                pre_revolver_liabilities = (
+                    accounts_payable + other_current_liabilities
+                    + current_debt + deferred_tax + other_lt_liabilities
+                )
+                cash_surplus = (pre_revolver_liabilities + total_equity) - non_cash_assets
 
-            # Force net_cash_change to equal the actual change in the Cash plug.
-            previous_cash = b.cash if idx == 0 else forecasts[-1].cash
-            actual_cash_change = current_cash - previous_cash
-            net_cash_change = actual_cash_change 
+                if cash_surplus >= 0:
+                    current_cash     = cash_surplus
+                    current_revolver = 0.0
+                else:
+                    current_cash     = 0.0
+                    current_revolver = -cash_surplus  # draw exactly the shortfall
 
-            free_cash_flow  = operating_cash_flow - capex
+                revolver_change = current_revolver - prev_revolver
+
+                # Final totals (revolver sits in current liabilities)
+                total_current_liabilities = accounts_payable + other_current_liabilities + current_revolver
+                total_liabilities         = pre_revolver_liabilities + current_revolver
+                total_current_assets      = current_cash + non_cash_current_assets
+                total_assets              = total_current_assets + net_ppe + goodwill + other_intangibles
+
+                # ── CASH FLOW STATEMENT (display; cash comes from the plug) ──
+                stock_based_comp    = current_revenue * 0.02
+                deferred_tax_change = non_cash_assets * 0.001
+                operating_cash_flow = (
+                    net_income + depreciation + stock_based_comp
+                    + deferred_tax_change + wc_adjustment
+                )
+                investing_cash_flow = -(capex + acquisitions)
+                debt_issuance       = (current_revenue * 0.05) if idx == 0 else 0.0
+                # Revolver draws (+) / repayments (−) are financing flows
+                financing_cash_flow = -dividends_paid + debt_issuance + revolver_change
+
+                # Force net_cash_change to equal the actual change in the cash plug.
+                previous_cash   = b.cash if idx == 0 else forecasts[-1].cash
+                net_cash_change = current_cash - previous_cash
+
+            # Roll working-capital state for next year's deltas
+            prev_ar, prev_inv, prev_ap = accounts_receivable, inventory, accounts_payable
+
+            free_cash_flow = operating_cash_flow - capex
 
             # ── KEY METRICS ──────────────────────────────────
-            # Calculate margin as an OUTPUT metric based on the actual IS math
-            current_margin = (operating_income / current_revenue * 100) if current_revenue else 0.0
+            # Margin is an OUTPUT metric based on the actual IS math
+            operating_margin_out = (operating_income / current_revenue * 100) if current_revenue else 0.0
             working_capital = total_current_assets - total_current_liabilities
             eps = (net_income / b.shares_outstanding) if b.shares_outstanding else 0.0
             roe = (net_income / total_equity) if total_equity else 0.0
@@ -570,6 +625,7 @@ class ForecastingEngine:
                 total_assets=round(total_assets, 2),
                 accounts_payable=round(accounts_payable, 2),
                 other_current_liabilities=round(other_current_liabilities, 2),
+                revolver=round(current_revolver, 2),
                 total_current_liabilities=round(total_current_liabilities, 2),
                 long_term_debt=round(current_debt, 2),
                 deferred_tax=round(deferred_tax, 2),
@@ -580,18 +636,18 @@ class ForecastingEngine:
                 total_equity=round(total_equity, 2),
                 stock_based_comp=round(stock_based_comp, 2),
                 deferred_tax_change=round(deferred_tax_change, 2),
-                working_capital_change=round(wc_change_amount, 2),
+                working_capital_change=round(wc_adjustment, 2),
                 operating_cash_flow=round(operating_cash_flow, 2),
                 capex=round(capex, 2),
                 acquisitions=round(acquisitions, 2),
                 investing_cash_flow=round(investing_cash_flow, 2),
                 dividends_paid=round(dividends_paid, 2),
-                share_repurchases=round(share_repurchases, 2),
                 debt_issuance=round(debt_issuance, 2),
+                revolver_change=round(revolver_change, 2),
                 financing_cash_flow=round(financing_cash_flow, 2),
                 net_cash_change=round(net_cash_change, 2),
                 free_cash_flow=round(free_cash_flow, 2),
-                operating_margin=round(current_margin, 4),
+                operating_margin=round(operating_margin_out, 4),
                 net_profit_margin=round((net_income / current_revenue * 100) if current_revenue else 0, 4),
                 eps=round(eps, 4),
                 working_capital=round(working_capital, 2),
@@ -655,6 +711,7 @@ def run_forecast(
     scenarios: list[str] | None = None,
     forecast_years: int = 5,
     dcf_assumptions: dict | None = None,
+    balance_mode: str = "balanced",
 ) -> dict:
     """
     Full forecasting pipeline:
@@ -662,30 +719,40 @@ def run_forecast(
       2. Build ForecastInputs from provided dict
       3. Run base + optional scenario forecasts
       4. Return structured response
+
+    balance_mode:
+      "balanced" — cash/revolver plug forces A = L + E every year.
+      "faithful" — CFS-driven cash; base-year imbalance carries through.
     """
     base = extract_base_data(income_statement, balance_sheet, cash_flow, dcf_assumptions=dcf_assumptions)
 
+    # Optional per-year growth override: list of % rates, one per forecast year
+    raw_growth_rates = inputs.get("revenue_growth_rates")
+    growth_rates = [float(g) for g in raw_growth_rates] if raw_growth_rates else None
+
     fi = ForecastInputs(
-        revenue_growth_rate         = float(inputs.get("revenue_growth_rate", 10.0)),
-        operating_margin_expansion  = float(inputs.get("operating_margin_expansion", 0.5)),
-        capex_as_pct_of_revenue     = float(inputs.get("capex_as_pct_of_revenue", 3.0)),
-        working_capital_change      = float(inputs.get("working_capital_change", 1.0)),
-        tax_rate                    = float(inputs.get("tax_rate", 25.0)),
-        depreciation_rate           = float(inputs.get("depreciation_rate", 8.0)),
-        dso                         = float(inputs.get("dso", 45.0)),
-        dio                         = float(inputs.get("dio", 60.0)),
-        dpo                         = float(inputs.get("dpo", 30.0)),
-        interest_rate_on_debt       = float(inputs.get("interest_rate_on_debt", 4.0)),
-        share_repurchase_rate       = float(inputs.get("share_repurchase_rate", 2.0)),
-        dividend_payout_ratio       = float(inputs.get("dividend_payout_ratio", 30.0)),
+        # Core assumptions
+        revenue_growth_rate     = float(inputs.get("revenue_growth_rate", 10.0)),
+        revenue_growth_rates    = growth_rates,
+        tax_rate                = float(inputs.get("tax_rate", 25.0)),
+        capex_as_pct_of_revenue = float(inputs.get("capex_as_pct_of_revenue", 3.0)),
+        dividend_payout_ratio   = float(inputs.get("dividend_payout_ratio", 30.0)),
+        interest_rate_on_debt   = float(inputs.get("interest_rate_on_debt", 4.0)),
+        # Advanced operating ratios
+        dso                     = float(inputs.get("dso", 45.0)),
+        dio                     = float(inputs.get("dio", 60.0)),
+        dpo                     = float(inputs.get("dpo", 30.0)),
+        depreciation_rate       = float(inputs.get("depreciation_rate", 8.0)),
     )
 
-    engine = ForecastingEngine(base, fi, forecast_years)
+    if balance_mode not in ("balanced", "faithful"):
+        balance_mode = "balanced"
+    engine = ForecastingEngine(base, fi, forecast_years, balance_mode=balance_mode)
 
     scenario_map = {
-        "base":        ForecastScenario("base",        1.0, 1.0),
-        "optimistic":  ForecastScenario("optimistic",  1.3, 1.5),
-        "pessimistic": ForecastScenario("pessimistic", 0.7, 0.5),
+        "base":        ForecastScenario("base",        1.0),
+        "optimistic":  ForecastScenario("optimistic",  1.3),
+        "pessimistic": ForecastScenario("pessimistic", 0.7),
     }
 
     def _project_statement(statement: dict | None, multiplier: float, base_year_str: str, yr_forecast: YearlyForecast, overrides: dict) -> dict:
@@ -724,22 +791,25 @@ def run_forecast(
             ast_mult = (f.total_assets / base.total_assets) if base.total_assets else 1.0
             
             is_overrides = {
-                "totalRevenue": f.revenue,
                 "revenueHeader": f.revenue,
-                "totalCostOfRevenue": f.cost_of_revenue,
+                "totalRevenue": f.revenue,
                 "costOfRevenueDisplayHeader": f.cost_of_revenue,
+                "totalCostOfRevenue": f.cost_of_revenue,
                 "grossProfit": f.gross_profit,
-                "totalGeneralAdminExpense": f.sga_expenses,
-                "generalAdminHeader": f.sga_expenses,
-                "researchDevHeader": f.rd_expenses,
-                "researchAndDevelopment": f.rd_expenses,
-                "depreciationOpex": f.depreciation,
+                "grossProfitHeader": f.gross_profit,
+                "operatingExpensesHeader": -f.sga_expenses - f.rd_expenses - f.depreciation,
+                "totalSellingExpense": -f.sga_expenses * 0.5,
+                "totalGeneralAdminExpense": -f.sga_expenses,
+                "researchAndDevelopment": -f.rd_expenses,
+                "depreciationOpex": -f.depreciation,
+                "operatingIncomeDisplayHeader": f.operating_income,
                 "operatingIncome": f.operating_income,
-                "financeCosts": f.interest_expense,
+                "nonOperatingHeader": f.income_before_tax - f.operating_income,
+                "financeCosts": -f.interest_expense,
                 "incomeBeforeTax": f.income_before_tax,
                 "earningsBeforeTax": f.income_before_tax,
-                "incomeTaxExpense": f.tax_expense,
-                "currentIncomeTax": f.tax_expense,
+                "incomeTaxExpense": -f.tax_expense,
+                "currentIncomeTax": -f.tax_expense,
                 "netIncome": f.net_income,
                 "netIncomeAttributableToParent": f.net_income,
                 "totalComprehensiveIncome": f.net_income
@@ -748,24 +818,35 @@ def run_forecast(
             
             bs_overrides = {
                 "cashAndEquivalents": f.cash,
+                "receivablesHeader": f.accounts_receivable,
                 "netReceivables": f.accounts_receivable,
+                "inventoryHeader": f.inventory,
                 "totalInventory": f.inventory,
-                "totalCurrentAssets": f.current_assets,
+                "currentAssetsHeader": f.total_current_assets,
+                "totalCurrentAssets": f.total_current_assets,
+                "ppeHeader": f.ppe - f.accumulated_depreciation,
                 "netPPE": f.ppe - f.accumulated_depreciation,
                 "grossPPE": f.ppe,
-                "netIntangibleAssets": f.intangible_assets,
-                "grossIntangibleAssets": f.intangible_assets,
-                "totalNonCurrentAssets": f.non_current_assets,
+                "intangibleAssetsHeader": f.goodwill + f.other_intangibles,
+                "netIntangibleAssets": f.goodwill + f.other_intangibles,
+                "grossIntangibleAssets": f.goodwill + f.other_intangibles,
+                "nonCurrentAssetsHeader": (f.ppe - f.accumulated_depreciation) + f.goodwill + f.other_intangibles,
+                "totalNonCurrentAssets": (f.ppe - f.accumulated_depreciation) + f.goodwill + f.other_intangibles,
+                "assetsHeader": f.total_assets,
                 "totalAssets": f.total_assets,
-                "stBorrowingsData": f.short_term_debt,
-                "currentPortionLTDebt": f.current_portion_lt_debt,
-                "totalCurrentLiabilities": f.current_liabilities,
+                "stBorrowingsData": f.revolver,   # revolver plug shows as ST borrowings
+                "currentPortionLTDebt": 0.0,
+                "currentLiabilitiesHeader": f.total_current_liabilities,
+                "totalCurrentLiabilities": f.total_current_liabilities,
                 "ltDebtData": f.long_term_debt,
-                "totalNonCurrentLiabilities": f.non_current_liabilities,
+                "nonCurrentLiabilitiesHeader": f.long_term_debt + f.deferred_tax + f.other_lt_liabilities,
+                "totalNonCurrentLiabilities": f.long_term_debt + f.deferred_tax + f.other_lt_liabilities,
+                "liabilitiesHeader": f.total_liabilities,
                 "totalLiabilities": f.total_liabilities,
+                "equityHeader": f.total_equity,
                 "totalEquity": f.total_equity,
-                "totalLiabilitiesAndEquity": f.total_liabilities_and_equity,
-                "balanceCheck": f.total_assets - f.total_liabilities_and_equity
+                "totalLiabilitiesAndEquity": f.total_liabilities + f.total_equity,
+                "balanceCheck": f.total_assets - (f.total_liabilities + f.total_equity)
             }
             d["full_balance_sheet"] = _project_statement(balance_sheet, ast_mult, base_year_str, f, bs_overrides)
             
@@ -774,17 +855,20 @@ def run_forecast(
                 "cfNetIncomeData": f.net_income,
                 "depreciationAmortization": f.depreciation,
                 "totalNonCashAdjustments": f.depreciation,
-                "changeInWorkingCapital": f.change_in_working_capital,
-                "totalWorkingCapitalAdjustments": f.change_in_working_capital,
+                "changeInWorkingCapital": f.working_capital_change,
+                "totalWorkingCapitalAdjustments": f.working_capital_change,
+                "operatingActivitiesHeader": f.operating_cash_flow,
                 "operatingCashFlow": f.operating_cash_flow,
-                "capitalExpenditures": -f.capital_expenditures,
+                "capitalExpenditures": -f.capex,
+                "investingActivitiesHeader": f.investing_cash_flow,
                 "investingCashFlow": f.investing_cash_flow,
-                "cfStBorrowings": f.change_in_short_term_debt,
-                "cfLtDebtIssued": f.change_in_long_term_debt if f.change_in_long_term_debt > 0 else 0,
-                "cfDebtRepaid": f.change_in_long_term_debt if f.change_in_long_term_debt < 0 else 0,
+                "cfStBorrowings": f.revolver_change,   # revolver draws/repayments
+                "cfLtDebtIssued": f.debt_issuance if f.debt_issuance > 0 else 0,
+                "cfDebtRepaid": f.debt_issuance if f.debt_issuance < 0 else 0,
                 "cfDividendsPaid": -f.dividends_paid,
+                "financingActivitiesHeader": f.financing_cash_flow,
                 "financingCashFlow": f.financing_cash_flow,
-                "netIncreaseDecreaseCash": f.net_change_in_cash,
+                "netIncreaseDecreaseCash": f.net_cash_change,
                 "cfEndingCashBalance": f.cash
             }
             d["full_cash_flow_statement"] = _project_statement(cash_flow, rev_mult, base_year_str, f, cf_overrides)
@@ -797,9 +881,16 @@ def run_forecast(
             "balance_sheet_check": engine.validate_balance_sheet(forecasts),
         }
 
+    # Base-year reconciliation: surfaced so the UI can warn when the
+    # uploaded balance sheet doesn't balance (relevant in both modes —
+    # in "balanced" mode the plug silently absorbs it otherwise).
+    base_imbalance = round(base.total_assets - (base.total_liabilities + base.total_equity), 2)
+
     return {
-        "base_year":      base.last_year,
-        "forecast_years": forecast_years,
-        "inputs":         asdict(fi),
-        "scenarios":      scenario_results,
+        "base_year":       base.last_year,
+        "forecast_years":  forecast_years,
+        "balance_mode":    balance_mode,
+        "base_imbalance":  base_imbalance,
+        "inputs":          asdict(fi),
+        "scenarios":       scenario_results,
     }

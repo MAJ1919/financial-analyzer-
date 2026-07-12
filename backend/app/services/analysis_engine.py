@@ -17,7 +17,7 @@ from __future__ import annotations
 import pandas as pd
 from typing import Any
 
-from app.models.financial import statement_to_lookup
+from app.services.shared_utils import _get_compat, _build_lookups
 
 
 # ============================================================
@@ -88,55 +88,12 @@ def _safe_div(numerator: Any, denominator: Any) -> float | None:
 
 
 
-def _get_compat(lookup: dict[str, dict[str, float]], key: str, year: str) -> float:
-    """Fetch value supporting both old and new Manufacturing Template keys."""
-    val = lookup.get(key, {}).get(year, 0.0) or 0.0
-    if val != 0.0:
-        return val
-    
-    # Fallback mappings for the new Manufacturing Template keys
-    compat = {
-        "costOfRevenue": ["totalCostOfRevenue"],
-        "depreciationCogs": ["depreciationCostOfSales"],
-        "propertyPlantEquipment": ["grossPPE", "netPPE"],
-        "accountsReceivable": ["netReceivables", "tradeAccountsReceivable"],
-        "inventory": ["totalInventory"],
-        "stBorrowings": ["stBorrowingsData"],
-        "currentDebt": ["currentPortionLTDebt"],
-        "longTermDebt": ["ltDebtData"],
-        "incomeBeforeTax": ["earningsBeforeTax"],
-        "interestExpense": ["financialExpense"],
-        "interestExpenseNet": ["financialExpense"],
-        "currentIncomeTax": ["incomeTaxExpense"],
-        "basicSharesOutstanding": ["weightedAvgBasicShares"],
-        "basicAverageShares": ["weightedAvgBasicShares"],
-        "dilutedAverageShares": ["weightedAvgDilutedShares"],
-        "dividendsPaid": ["cfDividendsPaid"],
-        "commonStockDividendPaid": ["cfDividendsPaid"],
-        "capitalExpenditure": ["capitalExpenditures"],
-    }
-    
-    if key in compat:
-        for new_key in compat[key]:
-            val = lookup.get(new_key, {}).get(year, 0.0) or 0.0
-            if val != 0.0:
-                return val
-                
-    # Special sum fallbacks
-    if key == "depreciation":
-        return abs(lookup.get("depreciationOpex", {}).get(year, 0.0) or 0.0) + \
-               abs(lookup.get("amortizationOpex", {}).get(year, 0.0) or 0.0) + \
-               abs(lookup.get("depreciationCostOfSales", {}).get(year, 0.0) or 0.0)
-               
-    if key == "sgaExpense":
-        return (lookup.get("totalSellingExpense", {}).get(year, 0.0) or 0.0) + \
-               (lookup.get("totalGeneralAdminExpense", {}).get(year, 0.0) or 0.0)
-
-    return 0.0
-
-
 def _get(lookup: dict[str, dict[str, float]], key: str, year: str) -> float:
-    """Get a value from the flat lookup dict; returns 0.0 if missing."""
+    """Get a value from the flat lookup dict; returns 0.0 if missing.
+
+    Thin alias over shared_utils._get_compat — the compat/fallback key
+    mapping lives ONLY in shared_utils.py (shared with forecasting_engine).
+    """
     return _get_compat(lookup, key, year)
 
 
@@ -152,23 +109,6 @@ def _get_avg(
         return current
     previous = _get(lookup, key, prev_year)
     return (current + previous) / 2 if (current or previous) else 0.0
-
-
-def _build_lookups(
-    income_statement: dict | None,
-    balance_sheet: dict | None,
-    cash_flow: dict | None = None,
-) -> tuple[
-    dict[str, dict[str, float]],
-    dict[str, dict[str, float]],
-    dict[str, dict[str, float]],
-]:
-    """Convert stored JSONB dicts to flat key→{year→value} lookups."""
-    return (
-        statement_to_lookup(income_statement),
-        statement_to_lookup(balance_sheet),
-        statement_to_lookup(cash_flow) if cash_flow else {},
-    )
 
 
 # ============================================================
@@ -194,35 +134,35 @@ def calculate_ratio(
     bsavg = lambda k: _get_avg(bs_lookup, k, year, prev_year)
 
     # ── Common line items (mirrors reference TS) ─────────────────
-    revenue = isg("totalRevenue")
-    cost_of_goods_sold = abs(isg("costOfRevenue"))
-    gross_profit = isg("grossProfit") or (revenue - isg("costOfRevenue"))
-    operating_income = isg("operatingIncome")
-    net_income = isg("netIncome")
-    interest_expense = abs(isg("financeCosts") + isg("financeCosts"))
+    revenue = isg("revenueHeader") or isg("totalRevenue")
+    cost_of_goods_sold = abs(isg("costOfRevenueDisplayHeader") or isg("totalCostOfRevenue") or isg("costOfRevenue"))
+    gross_profit = isg("grossProfitHeader") or isg("grossProfit") or (revenue - cost_of_goods_sold)
+    operating_income = isg("operatingIncomeDisplayHeader") or isg("operatingIncome")
+    net_income = isg("netIncomeAttributableToParent") or isg("netIncome")
+    interest_expense = abs(isg("financeCosts"))
     income_tax_expense = abs(isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses"))
     income_before_tax = isg("incomeBeforeTax")
     depreciation = abs(isg("depreciationCostOfSales") + isg("depreciationOpex"))
-    ebitda = operating_income + depreciation
+    ebitda = isg("ebitda") or (operating_income + depreciation)
 
     # Balance sheet items
     cash = bsg("cashAndEquivalents")
-    current_assets = bsg("totalCurrentAssets")
-    current_liabilities = bsg("totalCurrentLiabilities")
-    inventory = bsg("rawMaterials") + bsg("workInProcess") + bsg("finishedGoods") + bsg("otherInventory")
-    accounts_receivable = bsg("tradeAccountsReceivable") + bsg("notesReceivable")
-    accounts_payable = bsg("accountsPayable")
-    total_assets = bsg("totalAssets")
-    total_liabilities = bsg("totalLiabilities")
-    current_debt = bsg("stBorrowingsData") + bsg("currentDebt")
+    current_assets = bsg("currentAssetsHeader") or bsg("totalCurrentAssets")
+    current_liabilities = bsg("currentLiabilitiesHeader") or bsg("totalCurrentLiabilities")
+    inventory = bsg("inventoryHeader") or bsg("totalInventory") or (bsg("rawMaterials") + bsg("workInProcess") + bsg("finishedGoods") + bsg("otherInventory"))
+    accounts_receivable = bsg("receivablesHeader") or bsg("netReceivables") or (bsg("tradeAccountsReceivable") + bsg("notesReceivable"))
+    accounts_payable = bsg("tradePayablesHeader") or bsg("accountsPayable")
+    total_assets = bsg("assetsHeader") or bsg("totalAssets")
+    total_liabilities = bsg("liabilitiesHeader") or bsg("totalLiabilities")
+    current_debt = bsg("stBorrowingsData") + bsg("currentPortionLTDebt") + bsg("currentDebt")
     long_term_debt = bsg("ltDebtData")
     other_debt = 0.0
     total_debt = current_debt + long_term_debt + other_debt
-    total_equity = bsg("totalEquity")
+    total_equity = bsg("equityHeader") or bsg("totalEquity")
     total_capital = total_debt + total_equity
 
     # Cash flow items
-    operating_cf = cfg("operatingCashFlow")
+    operating_cf = cfg("operatingActivitiesHeader") or cfg("operatingCashFlow")
     capex = abs(cfg("capitalExpenditures"))
     free_cf = operating_cf - capex
 
@@ -821,7 +761,9 @@ def compute_dcf_base_metrics(
     ebitda = operating_income + depreciation
     income_before_tax = isg("incomeBeforeTax")
     income_tax_expense = abs(isg("currentIncomeTax") + isg("deferredIncomeTax") + isg("zakatExpenses"))
-    interest_expense = abs(isg("financeCosts") + isg("financeCosts"))
+    # BUGFIX: was `financeCosts + financeCosts`, double-counting interest
+    # expense and inflating the DCF cost-of-debt estimate.
+    interest_expense = abs(isg("financeCosts"))
 
     cash = bsg("cashAndEquivalents")
     total_equity = bsg("totalEquity")

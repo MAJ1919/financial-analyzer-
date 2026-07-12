@@ -1357,7 +1357,7 @@
       "key": "ebitda",
       "section": "Metrics",
       "is_subtotal": true,
-      "level": 1,
+      "level": 3,
       "industry": "general"
     },
     {

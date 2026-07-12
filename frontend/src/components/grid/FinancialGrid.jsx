@@ -96,18 +96,20 @@ export default function FinancialGrid({
           return '—'
         }
         
-        // Hide values for ALL headers that are not subtotals to keep them as clean labels
+        if (p.value == null || p.value === '') return '—'
+        
         if (p.data?.is_header && !p.data?.is_subtotal) {
-          return ''
+            if (['earningsPerShareHeader', 'sharesOutstandingHeader', 'supplementalMetricsHeader', 'comprehensiveIncomeHeader', 'receivablesChangeHeader', 'inventoryChangeHeader', 'otherCurrentAssetsChangeHeader', 'payablesChangeHeader', 'otherLiabilitiesChangeHeader', 'otherOperatingActivitiesHeader', 'borrowingsHeader', 'debtRepaymentsHeader', 'shareholderReturnsHeader', 'otherFinancingActivitiesHeader', 'cashReconciliationHeader', 'supplementalDisclosureHeader'].includes(p.data?.key)) {
+                return ''
+            }
         }
         
-        if (p.value == null || p.value === '') return '—'
         const num = Number(p.value)
         const formatted = num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
         if (p.data?.key === 'balanceCheck') {
-          if (num > 0.5) return `+${formatted}`
-          if (num < -0.5) return formatted // already has negative sign
-          return '0' // exactly balanced
+          if (num > 0.5)  return `+${formatted}` // assets surplus
+          if (num < -0.5) return formatted        // E+L surplus (negative sign already present)
+          return '0'                              // perfectly balanced
         }
         return formatted
       },
@@ -129,9 +131,9 @@ export default function FinancialGrid({
         
         let txtColor = undefined;
         if (params.data?.key === 'balanceCheck') {
-            if (params.value > 0.5) txtColor = '#DC2626'; // Red for positive imbalance
-            else if (params.value < -0.5) txtColor = '#DC2626'; // Red for negative imbalance
-            else txtColor = '#10B981'; // Green for perfectly balanced (0)
+            if (params.value > 0.5)  txtColor = '#10B981'; // Green — assets surplus
+            else if (params.value < -0.5) txtColor = '#DC2626'; // Red — E+L surplus
+            else txtColor = '#10B981'; // Green — exactly balanced
         } else if (params.value < 0) {
             txtColor = 'var(--color-error)';
         }

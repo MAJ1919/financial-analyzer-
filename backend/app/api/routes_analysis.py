@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Body
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from supabase import Client
 
@@ -7,28 +9,31 @@ from app.services import analysis_engine
 from app.services.forecasting_engine import (
     run_forecast,
     calculate_historical_assumptions,
-    extract_base_data,
-    statement_to_lookup as _stl,
 )
 
 class ForecastInputsPayload(BaseModel):
+    # ── Core assumptions ──
     revenue_growth_rate: float = 10.0
-    operating_margin_expansion: float = 0.5
-    capex_as_pct_of_revenue: float = 3.0
-    working_capital_change: float = 1.0
+    # Optional per-year growth override (one % per forecast year).
+    # When provided, it takes precedence over revenue_growth_rate.
+    revenue_growth_rates: list[float] | None = None
     tax_rate: float = 25.0
-    depreciation_rate: float = 8.0
+    capex_as_pct_of_revenue: float = 3.0
+    dividend_payout_ratio: float = 30.0
+    interest_rate_on_debt: float = 4.0
+    # ── Advanced operating ratios (auto-derived, overridable) ──
     dso: float = 45.0
     dio: float = 60.0
     dpo: float = 30.0
-    interest_rate_on_debt: float = 4.0
-    share_repurchase_rate: float = 2.0
-    dividend_payout_ratio: float = 30.0
+    depreciation_rate: float = 8.0
 
 class ComputeForecastPayload(BaseModel):
     inputs: ForecastInputsPayload = ForecastInputsPayload()
     scenarios: list[str] = ["base"]
     forecast_years: int = 5
+    # "balanced" → cash/revolver plug forces A = L + E every year.
+    # "faithful" → CFS-driven cash; base-year imbalance carries through.
+    balance_mode: Literal["balanced", "faithful"] = "balanced"
 
 router = APIRouter()
 
@@ -77,26 +82,19 @@ def get_horizontal_analysis(project_id: str, db: Client = Depends(get_db)):
 @router.get("/{project_id}/cashflow")
 def get_cash_flow_statement(project_id: str, db: Client = Depends(get_db)):
     """
-    Derive the indirect-method Cash Flow Statement from at least 2 years
-    of Balance Sheet data.
-    
-    Requires a minimum of 2 years of BS data; returns a 422 if insufficient.
+    Return the stored Cash Flow Statement from the database.
     """
-    project = db.table("projects").select("income_statement, balance_sheet, cash_flow_statement").eq("id", project_id).execute()
+    project = db.table("projects").select("cash_flow_statement").eq("id", project_id).execute()
 
     if not project.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     pdata = project.data[0]
     stored_cf = pdata.get("cash_flow_statement")
-    if stored_cf:
-        return stored_cf
-
-    result = analysis_engine.derive_cash_flow_statement(
-        income_statement=pdata.get("income_statement"),
-        balance_sheet=pdata.get("balance_sheet"),
-    )
-    return result
+    if not stored_cf:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cash flow statement not available")
+    
+    return stored_cf
 
 
 @router.get("/{project_id}/forecast")
@@ -179,6 +177,7 @@ def compute_forecast(
         scenarios=payload.scenarios,
         forecast_years=payload.forecast_years,
         dcf_assumptions=pdata.get("dcf_assumptions"),
+        balance_mode=payload.balance_mode,
     )
 
     # Auto-save the forecast result alongside inputs for persistence

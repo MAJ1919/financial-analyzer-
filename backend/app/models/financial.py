@@ -248,36 +248,6 @@ def statement_to_lookup(statement: dict | None) -> dict[str, dict[str, float]]:
 # Excel Mapping Models (used in the upload flow)
 # ---------------------------------------------------------------------------
 
-class MappingCandidate(BaseModel):
-    """
-    Returned by the parser — one candidate per detected row in the Excel file.
-    """
-    excel_row_label: str
-    matched_label: str
-    matched_key: str        # canonical camelCase key derived from matched_label
-    matched_section: str
-    confidence_score: float
-    statement_type: str     # "income_statement" | "balance_sheet"
-    accepted: bool = True
-
-
-class MappingConfirmation(BaseModel):
-    """
-    Sent back from the frontend after user review of the Confirmation Screen.
-    """
-    statement_type: str
-    years: list[str]
-    rows: list[MappingCandidate]
-    raw_values: list[list[Any]]
-
-class ParseResponse(BaseModel):
-    """
-    Returned by the parser, containing the extracted candidates, years, and raw values.
-    """
-    years: list[str]
-    rows: list[MappingCandidate]
-    raw_values: list[list[Any]]
-
 
 class ManualEntryPayload(BaseModel):
     """
