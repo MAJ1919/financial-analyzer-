@@ -225,7 +225,6 @@ export default function FinancialGrid({
           defaultColDef={{ resizable: true, sortable: false }}
           suppressMovableColumns
           domLayout="autoHeight"
-          rowGroupPanelShow="never"
           getRowId={(p) => p.data.row_id}
           singleClickEdit={true}
           stopEditingWhenCellsLoseFocus={true}
