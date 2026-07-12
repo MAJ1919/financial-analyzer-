@@ -307,7 +307,8 @@ button { cursor: pointer; font-family: inherit; }
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  /* Matches the data-cell font used by FinancialGrid and the Forecasting table */
+  font-size: 13px;
 }
 
 .data-table th, .data-table td {

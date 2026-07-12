@@ -93,11 +93,11 @@ export default function Analysis() {
                         const name = values.label || ratioId
                         return (
                           <tr key={ratioId}>
-                            <td style={{ fontSize: '14px' }}>{name}</td>
+                            <td style={{ fontSize: '13px' }}>{name}</td>
                             {ratiosData.years.map(year => {
                               const val = values[year]
                               return (
-                                <td key={year} style={{ textAlign: 'center', fontSize: '14px' }}>
+                                <td key={year} style={{ textAlign: 'center', fontSize: '13px' }}>
                                   {formatRatioValue(val, values.format)}
                                 </td>
                               )
@@ -171,20 +171,21 @@ export default function Analysis() {
                             const displayLabel = rowMeta.label_raw || label
                             const level = rowMeta.level || (rowMeta.is_subtotal ? 1 : rowMeta.is_header ? 2 : 3)
 
+                            // Font scale matches FinancialGrid / Forecasting: 15/14/13px
                             const labelStyle = {
                               textAlign: 'left',
                               fontWeight: level <= 2 ? '700' : '500',
-                              fontSize: level === 1 ? '16px' : level === 2 ? '15px' : '14px',
+                              fontSize: level === 1 ? '15px' : level === 2 ? '14px' : '13px',
                               color: level <= 2 ? 'var(--color-navy)' : 'var(--color-text)',
                               background: level <= 2 ? '#f5f5f5' : undefined,
                               paddingLeft: `${(level - 1) * 16 + 8}px`,
                               borderTop: level === 1 ? '1px solid var(--color-border)' : 'none',
                               whiteSpace: 'pre',
                             }
-                            
+
                             const valStyle = {
                               fontWeight: level <= 2 ? '700' : '400',
-                              fontSize: '14px',
+                              fontSize: '13px',
                               background: level <= 2 ? '#f5f5f5' : undefined,
                               borderTop: level === 1 ? '1px solid var(--color-border)' : 'none',
                             }
