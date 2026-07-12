@@ -10,6 +10,7 @@
 const { test, expect } = require('@playwright/test');
 
 const PROJECT_NAME = `E2E Smoke ${Date.now()}`;
+const API_URL = 'http://localhost:8000/api';
 
 test.describe.serial('platform smoke', () => {
   /** @type {import('@playwright/test').Page} */
@@ -20,14 +21,17 @@ test.describe.serial('platform smoke', () => {
   });
 
   test.afterAll(async () => {
-    // Cleanup: delete the project created by this run (best effort)
+    // Cleanup via the API (deterministic — UI deletion proved flaky):
+    // remove every project this run created, then verify none remain.
     try {
-      await page.goto('/');
-      const card = page.locator('.card', { hasText: PROJECT_NAME });
-      if (await card.count()) {
-        page.once('dialog', (d) => d.accept());
-        await card.getByRole('button', { name: '🗑' }).click();
-        await expect(card).toHaveCount(0);
+      const res = await page.request.get(`${API_URL}/projects/`);
+      const mine = (await res.json()).filter((p) => p.company_name === PROJECT_NAME);
+      for (const p of mine) {
+        await page.request.delete(`${API_URL}/projects/${p.id}`);
+      }
+      const after = await (await page.request.get(`${API_URL}/projects/`)).json();
+      if (after.some((p) => p.company_name === PROJECT_NAME)) {
+        throw new Error(`cleanup failed: ${PROJECT_NAME} still present`);
       }
     } finally {
       await page.close();
