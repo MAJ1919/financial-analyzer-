@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useParams, useOutletContext } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import Header from '../../components/layout/Header'
+import { useProjectStore } from '../../store/projectStore'
 
 import { analysisApi } from '../../services/api'
 import { fmtRatioValue, fmtNumber } from '../../utils/formatters'
@@ -9,7 +10,7 @@ const TABS = ['Financial Ratios', 'Horizontal Analysis']
 
 export default function Analysis() {
   const { projectId } = useParams()
-  const { project } = useOutletContext()
+  const project = useProjectStore((s) => s.project)
 
   const [activeTab, setActiveTab] = useState(0)
   const [ratiosData, setRatiosData]       = useState(null)

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
-import { useParams, useOutletContext } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useParams } from 'react-router-dom'
+import { useProjectStore } from '../../store/projectStore'
 import Header from '../../components/layout/Header'
 import { projectsApi, analysisApi } from '../../services/api'
 import { fmtCurrency, fmtPercent } from '../../utils/formatters'
@@ -15,9 +16,9 @@ import { fmtCurrency, fmtPercent } from '../../utils/formatters'
  * NOTE: Ideally, this should pull explicit FCFs from the backend forecasting_engine
  * in the future to perfectly align with the 5-year projected statements.
  */
-function projectFCFs(baseFCF, wacc, tgr, years) {
+function projectFCFs(baseFCF, tgr, years) {
   const fcfGrowthRate = Math.min((tgr / 100) * 1.5, 0.08)
-  const fcfs = [], revenues = [], ebitdas = []
+  const fcfs = []
   let fcf = baseFCF
   for (let i = 0; i < years; i++) {
     fcf *= (1 + fcfGrowthRate)
@@ -29,7 +30,6 @@ function projectFCFs(baseFCF, wacc, tgr, years) {
 function computeDCF({
   baseFCF, ebitda, wacc, terminalGrowthRate, netDebt,
   sharesOutstanding, valuationMethod, exitMultiple, forecastYears,
-  minorityInterest = 0, // FIX 1: Added minority interest parameter
 }) {
   if (!wacc || wacc <= 0 || wacc >= 100) return null
   if (valuationMethod === 'perpetuity' && terminalGrowthRate >= wacc) return null
@@ -38,8 +38,8 @@ function computeDCF({
   const waccRate = wacc / 100
   const tgRate   = terminalGrowthRate / 100
   const fcfGrowthRate = Math.min((tgRate) * 1.5, 0.08) // Used for EBITDA projection
-  
-  const fcfs     = projectFCFs(baseFCF, wacc, terminalGrowthRate, forecastYears)
+
+  const fcfs     = projectFCFs(baseFCF, terminalGrowthRate, forecastYears)
 
   // Present value of each FCF
   const pvFCFs = fcfs.map((fcf, i) => fcf / Math.pow(1 + waccRate, i + 1))
@@ -60,9 +60,7 @@ function computeDCF({
   const pvTerminal = terminalValue / Math.pow(1 + waccRate, forecastYears)
 
   const enterpriseValue = totalPVFCF + pvTerminal
-  
-  // FIX 3: Subtract Minority Interest to get Equity Value available to common shareholders
-  const equityValue     = enterpriseValue - (netDebt || 0) - (minorityInterest || 0)
+  const equityValue     = enterpriseValue - (netDebt || 0)
   const valuePerShare   = sharesOutstanding > 0 ? equityValue / sharesOutstanding : null
 
   return {
@@ -136,9 +134,12 @@ function buildSensitivityGrid(baseWACC, baseTGR, baseMultiple, params) {
 // ============================================================
 export default function Valuation() {
   const { projectId } = useParams()
-  const { project } = useOutletContext()
+  const project = useProjectStore((s) => s.project)
 
   const currency = project?.currency || 'SAR'
+  // Assumptions are only persisted after the USER changes one — without this
+  // guard the debounce effect wrote default values to the DB on every visit.
+  const dirtyRef = useRef(false)
 
   // ── Assumptions (user-editable, auto-saved) ───────────────
   const [wacc, setWacc]                = useState(10)
@@ -182,8 +183,9 @@ export default function Valuation() {
     }
   }, [project, baseMetrics])
 
-  // Auto-save assumptions (800ms debounce)
+  // Auto-save assumptions (800ms debounce) — only after a user edit
   useEffect(() => {
+    if (!dirtyRef.current) return
     const timer = setTimeout(() => {
       const assumptions = {
         wacc,
@@ -198,7 +200,7 @@ export default function Valuation() {
         .finally(() => setSaving(false))
     }, 800)
     return () => clearTimeout(timer)
-  }, [wacc, terminalGrowthRate, sharesOutstanding, projectId])
+  }, [wacc, terminalGrowthRate, sharesOutstanding, projectId, baseMetrics])
 
   // ── Build projected FCF series from base FCF + WACC growth ─
   // Fallback to deriving metrics directly from the latest manual statement data
@@ -218,22 +220,18 @@ export default function Valuation() {
   const baseFCF   = baseMetrics?.base_fcf || manualBaseFCF || 0
   const netDebt   = baseMetrics?.net_debt ?? project?.dcf_assumptions?.net_debt ?? manualNetDebt ?? 0
   const ebitda    = baseMetrics?.ebitda   || manualEbitda || 0
-  const histWACC  = baseMetrics?.wacc?.historical_wacc
-  const histGrowth = baseMetrics?.wacc?.historical_growth_rate
-  
-  // FIX 1 (Cont.): Pull minority interest from base metrics
-  const minorityInterest = baseMetrics?.minority_interest || 0
 
   // ── DCF computation (instant, frontend only) ─────────────
   const dcfParams = {
     baseFCF, ebitda, wacc, terminalGrowthRate,
     netDebt, sharesOutstanding, valuationMethod, exitMultiple, forecastYears: forecastPeriod,
-    minorityInterest, // Passed to computeDCF
   }
   const result = computeDCF(dcfParams)
 
-  // ── Sensitivity grid (WACC ±3% × TGR ±1.5%) ─────────────
+  // ── Sensitivity grid (WACC ±2% × TGR/multiple rows) ──────
   const sensitivity = buildSensitivityGrid(wacc, terminalGrowthRate, exitMultiple, dcfParams)
+  // Colour-scale anchor, computed once (was re-derived per cell)
+  const sensitivityMax = Math.max(...sensitivity.grid.flat().filter(v => v != null && v > 0), 1)
 
   return (
     <>
@@ -284,7 +282,7 @@ export default function Valuation() {
                   type="number" step="0.1" min="0" max="100"
                   style={styles.inlineInput}
                   value={wacc}
-                  onChange={(e) => setWacc(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => { dirtyRef.current = true; setWacc(parseFloat(e.target.value) || 0) }}
                 />
                 <span style={{ fontSize: 14 }}>%</span>
               </AssumptionRow>
@@ -306,7 +304,7 @@ export default function Valuation() {
                     type="number" step="0.1" min="0" max="20"
                     style={styles.inlineInput}
                     value={terminalGrowthRate}
-                    onChange={(e) => setTGR(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => { dirtyRef.current = true; setTGR(parseFloat(e.target.value) || 0) }}
                   />
                   <span style={{ fontSize: 14 }}>%</span>
                 </AssumptionRow>
@@ -331,7 +329,7 @@ export default function Valuation() {
                   type="number" step="1" min="0"
                   style={{ ...styles.inlineInput, width: 100 }}
                   value={sharesOutstanding}
-                  onChange={(e) => setShares(e.target.value === '' ? '' : (parseFloat(e.target.value) || 0))}
+                  onChange={(e) => { dirtyRef.current = true; setShares(e.target.value === '' ? '' : (parseFloat(e.target.value) || 0)) }}
                 />
                 <span style={{ fontSize: 14 }}>M</span>
               </AssumptionRow>
@@ -360,7 +358,6 @@ export default function Valuation() {
               {[
                 ["Enterprise Value:",  fmtCurrency(result?.enterpriseValue, currency), true],
                 ["Less: Net Debt:",    fmtCurrency(netDebt, currency)],
-                ...(minorityInterest > 0 ? [["Less: Minority Interest:", fmtCurrency(minorityInterest, currency)]] : []),
                 ["Equity Value:",      fmtCurrency(result?.equityValue, currency), true],
               ].map(([label, val, bold]) => (
                 <div key={label} style={{ ...styles.compRow, fontWeight: bold ? 700 : 400 }}>
@@ -434,14 +431,13 @@ export default function Valuation() {
                           sensitivity.waccRange[ci] === wacc &&
                           sensitivity.tgrRange[ri] === (sensitivity.mode === 'multiple' ? exitMultiple : terminalGrowthRate)
                         // Colour scale: positive = green shades, negative = red
-                        const positiveMax = Math.max(...sensitivity.grid.flat().filter(v => v != null && v > 0), 1)
                         const bg = isBase
                           ? 'var(--color-teal-muted)'
                           : val == null
                             ? '#f8f8f8'
                             : val < 0
-                              ? `rgba(239,68,68,${Math.min(0.35, Math.abs(val) / positiveMax * 0.5)})`
-                              : `rgba(16,185,129,${Math.min(0.35, val / positiveMax * 0.5)})`
+                              ? `rgba(239,68,68,${Math.min(0.35, Math.abs(val) / sensitivityMax * 0.5)})`
+                              : `rgba(16,185,129,${Math.min(0.35, val / sensitivityMax * 0.5)})`
                         return (
                           <td key={ci} style={{
                             ...styles.sensCell,

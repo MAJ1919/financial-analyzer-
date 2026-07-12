@@ -57,8 +57,10 @@ export default function ProjectLayout() {
     <div className="app-shell">
       <Sidebar companyName={project?.company_name} />
       <div className="main-content">
-        {/* Outlet renders the child route (FinancialStatements, Analysis, etc.) */}
-        <Outlet context={{ project, setProject }} />
+        {/* Child routes read the project from useProjectStore — the single
+            state authority. No Outlet context: two subscription models for
+            the same object caused stale-render bugs. */}
+        <Outlet />
       </div>
     </div>
   )

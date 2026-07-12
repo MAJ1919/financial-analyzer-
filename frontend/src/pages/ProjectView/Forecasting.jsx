@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useParams, useOutletContext } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import Header from '../../components/layout/Header'
+import { useProjectStore } from '../../store/projectStore'
 import { analysisApi } from '../../services/api'
 import { recalculateTotals } from '../../utils/calculations'
 import { fmtNumber, fmtCurrency, fmtPercent } from '../../utils/formatters'
@@ -78,7 +79,7 @@ const SCENARIO_CONFIG = {
 
 export default function Forecasting() {
   const { projectId } = useParams()
-  const { project }   = useOutletContext()
+  const project       = useProjectStore((s) => s.project)
   const currency      = project?.currency || 'SAR'
 
   // ── State ──────────────────────────────────────────────────
@@ -147,12 +148,15 @@ export default function Forecasting() {
 
   const selectScenario = (s) => setActiveScenario(s)
 
-  // Derived display data
+  // Derived display data (memoized so downstream useMemo deps are stable)
   const primaryScenario = results?.scenarios?.[activeScenario] || results?.scenarios?.base
-  const forecasts = primaryScenario?.forecasts || []
+  const forecasts = useMemo(() => primaryScenario?.forecasts || [], [primaryScenario])
   const cumulative = primaryScenario?.cumulative_metrics || null
   const years = forecasts.map(f => f.year)
-  const activeRows = project?.[activeTab === 'cash_flow_statement' ? 'cash_flow_statement' : activeTab]?.rows || []
+  const activeRows = useMemo(
+    () => project?.[activeTab]?.rows || [],
+    [project, activeTab]
+  )
 
   const isInitialized = !!(
     project?.income_statement?.rows?.length > 0 &&
