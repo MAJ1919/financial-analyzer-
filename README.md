@@ -34,7 +34,8 @@ financial-analyzer-platform/
 
 ### 1. Supabase Setup
 1. Create a project at [supabase.com](https://supabase.com)
-2. In the SQL Editor, run `supabase/migrations/20260101_init.sql`
+2. In the SQL Editor, run every file in `supabase/migrations/` **in filename order**
+   (the init migration alone is missing the `cash_flow_statement` column)
 3. (Optional) Run `supabase/seed.sql` for demo data
 
 ### 2. Backend
@@ -100,12 +101,17 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 | Module | Status |
 |---|---|
-| Project Management (CRUD) | ✅ Scaffolded |
-| Excel Upload + Mapping | ⚠ Stub — needs real anchor keywords |
-| Financial Statements (IS/BS) | ✅ Scaffolded |
-| Derived Cash Flow Statement | ⚠ Stub — formulas pending |
-| Financial Ratio Analysis | ⚠ Partial — key ratios need SRS §9.1 formulas |
+| Project Management (CRUD) | ✅ Implemented |
+| Excel Upload (strict template) | ✅ Implemented — labels must match `Saudi_Template.xlsx` |
+| Financial Statements (IS/BS/CFS manual entry) | ✅ Implemented — totals auto-calculated |
+| Derived Cash Flow Statement | ✅ Implemented (frontend `deriveCashFlow`, persisted) |
+| Financial Ratio Analysis (32 ratios) | ✅ Implemented |
 | Horizontal Analysis | ✅ Implemented |
-| 5-Year Forecasting | ⚠ Stub — projection grid pending |
-| DCF Valuation | ✅ Implemented (frontend-only) |
+| 5-Year Forecasting | ✅ Implemented — balanced + faithful modes, per-year growth |
+| DCF Valuation | ✅ Implemented (frontend-only, backend base metrics) |
+| Backend test suite | ✅ 85 tests (`cd backend && python -m pytest`) |
+| Auth / multi-user | 🔲 Not implemented — local development tool |
 | PDF Export | 🔲 Stretch goal |
+
+See `CLAUDE.md` for architecture contracts (calculation ownership, template
+single source of truth) and development commands.
