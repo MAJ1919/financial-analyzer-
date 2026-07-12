@@ -58,11 +58,9 @@ export const templatesApi = {
 export const analysisApi = {
   getRatios:              (projectId) => api.get(`/analysis/${projectId}/ratios`),
   getHorizontal:          (projectId) => api.get(`/analysis/${projectId}/horizontal`),
-  getCashFlow:            (projectId) => api.get(`/analysis/${projectId}/cashflow`),
   getForecast:            (projectId) => api.get(`/analysis/${projectId}/forecast`),
   getHistoricalAssumptions: (projectId) => api.get(`/analysis/${projectId}/forecast/assumptions`),
   computeForecast:        (projectId, payload) => api.post(`/analysis/${projectId}/forecast/compute`, payload),
-  saveForecast:           (projectId, payload) => api.patch(`/analysis/${projectId}/forecast`, payload),
   getDcfMetrics:          (projectId) => api.get(`/analysis/${projectId}/dcf-metrics`),
 }
 

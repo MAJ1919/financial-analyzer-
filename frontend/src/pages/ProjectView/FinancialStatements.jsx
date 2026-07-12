@@ -105,8 +105,8 @@ export default function FinancialStatements() {
       const updatedProject = await projectsApi.get(projectId)
       setProject(updatedProject)
       
-      if (res?.data?.unmapped_rows && Object.keys(res.data.unmapped_rows).length > 0) {
-        setUnmappedWarning(res.data.unmapped_rows)
+      if (res?.unmapped_rows && Object.keys(res.unmapped_rows).length > 0) {
+        setUnmappedWarning(res.unmapped_rows)
       }
     } catch (err) {
       setError(err.message || 'Failed to upload Excel file')

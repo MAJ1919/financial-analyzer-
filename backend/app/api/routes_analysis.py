@@ -79,24 +79,6 @@ def get_horizontal_analysis(project_id: str, db: Client = Depends(get_db)):
     return result
 
 
-@router.get("/{project_id}/cashflow")
-def get_cash_flow_statement(project_id: str, db: Client = Depends(get_db)):
-    """
-    Return the stored Cash Flow Statement from the database.
-    """
-    project = db.table("projects").select("cash_flow_statement").eq("id", project_id).execute()
-
-    if not project.data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-
-    pdata = project.data[0]
-    stored_cf = pdata.get("cash_flow_statement")
-    if not stored_cf:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cash flow statement not available")
-    
-    return stored_cf
-
-
 @router.get("/{project_id}/forecast")
 def get_forecast(project_id: str, db: Client = Depends(get_db)):
     """Return the stored 5-year projection data for the project."""
@@ -106,15 +88,6 @@ def get_forecast(project_id: str, db: Client = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     return project.data[0].get("forecast_data", {})
-
-
-@router.patch("/{project_id}/forecast")
-def save_forecast(project_id: str, payload: dict, db: Client = Depends(get_db)):
-    """Persist 5-year projection growth rates and computed projections."""
-    result = db.table("projects").update({"forecast_data": payload}).eq("id", project_id).execute()
-    if not result.data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    return {"status": "saved"}
 
 
 @router.get("/{project_id}/dcf-metrics")

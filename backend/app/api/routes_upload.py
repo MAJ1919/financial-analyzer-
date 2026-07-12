@@ -45,7 +45,13 @@ async def upload_template(
         if not result.data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    return {"status": "saved", "project_id": project_id, "data": parsed_data}
+    # Slim response: the frontend refetches the project for statement data;
+    # it only needs the unmapped-row report from this call.
+    return {
+        "status": "saved",
+        "project_id": project_id,
+        "unmapped_rows": parsed_data.get("unmapped_rows", {}),
+    }
 
 @router.post("/manual/{project_id}")
 async def save_manual_entry(
