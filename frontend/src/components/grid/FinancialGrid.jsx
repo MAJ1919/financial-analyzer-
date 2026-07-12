@@ -1,12 +1,14 @@
 import { AgGridReact } from 'ag-grid-react'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-quartz.css'
 import { useMemo, useRef, useCallback, useState } from 'react'
 import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community'
 import { fmtNumber } from '../../utils/formatters'
+import { isHiddenHeaderRow, resolveRowLevel } from '../../utils/statementDisplay'
 
 // Register AG Grid modules (required in v32+)
 ModuleRegistry.registerModules([AllCommunityModule])
+// NOTE: v33 uses the Theming API (Quartz by default). Do NOT import the
+// legacy ag-grid.css / ag-theme-*.css files — mixing both triggers AG Grid
+// error #239 and double-applies theme styles.
 
 /**
  * FinancialGrid — AG Grid Community Edition wrapper.
@@ -53,13 +55,8 @@ export default function FinancialGrid({
     width: 300,
     editable: false,
     cellStyle: (params) => {
-      // Fallback for legacy rows without a level property
-      let level = params.data?.level || (params.data?.is_subtotal ? 1 : params.data?.is_header ? 2 : 3)
-      
-      // Override level based on is_subtotal/is_header to ensure consistency
-      if (params.data?.is_subtotal) level = 1
-      else if (params.data?.is_header && level > 2) level = 2
-      
+      const level = resolveRowLevel(params.data)
+
       let bg = undefined
       if (params.data?.is_header || params.data?.is_subtotal) bg = '#f5f5f5'
       
@@ -98,13 +95,9 @@ export default function FinancialGrid({
         }
         
         if (p.value == null || p.value === '') return '—'
-        
-        if (p.data?.is_header && !p.data?.is_subtotal) {
-            if (['earningsPerShareHeader', 'sharesOutstandingHeader', 'supplementalMetricsHeader', 'comprehensiveIncomeHeader', 'receivablesChangeHeader', 'inventoryChangeHeader', 'otherCurrentAssetsChangeHeader', 'payablesChangeHeader', 'otherLiabilitiesChangeHeader', 'otherOperatingActivitiesHeader', 'borrowingsHeader', 'debtRepaymentsHeader', 'shareholderReturnsHeader', 'otherFinancingActivitiesHeader', 'cashReconciliationHeader', 'supplementalDisclosureHeader'].includes(p.data?.key)) {
-                return ''
-            }
-        }
-        
+
+        if (isHiddenHeaderRow(p.data)) return ''
+
         const num = Number(p.value)
         const formatted = fmtNumber(num, decimals)
         if (p.data?.key === 'balanceCheck') {
@@ -123,10 +116,8 @@ export default function FinancialGrid({
         return isNaN(num) ? 0 : num
       },
       cellStyle: (params) => {
-        let level = params.data?.level || (params.data?.is_subtotal ? 1 : params.data?.is_header ? 2 : 3)
-        if (params.data?.is_subtotal) level = 1
-        else if (params.data?.is_header && level > 2) level = 2
-        
+        const level = resolveRowLevel(params.data)
+
         let bg = undefined
         if (params.data?.is_header || params.data?.is_subtotal) bg = '#f5f5f5'
         
@@ -157,7 +148,7 @@ export default function FinancialGrid({
         }
       },
     })),
-  [years, isRowEditable, onCellEdit, decimals, projectIndustry])
+  [years, isRowEditable, decimals, projectIndustry])
 
   // Flatten rows for AG Grid (values dict → flat object)
   const rowData = useMemo(() =>
@@ -226,7 +217,7 @@ export default function FinancialGrid({
           </div>
         </button>
       </div>
-      <div className="ag-theme-quartz" style={{ width: '100%' }}>
+      <div style={{ width: '100%' }}>
         <AgGridReact
           ref={gridRef}
           rowData={rowData}

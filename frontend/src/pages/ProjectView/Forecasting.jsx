@@ -5,6 +5,7 @@ import { useProjectStore } from '../../store/projectStore'
 import { analysisApi } from '../../services/api'
 import { recalculateTotals } from '../../utils/calculations'
 import { fmtNumber, fmtCurrency, fmtPercent } from '../../utils/formatters'
+import { isHiddenHeaderRow, resolveRowLevel } from '../../utils/statementDisplay'
 
 // ── Core assumptions (user-facing form) ────────────────────────
 // Revenue growth is rendered separately (single-rate vs per-year modes).
@@ -542,22 +543,12 @@ export default function Forecasting() {
                       </thead>
                       <tbody>
                         {projectedRows.map(row => {
-                          let level = row.level || (row.is_subtotal ? 1 : row.is_header ? 2 : 3);
-                          if (row.is_subtotal) level = 1;
-                          else if (row.is_header && level > 2) level = 2;
-                          
+                          const level = resolveRowLevel(row);
                           const bg = (row.is_header || row.is_subtotal) ? '#f5f5f5' : undefined;
                           const fw = level === 1 ? 700 : level === 2 ? 600 : 400;
                           const fs = level === 1 ? '15px' : level === 2 ? '14px' : '13px';
-                          
-                          // Hide non-calculable 'pure label' headers
-                          let hideValue = false;
-                          if (row.is_header && !row.is_subtotal) {
-                              if (['earningsPerShareHeader', 'sharesOutstandingHeader', 'supplementalMetricsHeader', 'comprehensiveIncomeHeader', 'receivablesChangeHeader', 'inventoryChangeHeader', 'otherCurrentAssetsChangeHeader', 'payablesChangeHeader', 'otherLiabilitiesChangeHeader', 'otherOperatingActivitiesHeader', 'borrowingsHeader', 'debtRepaymentsHeader', 'shareholderReturnsHeader', 'otherFinancingActivitiesHeader', 'cashReconciliationHeader', 'supplementalDisclosureHeader'].includes(row.key)) {
-                                  hideValue = true;
-                              }
-                          }
-                          
+                          const hideValue = isHiddenHeaderRow(row);
+
                           return (
                             <tr key={row.key} style={{ 
                               background: bg,

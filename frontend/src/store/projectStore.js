@@ -45,7 +45,7 @@ export const useProjectStore = create((set, get) => ({
       // Only initialize if statements don't exist yet
       if (state.project?.income_statement) return;
 
-      const project = { ...state.project } || {};
+      const project = { ...(state.project || {}) };
       const years = [String(startYear)];
 
       const templateData = await fetchStatementTemplates();

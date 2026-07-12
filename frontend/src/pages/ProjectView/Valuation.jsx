@@ -398,7 +398,7 @@ export default function Valuation() {
                 <thead>
                   <tr>
                     <th style={styles.sensCell}>
-                      {sensitivity.mode === 'multiple' ? 'Multiple \ WACC' : 'TGR \ WACC'}
+                      {sensitivity.mode === 'multiple' ? 'Multiple \\ WACC' : 'TGR \\ WACC'}
                     </th>
                     {sensitivity.waccRange.map((w) => (
                       <th key={w} style={{
