@@ -48,6 +48,12 @@ export const uploadApi = {
     api.post(`/upload/manual/${projectId}`, payload),
 }
 
+// ── Templates ─────────────────────────────────────────────────────
+export const templatesApi = {
+  // Canonical statement structure — single source of truth on the backend
+  getStatementTemplates: () => api.get('/templates/statements'),
+}
+
 // ── Analysis Engine ───────────────────────────────────────────────
 export const analysisApi = {
   getRatios:              (projectId) => api.get(`/analysis/${projectId}/ratios`),

@@ -12,21 +12,13 @@ import re
 import datetime as _dt
 from typing import Any
 import openpyxl
-import json
-import os
 import math
 
 from app.models.financial import FinancialRow, FinancialStatement, label_to_key
+from app.models.statement_templates import load_statement_templates
 
-# Load template
-_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "..", "models", "manualEntryTemplate.json")
-
-try:
-    with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-        TEMPLATE_DATA = json.load(f)
-except FileNotFoundError:
-    print("WARNING: manualEntryTemplate.json not found in backend/app/models/.")
-    TEMPLATE_DATA = {"balance_sheet": [], "income_statement": [], "cash_flow_statement": []}
+# Canonical template — single source of truth in app/models/statement_templates.py
+TEMPLATE_DATA = load_statement_templates()
 
 # Strict sheet name mapping
 STRICT_SHEET_MAP = {

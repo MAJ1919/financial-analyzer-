@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import routes_projects, routes_upload, routes_analysis
+from app.api import routes_projects, routes_upload, routes_analysis, routes_templates
 from app.core.config import settings
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(routes_projects.router, prefix="/api/projects", tags=["Projects"])
 app.include_router(routes_upload.router, prefix="/api/upload", tags=["Upload"])
 app.include_router(routes_analysis.router, prefix="/api/analysis", tags=["Analysis"])
+app.include_router(routes_templates.router, prefix="/api/templates", tags=["Templates"])
 
 
 @app.get("/", tags=["Health"])

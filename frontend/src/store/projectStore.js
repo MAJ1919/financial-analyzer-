@@ -1,10 +1,19 @@
 import { create } from 'zustand';
-import { uploadApi } from '../services/api';
+import { uploadApi, templatesApi } from '../services/api';
 import { recalculateTotals, deriveCashFlow } from '../utils/calculations';
-import TEMPLATE_STRUCTURE from '../utils/statementTemplateStructure.json'; // <-- IMPORT THIS
 
 let debounceTimeoutRef = null;
 let statusTimeoutRef = null;
+
+// Statement template is fetched from the backend (single source of truth:
+// backend/app/models/manualEntryTemplate.json) and cached per session.
+let templateCache = null;
+async function fetchStatementTemplates() {
+  if (!templateCache) {
+    templateCache = await templatesApi.getStatementTemplates();
+  }
+  return templateCache;
+}
 
 export const useProjectStore = create((set, get) => ({
   project: null,
@@ -30,7 +39,7 @@ export const useProjectStore = create((set, get) => ({
     set({ project });
   },
   
-  initializeManualStatements: (startYear = new Date().getFullYear()) => {
+  initializeManualStatements: async (startYear = new Date().getFullYear()) => {
     const state = get();
     try {
       // Only initialize if statements don't exist yet
@@ -39,7 +48,7 @@ export const useProjectStore = create((set, get) => ({
       const project = { ...state.project } || {};
       const years = [String(startYear)];
 
-      const templateData = TEMPLATE_STRUCTURE.default || TEMPLATE_STRUCTURE;
+      const templateData = await fetchStatementTemplates();
 
       const buildEmptyStatement = (type) => {
         const rows = templateData[type].map((row, index) => ({
