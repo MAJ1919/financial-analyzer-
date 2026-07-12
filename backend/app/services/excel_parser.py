@@ -65,6 +65,12 @@ def _extract_year_from_cell(cell: Any) -> str | None:
     if isinstance(cell, (_dt.datetime, _dt.date)):
         y = str(cell.year)
         return y if re.match(r"^(?:19|20)\d{2}$", y) else None
+    # Numeric cells: Excel stores a typed "2022" as a number, not text
+    if isinstance(cell, (int, float)) and not isinstance(cell, bool):
+        if float(cell).is_integer():
+            y = str(int(cell))
+            return y if re.fullmatch(r"(?:19|20)\d{2}", y) else None
+        return None
     if not isinstance(cell, str):
         return None
     val = cell.strip()
