@@ -179,13 +179,6 @@ LABEL_TO_KEY: dict[str, str] = {
     "Net Change in Cash":         "netChangeInCash",
 }
 
-# Reverse mapping: canonical key → display label (first match wins)
-KEY_TO_LABEL: dict[str, str] = {}
-for _label, _key in LABEL_TO_KEY.items():
-    if _key not in KEY_TO_LABEL:
-        KEY_TO_LABEL[_key] = _label
-
-
 def label_to_key(label: str) -> str:
     """Convert a display label to a camelCase canonical key. Returns label as-is if unknown."""
     return LABEL_TO_KEY.get(label, label)
