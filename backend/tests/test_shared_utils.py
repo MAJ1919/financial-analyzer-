@@ -57,6 +57,16 @@ class TestGetCompat:
     def test_missing_key_returns_zero(self):
         assert _get_compat({}, "totalRevenue", "2023") == 0.0
 
+    def test_removed_aggregate_rows_resolve_to_computed_headers(self):
+        # The standalone "Total Inventory" / trade-payables rows were removed
+        # from the template; DIO/DPO derivation must resolve via the headers.
+        lookup = {
+            "inventoryHeader":     {"2023": 800.0},
+            "tradePayablesHeader": {"2023": 300.0},
+        }
+        assert _get_compat(lookup, "totalInventory", "2023") == 800.0
+        assert _get_compat(lookup, "tradePayables", "2023") == 300.0
+
 
 class TestNoDuplication:
     """If these fail, someone re-copied the helpers into an engine — don't."""

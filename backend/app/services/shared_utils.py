@@ -62,6 +62,8 @@ KEY_COMPAT_MAP: dict[str, list[str]] = {
     "propertyPlantEquipment":  ["ppeHeader", "grossPPE", "netPPE"],
     "accountsReceivable":      ["receivablesHeader", "netReceivables", "tradeAccountsReceivable"],
     "inventory":               ["inventoryHeader", "totalInventory"],
+    "totalInventory":          ["inventoryHeader"],
+    "tradePayables":           ["tradePayablesHeader"],
     "totalCurrentAssets":      ["currentAssetsHeader"],
     "totalAssets":             ["assetsHeader"],
     "totalCurrentLiabilities": ["currentLiabilitiesHeader"],

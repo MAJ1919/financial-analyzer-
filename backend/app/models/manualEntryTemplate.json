@@ -124,14 +124,6 @@
       "industry": "general"
     },
     {
-      "label": "Net Receivables",
-      "key": "netReceivables",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "Inventory",
       "key": "inventoryHeader",
       "section": "Assets",
@@ -181,27 +173,11 @@
       "industry": "general"
     },
     {
-      "label": "Total Inventory",
-      "key": "totalInventory",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "Other Current Assets",
       "key": "otherCurrentAssetsData",
       "section": "Assets",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total Current Assets",
-      "key": "totalCurrentAssets",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -303,14 +279,6 @@
       "industry": "general"
     },
     {
-      "label": "Net Property, Plant & Equipment",
-      "key": "netPPE",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "Intangible Assets",
       "key": "intangibleAssetsHeader",
       "section": "Assets",
@@ -357,14 +325,6 @@
       "section": "Assets",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Net Intangible Assets",
-      "key": "netIntangibleAssets",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 2,
       "industry": "general"
     },
     {
@@ -438,22 +398,6 @@
       "section": "Assets",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total Non-Current Assets",
-      "key": "totalNonCurrentAssets",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 1,
-      "industry": "general"
-    },
-    {
-      "label": "Total Assets",
-      "key": "totalAssets",
-      "section": "Assets",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -637,14 +581,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Current Liabilities",
-      "key": "totalCurrentLiabilities",
-      "section": "Liabilities",
-      "is_subtotal": true,
-      "level": 1,
-      "industry": "general"
-    },
-    {
       "label": "Non-Current Liabilities",
       "key": "nonCurrentLiabilitiesHeader",
       "section": "Liabilities",
@@ -707,22 +643,6 @@
       "section": "Liabilities",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total Non-Current Liabilities",
-      "key": "totalNonCurrentLiabilities",
-      "section": "Liabilities",
-      "is_subtotal": true,
-      "level": 1,
-      "industry": "general"
-    },
-    {
-      "label": "Total Liabilities",
-      "key": "totalLiabilities",
-      "section": "Liabilities",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -807,14 +727,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Equity",
-      "key": "totalEquity",
-      "section": "Equity",
-      "is_subtotal": true,
-      "level": 1,
-      "industry": "general"
-    },
-    {
       "label": "Total Liabilities & Equity",
       "key": "totalLiabilitiesAndEquity",
       "section": "Equity",
@@ -863,14 +775,6 @@
       "section": "Revenue",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total Revenue",
-      "key": "totalRevenue",
-      "section": "Revenue",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -990,14 +894,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Cost of Revenue",
-      "key": "totalCostOfRevenue",
-      "section": "Revenue",
-      "is_subtotal": true,
-      "level": 1,
-      "industry": "general"
-    },
-    {
       "label": "Gross Profit",
       "key": "grossProfit",
       "section": "Revenue",
@@ -1056,14 +952,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Selling Expense",
-      "key": "totalSellingExpense",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "General & Administrative",
       "key": "generalAdminHeader",
       "section": "Operating",
@@ -1102,14 +990,6 @@
       "section": "Operating",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total General & Administrative Expense",
-      "key": "totalGeneralAdminExpense",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 2,
       "industry": "general"
     },
     {
@@ -1184,23 +1064,6 @@
       "section": "Operating",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Total Other Operating Expense",
-      "key": "totalOtherOperatingExpense",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
-      "label": "Operating Income",
-      "key": "operatingIncomeDisplayHeader",
-      "section": "Operating",
-      "is_header": true,
-      "is_subtotal": false,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -1526,14 +1389,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Non-Cash Adjustments",
-      "key": "totalNonCashAdjustments",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "Working Capital Changes",
       "key": "workingCapitalHeader",
       "section": "Operating",
@@ -1748,14 +1603,6 @@
       "industry": "general"
     },
     {
-      "label": "Total Working Capital Adjustments",
-      "key": "totalWorkingCapitalAdjustments",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 2,
-      "industry": "general"
-    },
-    {
       "label": "Other Operating Activities",
       "key": "otherOperatingActivitiesHeader",
       "section": "Operating",
@@ -1802,14 +1649,6 @@
       "section": "Operating",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Net Cash from Operating Activities",
-      "key": "operatingCashFlow",
-      "section": "Operating",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -1883,14 +1722,6 @@
       "section": "Investing",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Net Cash from Investing Activities",
-      "key": "investingCashFlow",
-      "section": "Investing",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {
@@ -2025,14 +1856,6 @@
       "section": "Financing",
       "is_subtotal": false,
       "level": 3,
-      "industry": "general"
-    },
-    {
-      "label": "Net Cash from Financing Activities",
-      "key": "financingCashFlow",
-      "section": "Financing",
-      "is_subtotal": true,
-      "level": 1,
       "industry": "general"
     },
     {

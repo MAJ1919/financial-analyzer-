@@ -30,3 +30,22 @@ def test_rows_carry_required_fields():
         for row in rows:
             assert row["key"] and row["label"] is not None
             assert "section" in row and "level" in row
+
+
+def test_no_redundant_aggregate_rows():
+    """Aggregates live in the computed header rows (Revenue, Assets, ...) —
+    standalone 'Total X' duplicates must not creep back into the template."""
+    deprecated = {
+        "totalRevenue", "totalCostOfRevenue", "totalSellingExpense",
+        "totalGeneralAdminExpense", "totalOtherOperatingExpense",
+        "operatingIncomeDisplayHeader",
+        "netReceivables", "totalInventory", "totalCurrentAssets", "netPPE",
+        "netIntangibleAssets", "totalNonCurrentAssets", "totalAssets",
+        "totalCurrentLiabilities", "totalNonCurrentLiabilities",
+        "totalLiabilities", "totalEquity",
+        "operatingCashFlow", "investingCashFlow", "financingCashFlow",
+        "totalNonCashAdjustments", "totalWorkingCapitalAdjustments",
+    }
+    body = client.get("/api/templates/statements").json()
+    present = {row["key"] for rows in body.values() for row in rows}
+    assert not (present & deprecated), f"redundant rows back in template: {present & deprecated}"

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { uploadApi, templatesApi } from '../services/api';
 import { recalculateTotals, deriveCashFlow } from '../utils/calculations';
+import { DEPRECATED_ROW_KEYS } from '../utils/statementDisplay';
 
 let debounceTimeoutRef = null;
 let statusTimeoutRef = null;
@@ -19,6 +20,16 @@ export const useProjectStore = create((set, get) => ({
   project: null,
   saveStatus: 'idle',
   setProject: (project) => {
+    // Drop deprecated aggregate rows from projects saved before the template
+    // cleanup (persisted again on the next autosave).
+    for (const stmt of ['income_statement', 'balance_sheet', 'cash_flow_statement']) {
+      if (project?.[stmt]?.rows) {
+        project[stmt] = {
+          ...project[stmt],
+          rows: project[stmt].rows.filter((r) => !DEPRECATED_ROW_KEYS.has(r.key)),
+        };
+      }
+    }
     // When loading from backend, re-derive cash flow from IS+BS so it's always linked
     if (project?.income_statement?.rows && project?.balance_sheet?.rows && project?.cash_flow_statement?.rows) {
       try {

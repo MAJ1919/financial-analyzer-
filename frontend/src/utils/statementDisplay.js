@@ -3,6 +3,39 @@
  * projections table — keep the two views visually identical.
  */
 
+// Redundant aggregate rows removed from the canonical template: each one
+// duplicated a computed header/subtotal (e.g. "Total Revenue" vs the
+// "Revenue" header, which already totals its children). Projects saved
+// before the removal still carry them in stored JSONB — projectStore
+// filters them out on load so legacy data renders identically.
+export const DEPRECATED_ROW_KEYS = new Set([
+  // Income statement
+  'totalRevenue',
+  'totalCostOfRevenue',
+  'totalSellingExpense',
+  'totalGeneralAdminExpense',
+  'totalOtherOperatingExpense',
+  'operatingIncomeDisplayHeader',
+  // Balance sheet
+  'netReceivables',
+  'totalInventory',
+  'totalCurrentAssets',
+  'netPPE',
+  'netIntangibleAssets',
+  'totalNonCurrentAssets',
+  'totalAssets',
+  'totalCurrentLiabilities',
+  'totalNonCurrentLiabilities',
+  'totalLiabilities',
+  'totalEquity',
+  // Cash flow statement
+  'operatingCashFlow',
+  'investingCashFlow',
+  'financingCashFlow',
+  'totalNonCashAdjustments',
+  'totalWorkingCapitalAdjustments',
+])
+
 // Pure-label section headers: rows that group children but hold no value
 // of their own, so their cells render blank.
 export const HIDDEN_HEADER_KEYS = new Set([

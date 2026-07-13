@@ -279,7 +279,8 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
     setCfs('depreciationCostOfSales', year, depCostSales);
     setCfs('depreciationOpex', year, depOpex);
     setCfs('amortizationOpex', year, amortOpex);
-    setCfs('totalNonCashAdjustments', year, Math.abs(depCostSales + depOpex + amortOpex));
+    // Non-cash total is computed into nonCashAdjustmentsHeader by
+    // recalculateTotals — no separate "Total Non-Cash Adjustments" row.
 
     // Working Capital and Investing/Financing Cash Flows require a previous year
     if (prevYear) {
@@ -313,10 +314,7 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       const prevEosb = getBs('employeeEndOfServiceBenefits', prevYear);
       const eosbChange = currEosb - prevEosb;
       setCfs('changeEndOfServiceBenefits', year, eosbChange);
-
-      // Total Working Capital
-      const totalWC = recChange + invChange + apChange + accruedChange + eosbChange;
-      setCfs('totalWorkingCapitalAdjustments', year, totalWC);
+      // WC total is computed into workingCapitalHeader by recalculateTotals.
 
       // --- Investing ---
       const currPpe = getBs('grossPPE', year);
@@ -348,7 +346,6 @@ export function deriveCashFlow(isRows, bsRows, cfsRows, years) {
       setCfs('changeRawMaterials', year, 0);
       setCfs('changeAccountsPayable', year, 0);
       setCfs('changeAccruedExpenses', year, 0);
-      setCfs('totalWorkingCapitalAdjustments', year, 0);
       setCfs('capitalExpenditures', year, 0);
       setCfs('cfShortTermBorrowings', year, 0);
       setCfs('cfLongTermBorrowings', year, 0);

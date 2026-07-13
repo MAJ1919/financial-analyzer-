@@ -213,7 +213,9 @@ export default function Valuation() {
     return row && row.values[latestYear] != null ? Number(row.values[latestYear]) : 0;
   };
 
-  const manualBaseFCF = getManualVal('cash_flow_statement', 'operatingCashFlow') + getManualVal('cash_flow_statement', 'capitalExpenditures');
+  // operatingActivitiesHeader is the computed OCF total (the standalone
+  // operatingCashFlow row was removed as a redundant duplicate)
+  const manualBaseFCF = getManualVal('cash_flow_statement', 'operatingActivitiesHeader') + getManualVal('cash_flow_statement', 'capitalExpenditures');
   const manualEbitda = getManualVal('income_statement', 'ebitda');
   const manualNetDebt = getManualVal('balance_sheet', 'stBorrowingsData') + getManualVal('balance_sheet', 'currentPortionLTDebt') + getManualVal('balance_sheet', 'ltDebtData') - getManualVal('balance_sheet', 'cashAndEquivalents');
 
