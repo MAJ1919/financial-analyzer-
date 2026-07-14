@@ -64,4 +64,46 @@ export const analysisApi = {
   getDcfMetrics:          (projectId) => api.get(`/analysis/${projectId}/dcf-metrics`),
 }
 
+// ── Export ────────────────────────────────────────────────────────
+export const exportApi = {
+  // Fetch the .xlsx as a Blob (interceptor returns response.data = Blob).
+  downloadExcel: (projectId) =>
+    api.get(`/projects/${projectId}/export/excel`, {
+      responseType: 'blob',
+      timeout: 120000,
+    }),
+}
+
+/**
+ * Trigger a browser download of the project's Excel model.
+ * Throws with a readable message if the backend rejects (e.g. no data).
+ */
+export async function downloadProjectExcel(projectId, companyName = 'Project') {
+  let blob
+  try {
+    blob = await exportApi.downloadExcel(projectId)
+  } catch (err) {
+    // Blob error bodies arrive as a Blob — try to read the JSON detail.
+    if (err?.response?.data instanceof Blob) {
+      try {
+        const text = await err.response.data.text()
+        const parsed = JSON.parse(text)
+        throw new Error(parsed.detail || 'Export failed')
+      } catch (inner) {
+        throw new Error(inner.message || 'Export failed')
+      }
+    }
+    throw err
+  }
+  const safe = (companyName || 'Project').replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^_+|_+$/g, '') || 'Project'
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${safe}_Financial_Model.xlsx`
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 export default api

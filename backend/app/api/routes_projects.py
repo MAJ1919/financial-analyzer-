@@ -1,8 +1,13 @@
+import re
+import urllib.parse
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from supabase import Client
 
 from app.api.dependencies import get_db
 from app.models.project import ProjectCreate, ProjectUpdate, ProjectResponse
+from app.services.excel_export import export_project_to_xlsx_bytes
 
 router = APIRouter()
 
@@ -42,6 +47,40 @@ def update_project(project_id: str, payload: ProjectUpdate, db: Client = Depends
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
     return result.data[0]
+
+
+@router.get("/{project_id}/export/excel")
+def export_project_excel(project_id: str, db: Client = Depends(get_db)):
+    """
+    Build and stream a fully-formatted, formula-driven Excel workbook for the
+    project: the three statements (actuals + a live projected model), Ratios,
+    Horizontal Analysis, a DCF with sensitivity, and an editable Assumptions
+    panel. Projections reproduce the app's forecasting engine as live formulas.
+    """
+    result = db.table("projects").select("*").eq("id", project_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    project = result.data[0]
+    try:
+        xlsx_bytes = export_project_to_xlsx_bytes(project)
+    except ValueError as exc:
+        # e.g. project has no statement data yet
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+    company = (project.get("company_name") or "Project").strip()
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "_", company).strip("_") or "Project"
+    filename = f"{safe}_Financial_Model.xlsx"
+    # RFC 5987 encoding so non-ASCII company names survive the header
+    disposition = (
+        f"attachment; filename=\"{filename}\"; "
+        f"filename*=UTF-8''{urllib.parse.quote(filename)}"
+    )
+    return StreamingResponse(
+        iter([xlsx_bytes]),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": disposition},
+    )
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import Header from '../../components/layout/Header'
 import { useProjectStore } from '../../store/projectStore'
@@ -81,6 +81,7 @@ const SCENARIO_CONFIG = {
 export default function Forecasting() {
   const { projectId } = useParams()
   const project       = useProjectStore((s) => s.project)
+  const setProject    = useProjectStore((s) => s.setProject)
   const currency      = project?.currency || 'SAR'
 
   // ── State ──────────────────────────────────────────────────
@@ -90,19 +91,52 @@ export default function Forecasting() {
   const [running, setRunning]           = useState(false)
   const [activeScenario, setActiveScenario] = useState('base')
   const [activeTab, setActiveTab]       = useState('income_statement')  // income_statement | balance_sheet | cash_flow
-  const [balanceMode, setBalanceMode]   = useState('balanced')          // 'balanced' | 'faithful'
+  // Default to 'faithful' so an unbalanced historical balance sheet stays
+  // visible (Balance Check ≠ 0) for the analyst to diagnose, instead of being
+  // silently absorbed by the balanced-mode cash plug.
+  const [balanceMode, setBalanceMode]   = useState('faithful')          // 'balanced' | 'faithful'
   const [growthMode, setGrowthMode]     = useState('single')            // 'single' | 'per_year'
   const [perYearRates, setPerYearRates] = useState(Array(FORECAST_YEARS).fill(10))
   const [showAdvanced, setShowAdvanced] = useState(false)
 
-  // Load historically-derived assumptions on mount
+  // Initialize the assumptions form ONCE per project. Prefer the user's
+  // last-saved assumptions (from a previously-run forecast) so edits persist
+  // across page navigation; only fall back to historically-derived values
+  // when no forecast has been saved yet. The init guard prevents a later
+  // project-store update from clobbering in-progress edits.
+  const initedRef = useRef(null)
   useEffect(() => {
-    if (!projectId) return
+    if (!projectId || !project) return
+    if (initedRef.current === projectId) return
+    initedRef.current = projectId
     setLoadingInputs(true)
+
+    const savedFc = project.forecast_data
+    const savedInputs = savedFc?.inputs
+
+    if (savedInputs) {
+      // Restore the saved assumptions verbatim (stateful across navigation)
+      setInputs(savedInputs)
+      const perYear = savedInputs.revenue_growth_rates
+      if (Array.isArray(perYear) && perYear.length) {
+        setGrowthMode('per_year')
+        setPerYearRates(
+          Array.from({ length: FORECAST_YEARS }, (_, i) =>
+            perYear[Math.min(i, perYear.length - 1)])
+        )
+      } else if (savedInputs.revenue_growth_rate != null) {
+        setPerYearRates(Array(FORECAST_YEARS).fill(savedInputs.revenue_growth_rate))
+      }
+      if (savedFc.balance_mode) setBalanceMode(savedFc.balance_mode)
+      if (savedFc.scenarios) setResults(savedFc)
+      setLoadingInputs(false)
+      return
+    }
+
+    // No saved forecast yet — seed from historically-derived assumptions
     analysisApi.getHistoricalAssumptions(projectId)
       .then(data => {
         setInputs(data)
-        // Seed the per-year grid from the derived single rate
         if (data?.revenue_growth_rate != null) {
           setPerYearRates(Array(FORECAST_YEARS).fill(data.revenue_growth_rate))
         }
@@ -117,12 +151,7 @@ export default function Forecasting() {
         })
       })
       .finally(() => setLoadingInputs(false))
-
-    // Load previously saved forecast if available
-    analysisApi.getForecast(projectId)
-      .then(data => { if (data?.scenarios) setResults(data) })
-      .catch(() => {})
-  }, [projectId])
+  }, [projectId, project])
 
   const runForecast = useCallback(async () => {
     if (!inputs) return
@@ -140,12 +169,15 @@ export default function Forecasting() {
         balance_mode: balanceMode,
       })
       setResults(data)
+      // Sync the store so these assumptions are restored if the user navigates
+      // away and back (computeForecast already persisted them server-side).
+      if (project) setProject({ ...project, forecast_data: data })
     } catch (e) {
       console.error('Forecast failed:', e)
     } finally {
       setRunning(false)
     }
-  }, [inputs, activeScenario, projectId, balanceMode, growthMode, perYearRates])
+  }, [inputs, activeScenario, projectId, balanceMode, growthMode, perYearRates, project, setProject])
 
   const selectScenario = (s) => setActiveScenario(s)
 

@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import { downloadProjectExcel } from '../../services/api'
 
 const NAV_ITEMS = [
   { to: 'statements', label: 'Financial Statements', icon: '📄' },
@@ -9,6 +11,20 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ companyName }) {
   const { projectId } = useParams()
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState('')
+
+  const handleExport = async () => {
+    setExportError('')
+    setExporting(true)
+    try {
+      await downloadProjectExcel(projectId, companyName)
+    } catch (err) {
+      setExportError(err.message || 'Export failed')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <aside style={styles.sidebar}>
@@ -43,8 +59,19 @@ export default function Sidebar({ companyName }) {
         ))}
       </nav>
 
-      {/* Back to companies */}
+      {/* Export + back to companies */}
       <div style={styles.footer}>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting}
+          style={{ ...styles.exportBtn, ...(exporting ? styles.exportBtnDisabled : {}) }}
+          title="Download the full financial model as a formatted Excel workbook"
+        >
+          <span>⬇</span>
+          <span>{exporting ? 'Preparing…' : 'Export to Excel'}</span>
+        </button>
+        {exportError && <p style={styles.exportError}>{exportError}</p>}
         <NavLink to="/" style={styles.backLink}>
           ← All Companies
         </NavLink>
@@ -140,6 +167,34 @@ const styles = {
   footer: {
     padding: '16px 18px',
     borderTop: '1px solid rgba(255,255,255,0.08)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+  exportBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    width: '100%',
+    padding: '10px 12px',
+    background: 'var(--color-teal)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontSize: 13,
+    fontWeight: 600,
+    cursor: 'pointer',
+    transition: 'opacity 150ms ease',
+  },
+  exportBtnDisabled: {
+    opacity: 0.6,
+    cursor: 'default',
+  },
+  exportError: {
+    fontSize: 11,
+    color: '#ffb4b4',
+    margin: 0,
   },
   backLink: {
     fontSize: 12,
