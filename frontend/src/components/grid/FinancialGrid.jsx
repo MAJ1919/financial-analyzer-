@@ -26,6 +26,7 @@ export default function FinancialGrid({
   onCellEdit,
   onCellEditingStopped,
   projectIndustry = 'general',
+  unitCaption = '',
 }) {
   const gridRef = useRef()
 
@@ -167,7 +168,11 @@ export default function FinancialGrid({
 
   return (
     <div style={{ width: '100%', marginBottom: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px', gap: '6px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '6px' }}>
+        <span style={{ fontSize: '12px', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+          {unitCaption}
+        </span>
+        <div style={{ display: 'flex', gap: '6px' }}>
         <button 
           onClick={() => setDecimals(prev => prev + 1)}
           title="Increase Decimal"
@@ -216,6 +221,7 @@ export default function FinancialGrid({
             <span style={{ fontSize: '10px' }}>.0</span>
           </div>
         </button>
+        </div>
       </div>
       <div style={{ width: '100%' }}>
         <AgGridReact

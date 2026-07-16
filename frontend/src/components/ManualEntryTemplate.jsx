@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useProjectStore } from '../store/projectStore';
+import { unitLabel } from '../utils/formatters';
 import FinancialGrid from './grid/FinancialGrid';
 
 export default function ManualEntryTemplate({ projectId, onComplete, onExit }) {
@@ -91,7 +92,8 @@ export default function ManualEntryTemplate({ projectId, onComplete, onExit }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <p style={{ color: 'var(--color-text-light)', margin: 0, fontSize: '13px' }}>
-              Enter your financial data. Subtotals update automatically.
+              Enter all figures in <strong>thousands ({unitLabel(project?.currency || 'SAR')})</strong> — including
+              share counts. Subtotals update automatically.
             </p>
             
             <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
@@ -181,6 +183,7 @@ export default function ManualEntryTemplate({ projectId, onComplete, onExit }) {
           height="500px"
           onCellEdit={handleCellEdit}
           projectIndustry={projectIndustry}
+          unitCaption={`Figures in ${unitLabel(project?.currency || 'SAR')} (thousands)`}
         />
 
         <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-start' }}>

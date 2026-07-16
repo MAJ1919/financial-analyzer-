@@ -1,10 +1,21 @@
 /**
  * Shared number formatters — the ONLY place display formatting lives.
  *
+ * Reporting-unit convention:
+ *   Every monetary figure entered and stored in this app is expressed in
+ *   THOUSANDS of the project currency (e.g. a stored 5000 means 5,000,000 SAR).
+ *   All statement math is scale-invariant, so ratios/margins/growth are
+ *   unaffected; only the DISPLAY must state the unit. Money headlines therefore
+ *   use fmtMoney (grouped thousands + currency) paired with a unitLabel caption
+ *   — NOT fmtCompact, whose K/M/B abbreviation would understate a thousands
+ *   figure by 1000× ("5.0K" for a value that means 5,000,000).
+ *
  * Conventions:
  *   - Invalid input (null, undefined, NaN, ±Infinity) always renders '—'
  *   - Full numbers (grids, statement tables): fmtNumber
- *   - Large standalone figures (KPI cards, valuation): fmtCompact / fmtCurrency
+ *   - Money headlines already in thousands (KPI cards, valuation): fmtMoney
+ *   - True-magnitude standalone figures (rare): fmtCompact / fmtCurrency
+ *   - Per-share values are per ACTUAL share and are NOT in thousands
  *   - Ratio/percent displays: fmtPercent, fmtRatioValue
  */
 
@@ -33,6 +44,21 @@ export function fmtCompact(n, dp = 1) {
 export function fmtCurrency(n, currency = 'SAR', dp = 1) {
   if (isBad(n)) return '—'
   return `${fmtCompact(n, dp)} ${currency}`
+}
+
+/**
+ * Money figure already expressed in thousands → grouped integer + currency,
+ * e.g. fmtMoney(1200, 'SAR') → "1,200 SAR" (meaning 1,200,000 SAR).
+ * Pair with a unitLabel() caption so the reader knows the '000 scale.
+ */
+export function fmtMoney(n, currency = 'SAR', decimals = 0) {
+  if (isBad(n)) return '—'
+  return `${fmtNumber(n, decimals)} ${currency}`
+}
+
+/** Reporting-unit caption, e.g. "SAR '000" → "figures in thousands". */
+export function unitLabel(currency = 'SAR') {
+  return `${currency} '000`
 }
 
 /** "12.5%" — input is already in percent units (12.5, not 0.125). */

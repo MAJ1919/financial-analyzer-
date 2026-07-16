@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useProjectStore } from '../../store/projectStore'
 import Header from '../../components/layout/Header'
 import { projectsApi, analysisApi } from '../../services/api'
-import { fmtCurrency, fmtPercent } from '../../utils/formatters'
+import { fmtMoney, fmtPercent, unitLabel } from '../../utils/formatters'
 
 // ============================================================
 // DCF Formula Engine — port of dcfValuation.ts DCFValuationEngine
@@ -248,17 +248,23 @@ export default function Valuation() {
       />
       <div className="page-body">
 
+        {/* Reporting-unit banner — all money figures are in thousands */}
+        <p style={{ fontSize: 12, color: 'var(--color-text-muted)', margin: '0 0 12px' }}>
+          All monetary figures in <strong>{unitLabel(currency)}</strong> (thousands).
+          Enter <strong>Shares Outstanding in thousands</strong> too — value per share is then per actual share.
+        </p>
+
         {/* ── Top 3 KPI Cards ─────────────────────────────── */}
         <div style={styles.kpiRow}>
           <KpiCard
             label="Enterprise Value"
-            value={fmtCurrency(result?.enterpriseValue, currency)}
+            value={fmtMoney(result?.enterpriseValue, currency)}
             color="#1E3A8A"
             bg="rgba(30,58,138,0.06)"
           />
           <KpiCard
             label="Equity Value"
-            value={fmtCurrency(result?.equityValue, currency)}
+            value={fmtMoney(result?.equityValue, currency)}
             color="#475569"
             bg="rgba(71,85,105,0.06)"
           />
@@ -333,7 +339,7 @@ export default function Valuation() {
                   value={sharesOutstanding}
                   onChange={(e) => { dirtyRef.current = true; setShares(e.target.value === '' ? '' : (parseFloat(e.target.value) || 0)) }}
                 />
-                <span style={{ fontSize: 14 }}>M</span>
+                <span style={{ fontSize: 14 }} title="In thousands, matching the '000 figures">'000</span>
               </AssumptionRow>
               <AssumptionRow label="Terminal Value">
                 <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-muted)' }}>
@@ -348,8 +354,8 @@ export default function Valuation() {
             <div className="card-header"><span className="card-title">Valuation Components</span></div>
             <div className="card-body">
               {[
-                ["PV of Projected FCFs:",  fmtCurrency(result?.totalPVFCF, currency)],
-                ["PV of Terminal Value:",   fmtCurrency(result?.pvTerminal, currency)],
+                ["PV of Projected FCFs:",  fmtMoney(result?.totalPVFCF, currency)],
+                ["PV of Terminal Value:",   fmtMoney(result?.pvTerminal, currency)],
               ].map(([label, val]) => (
                 <div key={label} style={styles.compRow}>
                   <span className="text-muted">{label}</span>
@@ -358,9 +364,9 @@ export default function Valuation() {
               ))}
               <div style={{ borderTop: '1px solid var(--color-border)', margin: '12px 0' }} />
               {[
-                ["Enterprise Value:",  fmtCurrency(result?.enterpriseValue, currency), true],
-                ["Less: Net Debt:",    fmtCurrency(netDebt, currency)],
-                ["Equity Value:",      fmtCurrency(result?.equityValue, currency), true],
+                ["Enterprise Value:",  fmtMoney(result?.enterpriseValue, currency), true],
+                ["Less: Net Debt:",    fmtMoney(netDebt, currency)],
+                ["Equity Value:",      fmtMoney(result?.equityValue, currency), true],
               ].map(([label, val, bold]) => (
                 <div key={label} style={{ ...styles.compRow, fontWeight: bold ? 700 : 400 }}>
                   <span className={bold ? 'text-navy' : 'text-muted'} style={bold ? { color: '#1E3A8A' } : {}}>{label}</span>
@@ -477,10 +483,10 @@ export default function Valuation() {
               <>
                 <div style={styles.metricsGrid}>
                   {[
-                    ["Base FCF",       fmtCurrency(baseMetrics.base_fcf, currency)],
-                    ["EBITDA",         fmtCurrency(baseMetrics.ebitda, currency)],
-                    ["Net Debt",       fmtCurrency(baseMetrics.net_debt, currency)],
-                    ["Shares (M)",     sharesOutstanding || '—'],
+                    ["Base FCF",       fmtMoney(baseMetrics.base_fcf, currency)],
+                    ["EBITDA",         fmtMoney(baseMetrics.ebitda, currency)],
+                    ["Net Debt",       fmtMoney(baseMetrics.net_debt, currency)],
+                    ["Shares ('000)",  sharesOutstanding || '—'],
                     ["Historical WACC", fmtPercent(baseMetrics.wacc?.historical_wacc)],
                   ].map(([label, val]) => (
                     <div key={label} style={styles.metricItem}>

@@ -4,7 +4,7 @@ import Header from '../../components/layout/Header'
 import { useProjectStore } from '../../store/projectStore'
 
 import { analysisApi } from '../../services/api'
-import { fmtRatioValue, fmtNumber } from '../../utils/formatters'
+import { fmtRatioValue, fmtNumber, unitLabel } from '../../utils/formatters'
 
 const TABS = ['Financial Ratios', 'Horizontal Analysis']
 
@@ -130,6 +130,9 @@ export default function Analysis() {
                     <div className="card-header">
                       <span className="card-title">
                         {statementKey.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())} - Horizontal Analysis
+                      </span>
+                      <span style={{ fontSize: 11, color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+                        Values in {unitLabel(project?.currency || 'SAR')} (thousands)
                       </span>
                     </div>
                     <div className="card-body" style={{ padding: 0, overflowX: 'auto' }}>

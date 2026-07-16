@@ -4,7 +4,7 @@ import Header from '../../components/layout/Header'
 import { useProjectStore } from '../../store/projectStore'
 import { analysisApi } from '../../services/api'
 import { recalculateTotals } from '../../utils/calculations'
-import { fmtNumber, fmtCurrency, fmtPercent } from '../../utils/formatters'
+import { fmtNumber, fmtMoney, fmtPercent, unitLabel } from '../../utils/formatters'
 import { isHiddenHeaderRow, resolveRowLevel } from '../../utils/statementDisplay'
 
 // ── Core assumptions (user-facing form) ────────────────────────
@@ -522,7 +522,7 @@ export default function Forecasting() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
                     {[
                       { label: 'Revenue CAGR', value: fmtPercent(cumulative.revenue_cagr) },
-                      { label: 'Total FCF', value: fmtCurrency(cumulative.total_free_cash_flow, currency) },
+                      { label: 'Total FCF', value: fmtMoney(cumulative.total_free_cash_flow, currency) },
                       { label: 'Avg. Operating Margin', value: fmtPercent(cumulative.avg_operating_margin) },
                       { label: 'Avg. Net Margin', value: fmtPercent(cumulative.avg_net_margin) },
                     ].map(({ label, value }) => (
@@ -566,6 +566,9 @@ export default function Forecasting() {
 
                     {/* Projected Statements Table */}
                   <div className="card-body" style={{ overflowX: 'auto', padding: 0 }}>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '10px 14px 0' }}>
+                      Figures in {unitLabel(currency)} (thousands)
+                    </p>
                     <table style={styles.table}>
                       <thead>
                         <tr>
