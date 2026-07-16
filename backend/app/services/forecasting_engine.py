@@ -41,7 +41,7 @@ class ForecastInputs:
       share_repurchase_rate      — no share-count model existed to support it
     """
     # ── Core assumptions ────────────────────────────────────
-    revenue_growth_rate: float          = 10.0   # % per year (single rate for all years)
+    revenue_growth_rate: float          = 0.0   # % per year (single rate for all years)
     revenue_growth_rates: list[float] | None = None  # optional per-year override, e.g. [12, 10, 8, 6, 5]
     tax_rate: float                     = 25.0   # %
     capex_as_pct_of_revenue: float      = 3.0    # % of revenue

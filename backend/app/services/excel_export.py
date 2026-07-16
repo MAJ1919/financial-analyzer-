@@ -5,8 +5,10 @@ Builds a fully-formatted, formula-driven .xlsx workbook for a project.
 
 Design (agreed with product owner):
   * Sheets: Income Statement, Balance Sheet, Cash Flow Statement, Ratios,
-    Horizontal Analysis, DCF, Assumptions  (+ a hidden "Forecast Engine"
-    calc tab that reproduces forecasting_engine.py as live formulas).
+    Horizontal Analysis, DCF, Assumptions. The Assumptions sheet holds the
+    editable driver panel on top AND, below it, the full forecast-engine
+    calculation block (a live-formula port of forecasting_engine.py) in
+    grouped rows, collapsed by default under a "do not edit" banner.
   * Historical columns hold the stored actuals (hardcoded inputs, blue).
   * Projected columns (…P) are a LIVE driver-based model: editing a driver on
     the Assumptions sheet (or a historical actual) recomputes every projection,
@@ -26,7 +28,7 @@ from __future__ import annotations
 import io
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter, column_index_from_string
+from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from app.models.statement_templates import load_statement_templates
@@ -58,7 +60,10 @@ FMT_DAYS = '0.0;(0.0);"-"'
 THIN = Side(style="thin", color=RULE)
 MED = Side(style="medium", color=NAVY)
 
-ENGINE_SHEET = "Forecast Engine"
+# The forecast-engine calculation block lives at the bottom of the
+# Assumptions sheet (grouped rows under a "do not edit" banner); statement
+# projections reference it there.
+MODEL_SHEET = "Assumptions"
 
 
 def _q(name: str) -> str:
@@ -114,8 +119,8 @@ class StmtLayout:
 # ENGINE VARIABLE ORDER  (row per intermediate, cols = base + 5 forecast)
 # ============================================================
 ENGINE_VARS = [
-    ("cogs_pct", "COGS % of revenue (base)", FMT_PCT),
-    ("sga_pct", "SG&A % of revenue (base)", FMT_PCT),
+    ("cogs_pct", "COGS % of revenue", FMT_PCT),
+    ("sga_pct", "SG&A % of revenue", FMT_PCT),
     ("rd_pct", "R&D % of revenue", FMT_PCT),
     ("revenue", "Revenue", FMT_NUM),
     ("rev_mult", "Revenue multiplier", FMT_RATIO),
@@ -172,7 +177,8 @@ ENGINE_VARS = [
     ("net_cash_change", "Net Change in Cash", FMT_NUM),
     ("free_cash_flow", "Free Cash Flow", FMT_NUM),
 ]
-ENGINE_ROW0 = 4        # first engine variable row
+# Engine rows are assigned dynamically below the Assumptions driver panel
+# (see build_workbook) — banner row, block header row, then one row per var.
 
 
 # ============================================================
@@ -182,7 +188,7 @@ ENGINE_ROW0 = 4        # first engine variable row
 # ============================================================
 def _build_overrides(engine_row):
     """engine_row: dict name->row number on the engine sheet."""
-    E = _q(ENGINE_SHEET)
+    E = _q(MODEL_SHEET)
 
     def e(name, col):
         return f"{E}!{col}{engine_row[name]}"
@@ -401,7 +407,7 @@ def _build_statement(ws, layout: StmtLayout, subtitle, overrides_for_stmt, engin
     ws.sheet_view.showGridLines = False
     ws.freeze_panes = f"{get_column_letter(YEAR_COL0)}6"
 
-    E = _q(ENGINE_SHEET)
+    E = _q(MODEL_SHEET)
     computed = COMPUTED_FORMULAS.get(stmt_type, {})
 
     def cref(col):
@@ -481,72 +487,66 @@ def _build_statement(ws, layout: StmtLayout, subtitle, overrides_for_stmt, engin
                 cc.border = Border(top=THIN)
 
 
-# ENGINE_F0 is set at build time (first engine forecast column index)
-ENGINE_F0 = 3  # placeholder, overwritten in build_workbook
+# First engine forecast column on the merged Assumptions sheet: the engine
+# block uses the sheet's own layout (labels=B, base=C, forecast=D..).
+ENGINE_F0 = YEAR_COL0 + 1
 
 
 # ============================================================
-# ENGINE SHEET  (hidden calc tab reproducing forecasting_engine)
+# ENGINE BLOCK  (calculation rows on the Assumptions sheet, below the
+# driver panel — a live-formula port of forecasting_engine, grouped and
+# collapsed under a "do not edit" banner)
 # ============================================================
-def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
-                  assum_row, n_forecast, balance_mode):
+def _build_engine(ws, engine_row, base, assum_row, n_forecast, balance_mode,
+                  banner_row, base_year, proj_years):
     """
-    Writes the engine variables. Column B = base-year anchors (from statement
-    base cells); columns C.. = forecast years, each referencing the prior column
-    and the Assumptions drivers — a line-for-line port of generate_forecast().
+    Writes the engine variables onto the Assumptions sheet using its own
+    column layout: labels=B, column C = base-year anchors, columns D.. =
+    forecast years, each referencing the prior column and the driver cells
+    above — a line-for-line port of generate_forecast().
     """
-    ws.sheet_view.showGridLines = False
-    ws.column_dimensions["A"].width = 30
-
-    ISb = is_layout.base_col
-    BSb = bs_layout.base_col
-    CFb = cf_layout.base_col
-    ISq = _q("Income Statement")
-    BSq = _q("Balance Sheet")
-    CFq = _q("Cash Flow Statement")
-    ASq = _q("Assumptions")
     faithful = balance_mode == "faithful"
+    BASE_L = get_column_letter(YEAR_COL0)          # base column letter ("C")
+    last_col = YEAR_COL0 + n_forecast
 
-    # Header
-    ws["A1"] = "FORECAST ENGINE — calculated (do not edit); driven by Assumptions"
-    ws["A1"].font = _font(bold=True, color=NAVY, size=11)
-    ws.cell(row=3, column=1, value="Variable").font = _font(bold=True, color=WHITE)
-    ws.cell(row=3, column=1).fill = PatternFill("solid", fgColor=NAVY)
-    base_col_letter = get_column_letter(2)
-    bc = ws.cell(row=3, column=2, value="Base")
-    bc.font = _font(bold=True, color=WHITE); bc.fill = PatternFill("solid", fgColor=NAVY)
-    for k in range(n_forecast):
-        cc = ws.cell(row=3, column=3 + k, value=f"F{k+1}")
-        cc.font = _font(bold=True, color=WHITE); cc.fill = PatternFill("solid", fgColor=NAVY_MED)
+    # ── banner + block header ──
+    bc = ws.cell(row=banner_row, column=LABEL_COL,
+                 value="FORECAST ENGINE — CALCULATED (do not edit; driven by the drivers above)")
+    bc.font = _font(bold=True, color=WHITE, size=10)
+    for cidx in range(LABEL_COL, last_col + 1):
+        ws.cell(row=banner_row, column=cidx).fill = PatternFill("solid", fgColor=NAVY)
+    hr = banner_row + 1
+    ws.cell(row=hr, column=LABEL_COL, value="Engine Variable").font = \
+        _font(bold=True, color=NAVY_MED, size=9)
+    ws.cell(row=hr, column=YEAR_COL0, value=f"Base {base_year}A").font = \
+        _font(bold=True, color=NAVY_MED, size=9)
+    for k, y in enumerate(proj_years):
+        cc = ws.cell(row=hr, column=YEAR_COL0 + 1 + k, value=f"{_parse_year(y)}P")
+        cc.font = _font(bold=True, color=NAVY_MED, size=9)
+        cc.alignment = Alignment(horizontal="center")
 
-    # Label column + number formats
+    # Label column + number formats (grey, small — visually "calculated")
     for name, label, fmt in ENGINE_VARS:
         r = engine_row[name]
-        ws.cell(row=r, column=1, value=label).font = _font(size=9, color="555555")
-        for cidx in range(2, 3 + n_forecast):
-            ws.cell(row=r, column=cidx).number_format = fmt
+        lc = ws.cell(row=r, column=LABEL_COL, value=label)
+        lc.font = _font(size=9, color="555555")
+        lc.alignment = Alignment(indent=1)
+        for cidx in range(YEAR_COL0, last_col + 1):
+            cc = ws.cell(row=r, column=cidx)
+            cc.number_format = fmt
+            cc.font = _font(size=9, color="555555")
 
     def R(name):
         return engine_row[name]
 
-    def base_isc(key):
-        return is_layout.cell(key, ISb)
-
-    def base_bsc(key):
-        return bs_layout.cell(key, BSb)
-
-    def base_cfc(key):
-        return cf_layout.cell(key, CFb)
-
-    # helper to write base (col B) and forecast (cols C..) formulas
+    # helper to write base (col C) and forecast (cols D..) formulas
     def put(name, base_formula, fc_formula):
         r = R(name)
-        ws[f"B{r}"] = base_formula
+        ws[f"{BASE_L}{r}"] = base_formula
         for k in range(n_forecast):
-            col = get_column_letter(3 + k)
-            prev = get_column_letter(2 + k)   # column to the left (base for k=0)
-            aco = get_column_letter(3 + k)    # assumptions forecast col (same layout)
-            ws[f"{col}{r}"] = fc_formula(col, prev, aco)
+            col = get_column_letter(YEAR_COL0 + 1 + k)
+            prev = get_column_letter(YEAR_COL0 + k)   # column to the left (base for k=0)
+            ws[f"{col}{r}"] = fc_formula(col, prev, col)
 
     # ── Base anchors ──
     # Computed in Python exactly as forecasting_engine.extract_base_data (which
@@ -573,24 +573,23 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
     base_ppe = base.ppe
     base_accdep = base.accumulated_depreciation
 
-    # Assumptions driver cell. The Assumptions sheet columns are the engine
-    # columns shifted right by one (label=B, base=C, forecast=D..), so we map
-    # an engine column letter to the Assumptions column by adding 1.
+    # Driver cell on this same sheet — the engine block shares the driver
+    # panel's column layout, so the reference is just column letter + row.
     def drv(name, col):
-        acol = get_column_letter(column_index_from_string(col) + 1)
-        return f"{ASq}!{acol}{assum_row[name]}"
+        return f"{col}{assum_row[name]}"
 
-    # ── Derived scalar ratios (single value in col B, referenced by all) ──
-    ws[f"B{R('cogs_pct')}"] = f"=IF({base_revenue}=0,0.6,{base_cost}/{base_revenue})"
-    # sga_pct: engine defaults to 0.25 when base revenue is 0 (guard against #DIV/0)
-    ws[f"B{R('sga_pct')}"] = (
+    # ── Cost-structure ratios (per-year, read from the Assumptions sheet;
+    #    col B keeps the base-year derivation for reference) ──
+    put("cogs_pct",
+        f"=IF({base_revenue}=0,0.6,{base_cost}/{base_revenue})",
+        lambda c, p, a: f"={drv('cogs_pct', a)}/100")
+    # sga_pct base: engine defaults to 0.25 when base revenue is 0 (guard against #DIV/0)
+    put("sga_pct",
         f"=IF({base_revenue}=0,0.25,"
-        f"MAX(0.05,({base_opinc}/{base_revenue})-(1-B{R('cogs_pct')}-{drv('dep_rate','B')}/100)+0.08))")
-    # dep_rate base lives on Assumptions col B; use it
-    ws[f"B{R('rd_pct')}"] = "=0.08"
-    cogs = f"$B${R('cogs_pct')}"
-    sgap = f"$B${R('sga_pct')}"
-    rdp = f"$B${R('rd_pct')}"
+        f"MAX(0.05,({base_opinc}/{base_revenue})-(1-C{R('cogs_pct')}-{drv('dep_rate','C')}/100)+0.08))",
+        lambda c, p, a: f"={drv('sga_pct', a)}/100")
+    put("rd_pct", "=0.08",
+        lambda c, p, a: f"={drv('rd_pct', a)}/100")
 
     # ── Revenue & IS ──
     put("revenue",
@@ -598,20 +597,20 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
         lambda c, p, a: f"={p}{R('revenue')}*(1+{drv('growth', a)}/100)")
     put("rev_mult",
         "=1",
-        lambda c, p, a: f"=IF($B${R('revenue')}=0,1,{c}{R('revenue')}/$B${R('revenue')})")
+        lambda c, p, a: f"=IF($C${R('revenue')}=0,1,{c}{R('revenue')}/$C${R('revenue')})")
     put("ast_mult",
         "=1",
-        lambda c, p, a: f"=IF($B${R('total_assets')}=0,1,{c}{R('total_assets')}/$B${R('total_assets')})")
+        lambda c, p, a: f"=IF($C${R('total_assets')}=0,1,{c}{R('total_assets')}/$C${R('total_assets')})")
     put("cost_of_revenue", f"={base_cost}",
-        lambda c, p, a: f"={c}{R('revenue')}*{cogs}")
+        lambda c, p, a: f"={c}{R('revenue')}*{c}{R('cogs_pct')}")
     put("gross_profit", f"={base_revenue}-{base_cost}",
         lambda c, p, a: f"={c}{R('revenue')}-{c}{R('cost_of_revenue')}")
     put("depreciation", f"={base_dep}",
         lambda c, p, a: f"={c}{R('revenue')}*{drv('dep_rate', a)}/100")
     put("sga_expenses", "=0",
-        lambda c, p, a: f"={c}{R('revenue')}*{sgap}")
+        lambda c, p, a: f"={c}{R('revenue')}*{c}{R('sga_pct')}")
     put("rd_expenses", "=0",
-        lambda c, p, a: f"={c}{R('revenue')}*{rdp}")
+        lambda c, p, a: f"={c}{R('revenue')}*{c}{R('rd_pct')}")
     put("total_op_expenses", "=0",
         lambda c, p, a: f"={c}{R('sga_expenses')}+{c}{R('rd_expenses')}+{c}{R('depreciation')}")
     put("operating_income", f"={base_opinc}",
@@ -619,7 +618,7 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
     put("ebitda", f"={base_opinc}+{base_dep}",
         lambda c, p, a: f"={c}{R('operating_income')}+{c}{R('depreciation')}")
     put("interest_income", "=0",
-        lambda c, p, a: f"={p}{R('cash')}*0.02")
+        lambda c, p, a: f"={p}{R('cash')}*{drv('int_income', a)}/100")
     put("interest_expense", "=0",
         lambda c, p, a: f"=({c}{R('long_term_debt')}+{p}{R('revolver')})*{drv('interest', a)}/100")
     put("income_before_tax", "=0",
@@ -649,7 +648,7 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
                          f"+({c}{R('inventory')}-{p}{R('inventory')})"
                          f"-({c}{R('accounts_payable')}-{p}{R('accounts_payable')}))"))
     put("common_stock", f"=IF(({base_te}-{base_re})=0,100000000,{base_te}-{base_re})",
-        lambda c, p, a: f"=$B${R('common_stock')}")
+        lambda c, p, a: f"=$C${R('common_stock')}")
     put("dividends_paid", "=0",
         lambda c, p, a: f"=MAX(0,{c}{R('net_income')}*{drv('dividend', a)}/100)")
     put("retained_earnings", f"={base_re}",
@@ -657,27 +656,27 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
     put("total_equity", f"={base_te}",
         lambda c, p, a: f"={c}{R('common_stock')}+{c}{R('retained_earnings')}")
     put("long_term_debt", f"={base_ltd}",
-        lambda c, p, a: f"=$B${R('long_term_debt')}")
+        lambda c, p, a: f"=$C${R('long_term_debt')}")
 
     if not faithful:
         # ── BALANCED MODE ──
         put("other_current_assets", "=0",
-            lambda c, p, a: f"={c}{R('revenue')}*0.05")
+            lambda c, p, a: f"={c}{R('revenue')}*{drv('other_ca', a)}/100")
         put("acquisitions", "=0",
-            lambda c, p, a: f"={c}{R('revenue')}*0.01")
+            lambda c, p, a: f"={c}{R('revenue')}*{drv('acq', a)}/100")
         put("goodwill", "=0",
-            lambda c, p, a: f"={base_ta}*0.10")
+            lambda c, p, a: f"={base_ta}*{drv('goodwill', a)}/100")
         put("other_intangibles", "=0",
-            lambda c, p, a: f"={base_ta}*0.05")
+            lambda c, p, a: f"={base_ta}*{drv('intang', a)}/100")
         put("non_cash_assets", "=0",
             lambda c, p, a: (f"=({c}{R('accounts_receivable')}+{c}{R('inventory')}+{c}{R('other_current_assets')})"
                              f"+{c}{R('net_ppe')}+{c}{R('goodwill')}+{c}{R('other_intangibles')}"))
         put("other_current_liabilities", "=0",
-            lambda c, p, a: f"={c}{R('revenue')}*0.03")
+            lambda c, p, a: f"={c}{R('revenue')}*{drv('other_cl', a)}/100")
         put("deferred_tax", "=0",
-            lambda c, p, a: f"={c}{R('non_cash_assets')}*0.02")
+            lambda c, p, a: f"={c}{R('non_cash_assets')}*{drv('dt', a)}/100")
         put("other_lt_liabilities", "=0",
-            lambda c, p, a: f"={c}{R('non_cash_assets')}*0.03")
+            lambda c, p, a: f"={c}{R('non_cash_assets')}*{drv('oltl', a)}/100")
         put("pre_revolver_liabilities", "=0",
             lambda c, p, a: (f"={c}{R('accounts_payable')}+{c}{R('other_current_liabilities')}"
                              f"+{c}{R('long_term_debt')}+{c}{R('deferred_tax')}+{c}{R('other_lt_liabilities')}"))
@@ -700,16 +699,16 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
             lambda c, p, a: (f"={c}{R('total_current_assets')}+{c}{R('net_ppe')}"
                              f"+{c}{R('goodwill')}+{c}{R('other_intangibles')}"))
         put("stock_based_comp", "=0",
-            lambda c, p, a: f"={c}{R('revenue')}*0.02")
+            lambda c, p, a: f"={c}{R('revenue')}*{drv('sbc', a)}/100")
         put("deferred_tax_change", "=0",
-            lambda c, p, a: f"={c}{R('non_cash_assets')}*0.001")
+            lambda c, p, a: f"={c}{R('non_cash_assets')}*{drv('dtc', a)}/100")
         put("operating_cash_flow", "=0",
             lambda c, p, a: (f"={c}{R('net_income')}+{c}{R('depreciation')}+{c}{R('stock_based_comp')}"
                              f"+{c}{R('deferred_tax_change')}+{c}{R('wc_adjustment')}"))
         put("investing_cash_flow", "=0",
             lambda c, p, a: f"=-({c}{R('capex')}+{c}{R('acquisitions')})")
         put("debt_issuance", "=0",
-            lambda c, p, a: (f"={c}{R('revenue')}*0.05" if a == get_column_letter(3) else "=0"))
+            lambda c, p, a: f"={c}{R('revenue')}*{drv('debt_iss', a)}/100")
         put("financing_cash_flow", "=0",
             lambda c, p, a: f"=-{c}{R('dividends_paid')}+{c}{R('debt_issuance')}+{c}{R('revolver_change')}")
         put("net_cash_change", "=0",
@@ -758,39 +757,41 @@ def _build_engine(ws, engine_row, base, is_layout, bs_layout, cf_layout,
     put("free_cash_flow", "=0",
         lambda c, p, a: f"={c}{R('operating_cash_flow')}-{c}{R('capex')}")
 
-    ws.sheet_state = "hidden"
+    # Group the whole block (header row + variables) one outline level deep,
+    # collapsed by default — the banner row stays visible with a [+] control.
+    ws.sheet_properties.outlinePr.summaryBelow = False
+    last_row = max(engine_row.values())
+    for rr in range(banner_row + 1, last_row + 1):
+        ws.row_dimensions[rr].outline_level = 1
+        ws.row_dimensions[rr].hidden = True
+    ws.row_dimensions[banner_row].collapsed = True
 
 
 # ============================================================
 # ASSUMPTIONS SHEET  (editable driver panel — blue inputs)
 # ============================================================
-ASSUM_DRIVERS = [
-    ("REVENUE DRIVERS", None, None),
-    ("growth", "Revenue Growth Rate (YoY %)", FMT_NUM1),
-    ("COST STRUCTURE", None, None),
-    ("dep_rate", "Depreciation (% of Revenue)", FMT_NUM1),
-    ("CAPEX", None, None),
-    ("capex", "CapEx (% of Revenue)", FMT_NUM1),
-    ("WORKING CAPITAL DRIVERS", None, None),
-    ("dso", "Days Sales Outstanding (DSO)", FMT_DAYS),
-    ("dio", "Days Inventory Outstanding (DIO)", FMT_DAYS),
-    ("dpo", "Days Payable Outstanding (DPO)", FMT_DAYS),
-    ("FINANCING & TAX", None, None),
-    ("interest", "Interest Rate on Debt (%)", FMT_NUM1),
-    ("tax", "Tax Rate (%)", FMT_NUM1),
-    ("dividend", "Dividend Payout Ratio (%)", FMT_NUM1),
-]
+# Every driver the projected model uses is exposed here — including the
+# cost-structure and balance-sheet-build ratios the engine previously kept
+# internal — one editable blue cell per forecast year. The Base column shows
+# the base-year actual as a live (italic) formula off the statement sheets;
+# where a driver has no historical counterpart the model default is shown.
+# The hidden Forecast Engine sheet reads these cells, so this is the single
+# editing surface for the whole model.
 
 
-def _build_assumptions(ws, company, base_year, proj_years, inputs, mode_label=""):
+def _build_assumptions(ws, company, base_year, proj_years, inputs, base,
+                       is_l, bs_l, cf_l, balance_mode,
+                       mode_label="", dcf_assumptions=None):
     n = len(proj_years)
     ncols = 1 + n  # base + forecast
-    _apply_col_widths(ws, ncols, label_width=38)
+    _apply_col_widths(ws, ncols, label_width=42)
     ws.sheet_view.showGridLines = False
+    ws.freeze_panes = f"{get_column_letter(YEAR_COL0)}6"
 
     _title_block(ws, f"{company} — ASSUMPTIONS & DRIVERS", ncols=ncols,
                  subtitle="Projection inputs (blue) drive the entire model. Base year = "
-                          f"FY{base_year}. Edit the blue cells to re-forecast.")
+                          f"FY{base_year}. Edit the blue cells to re-forecast. "
+                          "Italic = base-year actual (reference only).")
     if mode_label:
         mc = ws.cell(row=3, column=LABEL_COL,
                      value=f"Projection basis:  {mode_label}")
@@ -821,37 +822,199 @@ def _build_assumptions(ws, company, base_year, proj_years, inputs, mode_label=""
         }
         return float(inputs.get(keymap[name], 0.0))
 
+    # ── live base-column refs (base-year actuals from the statement sheets) ──
+    def isc(key): return is_l.cell(key, is_l.base_col)
+    def bsc(key): return bs_l.cell(key, bs_l.base_col)
+    def cfc(key): return cf_l.cell(key, cf_l.base_col)
+
+    rev = isc("revenueHeader")
+    cogs = f"ABS({isc('costOfRevenueDisplayHeader')})"
+    opinc = isc("operatingIncome")
+    debt = f"({bsc('ltDebtData')}+{bsc('stBorrowingsData')}+{bsc('currentPortionLTDebt')})"
+    # template uses "earningsBeforeTax"; accept the legacy key too
+    ibt = isc("earningsBeforeTax") if is_l.has("earningsBeforeTax") else isc("incomeBeforeTax")
+
+    # Cost-structure defaults: the exact (unrounded) values forecasting_engine
+    # derives from the base year, so the default workbook reproduces the app.
+    rev0 = base.revenue
+    cogs_def = (base.cost_of_revenue / rev0 * 100) if rev0 else 60.0
+    dep_in = float(inputs.get("depreciation_rate", 8.0))
+    sga_def = (max(0.05, (base.operating_income / rev0)
+                   - (1 - cogs_def / 100 - dep_in / 100) + 0.08) * 100) if rev0 else 25.0
+
+    def const(v):
+        return lambda k: v
+
+    base_col_letter = get_column_letter(YEAR_COL0)
+
+    def sga_base(rows):
+        # Mirrors the engine's SG&A derivation, against this sheet's own
+        # depreciation base cell.
+        return (f'=IF({rev}=0,"",MAX(5,({opinc}/{rev}-(1-{cogs}/{rev}'
+                f'-{base_col_letter}{rows["dep_rate"]}/100)+0.08)*100))')
+
+    growth_base = None
+    if len(is_l.hist_years) >= 2:
+        prev = is_l.cell("revenueHeader", is_l.year_col[is_l.hist_years[-2]])
+        growth_base = f'=IF({prev}=0,"",({rev}/{prev}-1)*100)'
+
+    # (name, label, fmt, base cell, per-year default) — base cell is a live
+    # formula string, a literal default (no historical counterpart), a
+    # callable(assum_row) for forward row refs, or None to leave blank.
+    sections = [
+        ("REVENUE DRIVERS", [
+            ("growth", "Revenue Growth Rate (YoY %)", FMT_NUM1, growth_base,
+             lambda k: year_val("growth", k)),
+        ]),
+        ("COST STRUCTURE", [
+            ("cogs_pct", "Cost of Revenue / Revenue (%)", FMT_NUM1,
+             f'=IF({rev}=0,"",{cogs}/{rev}*100)', const(cogs_def)),
+            ("sga_pct", "SG&A Expense / Revenue (%)", FMT_NUM1, sga_base, const(sga_def)),
+            ("rd_pct", "R&D Expense / Revenue (%)", FMT_NUM1, 8.0, const(8.0)),
+        ]),
+        ("CAPEX & DEPRECIATION", [
+            ("capex", "CapEx (% of Revenue)", FMT_NUM1,
+             f'=IF({rev}=0,"",ABS({cfc("capitalExpenditures")})/{rev}*100)',
+             lambda k: year_val("capex", k)),
+            ("dep_rate", "Depreciation (% of Revenue)", FMT_NUM1,
+             f'=IF({rev}=0,"",ABS({isc("depreciationOpex")})/{rev}*100)',
+             lambda k: year_val("dep_rate", k)),
+        ]),
+        ("WORKING CAPITAL DRIVERS", [
+            ("dso", "Days Sales Outstanding (DSO)", FMT_DAYS,
+             f'=IF({rev}=0,"",{bsc("receivablesHeader")}/{rev}*365)',
+             lambda k: year_val("dso", k)),
+            ("dio", "Days Inventory Outstanding (DIO)", FMT_DAYS,
+             f'=IF({cogs}=0,"",{bsc("inventoryHeader")}/{cogs}*365)',
+             lambda k: year_val("dio", k)),
+            ("dpo", "Days Payable Outstanding (DPO)", FMT_DAYS,
+             f'=IF({cogs}=0,"",{bsc("tradePayablesHeader")}/{cogs}*365)',
+             lambda k: year_val("dpo", k)),
+        ]),
+        ("FINANCING & TAX", [
+            ("interest", "Interest Rate on Debt (%)", FMT_NUM1,
+             f'=IF({debt}=0,"",ABS({isc("financeCosts")})/{debt}*100)',
+             lambda k: year_val("interest", k)),
+            ("int_income", "Interest Income (% of Prior-Year Cash)", FMT_NUM1,
+             2.0, const(2.0)),
+            ("tax", "Tax Rate (%)", FMT_NUM1,
+             f'=IF({ibt}=0,"",ABS({isc("incomeTaxExpense")})/{ibt}*100)',
+             lambda k: year_val("tax", k)),
+            ("dividend", "Dividend Payout Ratio (%)", FMT_NUM1,
+             f'=IF({isc("netIncome")}=0,"",'
+             f'ABS({cfc("cfDividendsPaid")})/{isc("netIncome")}*100)',
+             lambda k: year_val("dividend", k)),
+        ]),
+    ]
+
+    if balance_mode != "faithful":
+        # Balanced mode builds the unmodeled BS/CF lines from ratios that used
+        # to be hardcoded on the hidden engine sheet — now editable here.
+        ca, cl = bsc("currentAssetsHeader"), bsc("currentLiabilitiesHeader")
+        cash = bsc("cashAndEquivalents")
+        ar, inv, ap = bsc("receivablesHeader"), bsc("inventoryHeader"), bsc("tradePayablesHeader")
+        sections.append(("BALANCE SHEET & CASH FLOW BUILD (Balanced mode)", [
+            ("other_ca", "Other Current Assets (% of Revenue)", FMT_NUM1,
+             f'=IF({rev}=0,"",({ca}-{cash}-{ar}-{inv})/{rev}*100)', const(5.0)),
+            ("other_cl", "Other Current Liabilities (% of Revenue)", FMT_NUM1,
+             f'=IF({rev}=0,"",({cl}-{ap})/{rev}*100)', const(3.0)),
+            ("acq", "Acquisitions (% of Revenue)", FMT_NUM1, 1.0, const(1.0)),
+            ("goodwill", "Goodwill / Other NCA (% of Base Total Assets)", FMT_NUM1,
+             10.0, const(10.0)),
+            ("intang", "Other Intangibles (% of Base Total Assets)", FMT_NUM1,
+             5.0, const(5.0)),
+            ("dt", "Deferred Tax (% of Non-cash Assets)", FMT_NUM1, 2.0, const(2.0)),
+            ("oltl", "Other LT Liabilities (% of Non-cash Assets)", FMT_NUM1,
+             3.0, const(3.0)),
+            ("sbc", "Stock-Based Comp (% of Revenue)", FMT_NUM1, 2.0, const(2.0)),
+            ("dtc", "Deferred Tax Change (% of Non-cash Assets)", FMT_NUM1,
+             0.1, const(0.1)),
+            ("debt_iss", "Debt Issuance (% of Revenue)", FMT_NUM1, None,
+             lambda k: 5.0 if k == 0 else 0.0),
+        ]))
+
+    # first pass: assign a row to every driver so base formulas can reference
+    # other driver rows regardless of order
     assum_row = {}
+    row_plan = []
     r = 6
-    for name, label, fmt in ASSUM_DRIVERS:
-        if label is None:  # section header
-            cc = ws.cell(row=r, column=LABEL_COL, value=name)
+    for title, drivers in sections:
+        row_plan.append(("section", title, r))
+        r += 1
+        for d in drivers:
+            assum_row[d[0]] = r
+            row_plan.append(("driver", d, r))
+            r += 1
+
+    for kind, payload, rr in row_plan:
+        if kind == "section":
+            cc = ws.cell(row=rr, column=LABEL_COL, value=payload)
             cc.font = _font(bold=True, color=NAVY, size=10)
             for cidx in range(LABEL_COL, YEAR_COL0 + ncols):
-                ws.cell(row=r, column=cidx).fill = PatternFill("solid", fgColor=GREY_HEADER)
-            r += 1
+                ws.cell(row=rr, column=cidx).fill = PatternFill("solid", fgColor=GREY_HEADER)
             continue
-        assum_row[name] = r
-        ws.cell(row=r, column=LABEL_COL, value=label).font = _font(size=10, color="333333")
-        ws.cell(row=r, column=LABEL_COL).alignment = Alignment(indent=1)
-        # base column
-        base_cell = ws.cell(row=r, column=YEAR_COL0)
-        base_cell.number_format = fmt
-        if name == "dep_rate":
-            base_cell.value = year_val(name, 0)
-            base_cell.font = _font(color=BLUE_INPUT)
+        name, label, fmt, base_val, val_fn = payload
+        ws.cell(row=rr, column=LABEL_COL, value=label).font = _font(size=10, color="333333")
+        ws.cell(row=rr, column=LABEL_COL).alignment = Alignment(indent=1)
+        # base column (italic reference — live actual or model default)
+        bc = ws.cell(row=rr, column=YEAR_COL0)
+        bc.number_format = fmt
+        if callable(base_val):
+            base_val = base_val(assum_row)
+        if base_val is not None:
+            bc.value = base_val
+            bc.font = _font(size=10, italic=True, color="555555")
         # forecast columns (editable blue inputs)
         for k in range(n):
-            cc = ws.cell(row=r, column=YEAR_COL0 + 1 + k, value=year_val(name, k))
+            cc = ws.cell(row=rr, column=YEAR_COL0 + 1 + k, value=val_fn(k))
             cc.number_format = fmt
             cc.font = _font(color=BLUE_INPUT)
+
+    # ── Valuation (DCF) drivers — scalar, single value, not per-year ──
+    # Merged onto this sheet so the forecast and the DCF share one uniform
+    # assumptions surface instead of the DCF sheet holding its own copy.
+    cc = ws.cell(row=r, column=LABEL_COL, value="VALUATION (DCF) DRIVERS")
+    cc.font = _font(bold=True, color=NAVY, size=10)
+    for cidx in range(LABEL_COL, YEAR_COL0 + ncols):
+        ws.cell(row=r, column=cidx).fill = PatternFill("solid", fgColor=GREY_HEADER)
+    r += 1
+
+    da = dcf_assumptions or {}
+    wacc = float(da.get("wacc", 10) or 10)
+    tgr = float(da.get("terminal_growth_rate", 2.5) or 2.5)
+    shares = da.get("shares_outstanding", "")
+    try:
+        shares = float(shares)
+    except (TypeError, ValueError):
+        shares = 0.0
+
+    dcf_row = {}
+    for name, label, fmt, default in [
+        ("wacc", "WACC (%)", FMT_NUM1, wacc),
+        ("tgr", "Terminal Growth Rate (%)", FMT_NUM1, tgr),
+        ("method", "Valuation Method", "General", "Perpetuity"),
+        ("exit_mult", "Exit Multiple (x)", FMT_RATIO, 12.0),
+        ("shares", "Shares Outstanding", FMT_NUM, shares),
+        ("fcst_years", "Forecast Years", "0", n),
+    ]:
+        dcf_row[name] = r
+        ws.cell(row=r, column=LABEL_COL, value=label).font = _font(size=10, color="333333")
+        ws.cell(row=r, column=LABEL_COL).alignment = Alignment(indent=1)
+        cc = ws.cell(row=r, column=YEAR_COL0, value=default)
+        cc.number_format = fmt
+        cc.font = _font(color=BLUE_INPUT, bold=True)
         r += 1
 
+    dv = DataValidation(type="list", formula1='"Perpetuity,Exit Multiple"', allow_blank=False)
+    ws.add_data_validation(dv)
+    dv.add(ws.cell(row=dcf_row["method"], column=YEAR_COL0))
+
     note = ws.cell(row=r + 1, column=LABEL_COL,
-                   value="Blue = editable input. Change any projection-year driver to update every "
-                         "statement, ratio and the DCF.")
+                   value="Blue = editable input. Change any driver to update every "
+                         "statement, ratio, and the DCF.")
     note.font = _font(italic=True, size=9, color="7F7F7F")
-    return assum_row
+    # r+2 stays blank as a spacer; the engine block's banner goes at r+3.
+    return assum_row, dcf_row, r + 3
 
 
 # ============================================================
@@ -1037,7 +1200,7 @@ def _build_horizontal(ws, company, layouts):
 # ============================================================
 # DCF SHEET
 # ============================================================
-def _build_dcf(ws, company, is_l, bs_l, cf_l, dcf_assumptions, n_forecast):
+def _build_dcf(ws, company, is_l, bs_l, cf_l, dcf_row, n_forecast):
     ws.sheet_view.showGridLines = False
     ws.column_dimensions["A"].width = 2
     ws.column_dimensions["B"].width = 34
@@ -1054,40 +1217,34 @@ def _build_dcf(ws, company, is_l, bs_l, cf_l, dcf_assumptions, n_forecast):
     def bsc(key, col=base_col): return bs_l.cell(key, col)
     def cfc(key, col=base_col): return cf_l.cell(key, col)
 
-    # ── Assumptions block (blue inputs) ──
+    # ── Key assumptions — live links to the Assumptions sheet ──
+    # WACC/TGR/method/exit multiple/shares are edited on the Assumptions sheet
+    # (merged there alongside the forecast drivers); the DCF sheet just
+    # displays them as cross-sheet formulas, same convention as BASE METRICS.
     R = {}
     r = 5
-    ws.cell(row=r, column=2, value="KEY ASSUMPTIONS").font = _font(bold=True, color=NAVY)
+    ws.cell(row=r, column=2, value="KEY ASSUMPTIONS  (edit on the Assumptions sheet)").font = _font(bold=True, color=NAVY)
     for cidx in range(2, 5):
         ws.cell(row=r, column=cidx).fill = PatternFill("solid", fgColor=GREY_HEADER)
     r += 1
 
-    def inp(label, key, value, fmt=FMT_NUM1):
+    ASq = _q("Assumptions")
+
+    def link(label, key, dcf_name, fmt=FMT_NUM1):
         nonlocal r
         ws.cell(row=r, column=2, value=label).font = _font(size=10, color="333333")
-        c = ws.cell(row=r, column=3, value=value)
-        c.font = _font(color=BLUE_INPUT, bold=True)
+        c = ws.cell(row=r, column=3, value=f"={ASq}!C{dcf_row[dcf_name]}")
+        c.font = _font(color=GREEN_LINK, bold=True)
         c.number_format = fmt
         R[key] = f"C{r}"
         r += 1
 
-    wacc = float((dcf_assumptions or {}).get("wacc", 10) or 10)
-    tgr = float((dcf_assumptions or {}).get("terminal_growth_rate", 2.5) or 2.5)
-    shares = (dcf_assumptions or {}).get("shares_outstanding", "")
-    try:
-        shares = float(shares)
-    except (TypeError, ValueError):
-        shares = 0.0
-    inp("WACC (%)", "wacc", wacc)
-    inp("Terminal Growth Rate (%)", "tgr", tgr)
-    inp("Method", "method", "Perpetuity", fmt="General")
-    inp("Exit Multiple (x)", "exit", 12.0)
-    inp("Shares Outstanding", "shares", shares, fmt=FMT_NUM)
-    inp("Forecast Years", "yrs", n_forecast, fmt="0")
-    # method dropdown
-    dv = DataValidation(type="list", formula1='"Perpetuity,Exit Multiple"', allow_blank=False)
-    ws.add_data_validation(dv)
-    dv.add(ws[R["method"]])
+    link("WACC (%)", "wacc", "wacc")
+    link("Terminal Growth Rate (%)", "tgr", "tgr")
+    link("Method", "method", "method", fmt="General")
+    link("Exit Multiple (x)", "exit", "exit_mult")
+    link("Shares Outstanding", "shares", "shares", fmt=FMT_NUM)
+    link("Forecast Years", "yrs", "fcst_years", fmt="0")
 
     # ── Base metrics block (formulas from statements) ──
     r += 1
@@ -1306,8 +1463,6 @@ def build_workbook(project: dict) -> Workbook:
     cf_l = StmtLayout("Cash Flow Statement", f"{company}  —  CASH FLOW STATEMENT",
                       templates["cash_flow_statement"], cf_stored, hist, proj_years)
 
-    engine_row = {name: ENGINE_ROW0 + i for i, (name, _, _) in enumerate(ENGINE_VARS)}
-
     # Workbook + sheets (display order)
     wb = Workbook()
     ws_is = wb.active
@@ -1317,16 +1472,22 @@ def build_workbook(project: dict) -> Workbook:
     ws_ratios = wb.create_sheet("Ratios")
     ws_horiz = wb.create_sheet("Horizontal Analysis")
     ws_dcf = wb.create_sheet("DCF")
-    ws_assum = wb.create_sheet("Assumptions")
-    ws_engine = wb.create_sheet(ENGINE_SHEET)
+    ws_assum = wb.create_sheet(MODEL_SHEET)
 
     # Base-year anchors, resolved exactly as the forecasting engine does.
     base = extract_base_data(is_stored, bs_stored, cf_stored,
                              dcf_assumptions=project.get("dcf_assumptions"))
 
-    # Build in dependency order
-    assum_row = _build_assumptions(ws_assum, company, base_year_int, proj_years, inputs, mode_label)
-    _build_engine(ws_engine, engine_row, base, is_l, bs_l, cf_l, assum_row, n_forecast, balance_mode)
+    # Build in dependency order — the driver panel first, then the engine
+    # calculation block appended below it on the same sheet.
+    assum_row, dcf_row, banner_row = _build_assumptions(
+        ws_assum, company, base_year_int, proj_years, inputs,
+        base, is_l, bs_l, cf_l, balance_mode,
+        mode_label, dcf_assumptions=project.get("dcf_assumptions"))
+    first_var_row = banner_row + 2   # banner, block header, then variables
+    engine_row = {name: first_var_row + i for i, (name, _, _) in enumerate(ENGINE_VARS)}
+    _build_engine(ws_assum, engine_row, base, assum_row, n_forecast, balance_mode,
+                  banner_row, base_year_int, proj_years)
 
     overrides = _build_overrides(engine_row)
     _build_statement(ws_is, is_l, sub("is"), overrides["income_statement"], engine_row,
@@ -1338,7 +1499,7 @@ def build_workbook(project: dict) -> Workbook:
 
     _build_ratios(ws_ratios, company, is_l, bs_l, cf_l)
     _build_horizontal(ws_horiz, company, [is_l, bs_l, cf_l])
-    _build_dcf(ws_dcf, company, is_l, bs_l, cf_l, project.get("dcf_assumptions"), n_forecast)
+    _build_dcf(ws_dcf, company, is_l, bs_l, cf_l, dcf_row, n_forecast)
 
     return wb
 

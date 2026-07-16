@@ -144,7 +144,7 @@ export default function Forecasting() {
       .catch(() => {
         // Fallback to defaults if no data yet
         setInputs({
-          revenue_growth_rate: 10.0, tax_rate: 25.0,
+          revenue_growth_rate: 0.0, tax_rate: 25.0,
           capex_as_pct_of_revenue: 3.0, dividend_payout_ratio: 30.0,
           interest_rate_on_debt: 4.0, dso: 45.0, dio: 60.0, dpo: 30.0,
           depreciation_rate: 8.0,

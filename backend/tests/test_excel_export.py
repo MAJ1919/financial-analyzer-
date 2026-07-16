@@ -58,13 +58,22 @@ def _find_row(ws, label, col="B", start=1):
     return None
 
 
-def test_workbook_has_all_sheets_engine_hidden(project):
+def test_workbook_has_all_sheets_engine_merged(project):
+    """The forecast engine lives ON the Assumptions sheet (grouped rows under
+    a banner), not on a separate hidden tab."""
     wb = build_workbook(project)
     assert wb.sheetnames == [
         "Income Statement", "Balance Sheet", "Cash Flow Statement",
-        "Ratios", "Horizontal Analysis", "DCF", "Assumptions", "Forecast Engine",
+        "Ratios", "Horizontal Analysis", "DCF", "Assumptions",
     ]
-    assert wb["Forecast Engine"].sheet_state == "hidden"
+    ws = wb["Assumptions"]
+    banner = _find_row(ws, "FORECAST ENGINE — CALCULATED (do not edit; driven by the drivers above)")
+    assert banner is not None
+    # the calculation block is grouped one outline level deep and collapsed
+    first_var = banner + 2
+    assert ws.row_dimensions[first_var].outline_level == 1
+    assert ws.row_dimensions[first_var].hidden is True
+    assert ws.row_dimensions[banner].collapsed is True
 
 
 def test_projected_revenue_links_to_engine(project):
@@ -75,7 +84,7 @@ def test_projected_revenue_links_to_engine(project):
     # hist years 2022,2023 → first projected column is E (C=2022, D=2023, E=2024P)
     val = ws[f"E{r}"].value
     assert isinstance(val, str) and val.startswith("=")
-    assert "Forecast Engine" in val
+    assert "Assumptions" in val
 
 
 def test_historical_actual_is_stored_value(project):
