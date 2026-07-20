@@ -156,8 +156,12 @@ const styles = {
     fontWeight: 500,
     textDecoration: 'none',
     borderRadius: 0,
-    transition: 'background 150ms ease, color 150ms ease',
-    borderLeft: '3px solid transparent',
+    transition: 'background 150ms ease, color 150ms ease, border-left-color 150ms ease',
+    // Longhand only. Mixing `borderLeft` here with `borderLeftColor` in the
+    // active style made React warn on every rerender and drop the override.
+    borderLeftWidth: 3,
+    borderLeftStyle: 'solid',
+    borderLeftColor: 'transparent',
   },
   navItemActive: {
     background: 'rgba(13,115,119,0.25)',

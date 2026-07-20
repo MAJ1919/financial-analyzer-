@@ -132,6 +132,38 @@ button { cursor: pointer; font-family: inherit; }
 
 .btn:active { transform: scale(0.98); }
 
+/* Keyboard focus — visible ring for every control, not just inputs.
+   :focus-visible so mouse users don't see a ring on click. */
+.btn:focus-visible,
+.tab:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Disabled: was visually identical to enabled — looked clickable but did nothing. */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn:disabled:hover,
+.btn[aria-disabled="true"]:hover { background: inherit; }
+
+/* Async button: inline spinner keeps the label in place (no layout shift). */
+.btn-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
 .btn-primary {
   background: var(--color-teal);
   color: #fff;
@@ -254,6 +286,20 @@ button { cursor: pointer; font-family: inherit; }
 .gap-4 { gap: 16px; }
 .w-full { width: 100%; }
 
+/* Visible to screen readers only — used to announce loading/status regions
+   that are otherwise conveyed purely visually (skeletons, spinners). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Loading Spinner  */
 .spinner {
   width: 32px;
@@ -303,6 +349,19 @@ button { cursor: pointer; font-family: inherit; }
   --ag-border-color: var(--color-border);
 }
 
+/* Tabular figures — every digit gets identical width, so decimal points and
+   thousands separators line up down a column and values stop "jittering" as
+   they change. Arial's default proportional figures misalign in money columns. */
+.ag-theme-quartz .ag-cell,
+.data-table td,
+.data-table th,
+.metric-value,
+input[type="number"],
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
 /*  Basic Table  */
 .data-table {
   width: 100%;
@@ -330,3 +389,89 @@ button { cursor: pointer; font-family: inherit; }
   background-color: var(--color-teal-muted);
 }
 .ag-header-cell-center .ag-header-cell-label { justify-content: center; }
+
+/* ============================================================
+   Skeleton loading
+   Reserves the space the real content will occupy, so nothing
+   jumps when data arrives (avoids layout shift / CLS).
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    #eef0f3 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+  height: 12px;
+  margin-bottom: 8px;
+}
+
+.skeleton-row {
+  height: 36px;
+  margin-bottom: 6px;
+}
+
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+}
+
+/* ============================================================
+   Content entrance
+   One short fade+lift when a panel's data resolves. Deliberately
+   restrained (150ms, 4px) — this is a data tool, not a landing page.
+   ============================================================ */
+.fade-in {
+  animation: fade-in-up 180ms ease-out both;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   Reduced motion (WCAG 2.3.3 / prefers-reduced-motion)
+   Vestibular disorders, migraine and motion sensitivity. Motion is
+   removed, but feedback is NEVER removed: spinners and skeletons stay
+   visible as static indicators so loading is still perceivable.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep loading affordances legible without spinning/shimmering. */
+  .spinner,
+  .btn-spinner {
+    animation: none !important;
+    border-top-color: var(--color-teal);
+    opacity: 0.9;
+  }
+
+  .skeleton {
+    animation: none !important;
+    background: var(--color-border);
+  }
+
+  .fade-in { animation: none !important; }
+
+  .btn:active { transform: none; }
+}

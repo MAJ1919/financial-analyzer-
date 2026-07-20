@@ -4,6 +4,7 @@ import Header from '../../components/layout/Header'
 import { useProjectStore } from '../../store/projectStore'
 
 import { analysisApi } from '../../services/api'
+import { SkeletonTable } from '../../components/Skeleton'
 import { fmtRatioValue, fmtNumber, unitLabel } from '../../utils/formatters'
 
 const TABS = ['Financial Ratios', 'Horizontal Analysis']
@@ -39,10 +40,12 @@ export default function Analysis() {
     <>
       <Header title="Analysis" subtitle={project?.company_name} />
       <div className="page-body">
-        <div className="tabs">
+        <div className="tabs" role="tablist" aria-label="Analysis views">
           {TABS.map((tab, i) => (
             <button
               key={tab}
+              role="tab"
+              aria-selected={activeTab === i}
               className={`tab ${activeTab === i ? 'active' : ''}`}
               onClick={() => setActiveTab(i)}
             >
@@ -51,12 +54,21 @@ export default function Analysis() {
           ))}
         </div>
 
-        {error && <p className="field-error" style={{ marginBottom: 12 }}>{error}</p>}
-        {loading && <div className="loading-center"><div className="spinner" /></div>}
+        {error && <p className="field-error" role="alert" style={{ marginBottom: 12 }}>{error}</p>}
+
+        {/* Skeleton rather than a spinner: we know the shape of what's coming,
+            so reserve it and avoid the content jumping in on arrival. */}
+        {loading && (
+          <div className="card">
+            <div className="card-body">
+              <SkeletonTable rows={7} label={`Loading ${TABS[activeTab].toLowerCase()}`} />
+            </div>
+          </div>
+        )}
 
         {/* ── Financial Ratios Tab ── */}
         {!loading && activeTab === 0 && ratiosData && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {Object.entries(ratiosData.ratios || {}).map(([category, ratios]) => (
               <div key={category} className="card">
                 <div className="card-header">
