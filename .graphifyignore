@@ -1,0 +1,4 @@
+# Exclude installed AI-assistant tooling (graphify + ui-ux-pro-max skills) so the
+# knowledge graph reflects the financial-analyzer project, not the skill machinery.
+.claude/
+graphify-out/
