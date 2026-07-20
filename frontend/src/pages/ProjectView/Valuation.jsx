@@ -11,10 +11,11 @@ import { fmtMoney, fmtPercent, unitLabel } from '../../utils/formatters'
 // ============================================================
 
 /**
- * Project FCF series from baseFCF.
- * Growth rate = min(TGR * 1.5, 8%) — matches reference implementation.
- * NOTE: Ideally, this should pull explicit FCFs from the backend forecasting_engine
- * in the future to perfectly align with the 5-year projected statements.
+ * Fallback FCF projection: grow baseFCF by min(TGR * 1.5, 8%).
+ *
+ * This is a crude placeholder and is only used when no forecast has been run.
+ * It ignores every real driver (tax rate, CapEx%, DSO/DIO/DPO), which is why
+ * `extractForecastFCFs` below is preferred whenever a saved forecast exists.
  */
 function projectFCFs(baseFCF, tgr, years) {
   const fcfGrowthRate = Math.min((tgr / 100) * 1.5, 0.08)
@@ -27,19 +28,64 @@ function projectFCFs(baseFCF, tgr, years) {
   return fcfs
 }
 
+/**
+ * Pull the explicit per-year FCFs out of the last saved 5-year forecast.
+ *
+ * Shape (see forecasting_engine.run_forecast):
+ *   forecast_data.scenarios.<scenario>.forecasts[] -> { year, free_cash_flow, ebitda }
+ *
+ * Returns null when no usable forecast is stored, so the caller can fall back.
+ * Statement saves clear `forecast_data` (stale-forecast guard), so this
+ * naturally reverts to the heuristic until the user re-runs the forecast.
+ */
+function extractForecastFCFs(forecastData, scenario = 'base') {
+  const forecasts = forecastData?.scenarios?.[scenario]?.forecasts
+  if (!Array.isArray(forecasts) || forecasts.length === 0) return null
+
+  const rows = forecasts
+    .filter((f) => f && Number.isFinite(Number(f.free_cash_flow)))
+    .sort((a, b) => Number(a.year) - Number(b.year))
+  if (rows.length === 0) return null
+
+  return {
+    fcfs:  rows.map((f) => Number(f.free_cash_flow)),
+    // Terminal-year EBITDA straight from the model — no growth assumption needed.
+    terminalEbitda: Number(rows[rows.length - 1].ebitda) || null,
+    years: rows.map((f) => Number(f.year)),
+  }
+}
+
 function computeDCF({
   baseFCF, ebitda, wacc, terminalGrowthRate, netDebt,
   sharesOutstanding, valuationMethod, exitMultiple, forecastYears,
+  forecastSeries,
 }) {
   if (!wacc || wacc <= 0 || wacc >= 100) return null
   if (valuationMethod === 'perpetuity' && terminalGrowthRate >= wacc) return null
-  if (baseFCF == null) return null
 
   const waccRate = wacc / 100
   const tgRate   = terminalGrowthRate / 100
   const fcfGrowthRate = Math.min((tgRate) * 1.5, 0.08) // Used for EBITDA projection
 
-  const fcfs     = projectFCFs(baseFCF, terminalGrowthRate, forecastYears)
+  // Prefer the forecasting engine's actual FCFs; fall back to the heuristic.
+  const modelled = forecastSeries?.fcfs?.length ? forecastSeries.fcfs : null
+  if (!modelled && baseFCF == null) return null
+
+  let fcfs
+  if (modelled) {
+    fcfs = modelled.slice(0, forecastYears)
+    // Forecast shorter than the DCF horizon: extend from its last year so the
+    // discounting period still lines up with forecastYears.
+    if (fcfs.length < forecastYears) {
+      let last = fcfs[fcfs.length - 1]
+      while (fcfs.length < forecastYears) {
+        last *= (1 + fcfGrowthRate)
+        fcfs.push(last)
+      }
+    }
+  } else {
+    fcfs = projectFCFs(baseFCF, terminalGrowthRate, forecastYears)
+  }
 
   // Present value of each FCF
   const pvFCFs = fcfs.map((fcf, i) => fcf / Math.pow(1 + waccRate, i + 1))
@@ -49,9 +95,13 @@ function computeDCF({
   const lastFCF = fcfs[fcfs.length - 1]
   let terminalValue
   if (valuationMethod === 'multiple') {
-    // FIX 2: Apply Exit Multiple to TERMINAL YEAR EBITDA, not Base Year EBITDA.
-    // Applying it to base year severely underestimates the company's value.
-    const terminalYearEbitda = (ebitda || 0) * Math.pow(1 + fcfGrowthRate, forecastYears)
+    // Apply Exit Multiple to TERMINAL YEAR EBITDA, not Base Year EBITDA —
+    // applying it to the base year severely underestimates the company's value.
+    // When a forecast exists, take its final-year EBITDA directly rather than
+    // growing the base year by the heuristic rate.
+    const terminalYearEbitda = modelled && forecastSeries?.terminalEbitda != null
+      ? forecastSeries.terminalEbitda
+      : (ebitda || 0) * Math.pow(1 + fcfGrowthRate, forecastYears)
     terminalValue = terminalYearEbitda * (exitMultiple || 0)
   } else {
     const termFCF = lastFCF * (1 + tgRate)
@@ -72,6 +122,9 @@ function computeDCF({
     enterpriseValue: Math.round(enterpriseValue),
     equityValue:     Math.round(equityValue),
     valuePerShare,
+    // Which FCF series actually drove this valuation — surfaced in the UI so the
+    // number is never silently based on the placeholder growth curve.
+    fcfSource: modelled ? 'forecast' : 'heuristic',
     terminalValueMethod: valuationMethod === 'multiple'
       ? `Exit Multiple (${exitMultiple}× Terminal EBITDA)`
       : `Perpetuity Growth (${terminalGrowthRate}%)`,
@@ -176,6 +229,10 @@ export default function Valuation() {
       if (a.wacc !== undefined)              setWacc(a.wacc)
       if (a.terminal_growth_rate !== undefined) setTGR(a.terminal_growth_rate)
       if (a.shares_outstanding !== undefined) setShares(a.shares_outstanding)
+      // Previously never persisted, so these silently reset to
+      // 'perpetuity' / 12.0 on every reload and quietly changed the valuation.
+      if (a.valuation_method !== undefined)  setMethod(a.valuation_method)
+      if (a.exit_multiple !== undefined)     setExitMultiple(a.exit_multiple)
     }
     // Pre-fill shares from base metrics if not saved
     if (baseMetrics && !project?.dcf_assumptions?.shares_outstanding) {
@@ -192,6 +249,8 @@ export default function Valuation() {
         terminal_growth_rate: terminalGrowthRate,
         shares_outstanding: sharesOutstanding,
         net_debt: baseMetrics?.net_debt || 0,
+        valuation_method: valuationMethod,
+        exit_multiple: exitMultiple,
       }
       setSaving(true)
       projectsApi.update(projectId, { dcf_assumptions: assumptions })
@@ -200,7 +259,8 @@ export default function Valuation() {
         .finally(() => setSaving(false))
     }, 800)
     return () => clearTimeout(timer)
-  }, [wacc, terminalGrowthRate, sharesOutstanding, projectId, baseMetrics])
+  }, [wacc, terminalGrowthRate, sharesOutstanding, valuationMethod, exitMultiple,
+      projectId, baseMetrics])
 
   // ── Build projected FCF series from base FCF + WACC growth ─
   // Fallback to deriving metrics directly from the latest manual statement data
@@ -223,12 +283,20 @@ export default function Valuation() {
   const netDebt   = baseMetrics?.net_debt ?? project?.dcf_assumptions?.net_debt ?? manualNetDebt ?? 0
   const ebitda    = baseMetrics?.ebitda   || manualEbitda || 0
 
+  // ── Per-year FCFs from the last saved 5-year forecast ─────
+  // Reading the stored forecast keeps the DCF frontend-only (<100ms, SRS §6.1)
+  // while still honouring the engine's real drivers — tax rate, CapEx%,
+  // DSO/DIO/DPO — instead of the placeholder growth curve.
+  const forecastSeries = extractForecastFCFs(project?.forecast_data)
+
   // ── DCF computation (instant, frontend only) ─────────────
   const dcfParams = {
     baseFCF, ebitda, wacc, terminalGrowthRate,
-    netDebt, sharesOutstanding, valuationMethod, exitMultiple, forecastYears: forecastPeriod,
+    netDebt, sharesOutstanding, valuationMethod, exitMultiple,
+    forecastYears: forecastPeriod, forecastSeries,
   }
   const result = computeDCF(dcfParams)
+  const usingForecast = result?.fcfSource === 'forecast'
 
   // ── Sensitivity grid (WACC ±2% × TGR/multiple rows) ──────
   const sensitivity = buildSensitivityGrid(wacc, terminalGrowthRate, exitMultiple, dcfParams)
@@ -278,6 +346,42 @@ export default function Valuation() {
           />
         </div>
 
+        {/* ── Where the projected FCFs came from ───────────
+            The heuristic ignores tax rate, CapEx% and working-capital
+            assumptions, so the user must be able to tell the two apart. */}
+        <div
+          className="card"
+          style={{
+            marginBottom: 16,
+            borderLeftWidth: 3,
+            borderLeftStyle: 'solid',
+            borderLeftColor: usingForecast ? 'var(--color-success)' : 'var(--color-warning)',
+          }}
+        >
+          <div className="card-body" style={{ padding: '10px 16px', fontSize: 12 }}>
+            {usingForecast ? (
+              <>
+                <span className="badge badge-success">Forecast-driven</span>
+                <span className="text-muted" style={{ marginLeft: 10 }}>
+                  Projected cash flows come from the saved {forecastSeries.fcfs.length}-year
+                  forecast{forecastSeries.years?.length
+                    ? ` (${forecastSeries.years[0]}–${forecastSeries.years[forecastSeries.years.length - 1]})`
+                    : ''}, so tax rate, CapEx% and working-capital assumptions flow through.
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="badge badge-warning">Estimated</span>
+                <span className="text-muted" style={{ marginLeft: 10 }}>
+                  No saved forecast — cash flows use a placeholder growth curve
+                  (min(TGR&nbsp;×&nbsp;1.5,&nbsp;8%)) that ignores tax rate, CapEx% and
+                  working-capital drivers. Run the forecast for a model-driven valuation.
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* ── Key Assumptions + Valuation Components ─────── */}
         <div style={styles.twoCol}>
           {/* Left — Key Assumptions */}
@@ -298,7 +402,7 @@ export default function Valuation() {
                 <select
                   id="method-select"
                   value={valuationMethod}
-                  onChange={e => setMethod(e.target.value)}
+                  onChange={(e) => { dirtyRef.current = true; setMethod(e.target.value) }}
                   style={{ ...styles.inlineInput, width: 'auto' }}
                 >
                   <option value="perpetuity">Perpetuity Growth</option>
@@ -323,7 +427,7 @@ export default function Valuation() {
                     type="number" step="0.5" min="1" max="50"
                     style={styles.inlineInput}
                     value={exitMultiple}
-                    onChange={(e) => setExitMultiple(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => { dirtyRef.current = true; setExitMultiple(parseFloat(e.target.value) || 0) }}
                   />
                   <span style={{ fontSize: 14 }}>× EBITDA</span>
                 </AssumptionRow>
