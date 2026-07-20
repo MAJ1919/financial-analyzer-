@@ -334,10 +334,14 @@ export default function Valuation() {
               <AssumptionRow label="Shares Outstanding">
                 <input
                   id="shares-input"
-                  type="number" step="1" min="0"
+                  type="text"
                   style={{ ...styles.inlineInput, width: 100 }}
-                  value={sharesOutstanding}
-                  onChange={(e) => { dirtyRef.current = true; setShares(e.target.value === '' ? '' : (parseFloat(e.target.value) || 0)) }}
+                  value={sharesOutstanding === '' ? '' : Number(sharesOutstanding).toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                  onChange={(e) => { 
+                    dirtyRef.current = true; 
+                    const rawValue = e.target.value.replace(/[^0-9.]/g, '');
+                    setShares(rawValue === '' ? '' : (parseFloat(rawValue) || 0));
+                  }}
                 />
                 <span style={{ fontSize: 14 }} title="In thousands, matching the '000 figures">'000</span>
               </AssumptionRow>
@@ -486,7 +490,7 @@ export default function Valuation() {
                     ["Base FCF",       fmtMoney(baseMetrics.base_fcf, currency)],
                     ["EBITDA",         fmtMoney(baseMetrics.ebitda, currency)],
                     ["Net Debt",       fmtMoney(baseMetrics.net_debt, currency)],
-                    ["Shares ('000)",  sharesOutstanding || '—'],
+                    ["Shares ('000)",  sharesOutstanding ? Number(sharesOutstanding).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'],
                     ["Historical WACC", fmtPercent(baseMetrics.wacc?.historical_wacc)],
                   ].map(([label, val]) => (
                     <div key={label} style={styles.metricItem}>
