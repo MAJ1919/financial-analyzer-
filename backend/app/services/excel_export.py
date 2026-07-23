@@ -1282,7 +1282,11 @@ def _build_dcf(ws, company, is_l, bs_l, cf_l, dcf_row, n_forecast):
 
     metric("Tax Rate", "taxrate", taxrate, FMT_PCT)
     metric("EBITDA", "ebitda", f"{opinc}+{dep}")
-    metric("Net Debt", "netdebt", f"{tdebt}-{bsc('cashAndEquivalents')}")
+    # Label states the composition explicitly: `tdebt` above is short-term
+    # borrowings + current portion of LT debt + LT debt. Lease liabilities are
+    # deliberately excluded, matching how Saudi-listed issuers (incl. Almarai)
+    # quote leverage. Display text only — formulas reference R['netdebt'].
+    metric("Net Debt (excl. lease liabilities)", "netdebt", f"{tdebt}-{bsc('cashAndEquivalents')}")
     metric("NOPAT", "nopat", f"{opinc}*(1-{R['taxrate']})")
     metric("Base Free Cash Flow", "basefcf", f"{R['nopat']}+{dep}-{capex}-{wc}")
 
@@ -1362,7 +1366,7 @@ def _build_dcf(ws, company, is_l, bs_l, cf_l, dcf_row, n_forecast):
     summ("Terminal Value", "tv", f"IFERROR(IF({R['method']}=\"Perpetuity\",{tv_perp},{tv_mult}),0)")
     summ("PV of Terminal Value", "pvtv", f"{R['tv']}/(1+{R['wacc']}/100)^{n_forecast}")
     summ("Enterprise Value", "ev", f"{R['sumpv']}+{R['pvtv']}", bold=True)
-    summ("Less: Net Debt", "less_nd", f"-{R['netdebt']}")
+    summ("Less: Net Debt (excl. lease liabilities)", "less_nd", f"-{R['netdebt']}")
     summ("Equity Value", "equity", f"{R['ev']}-{R['netdebt']}", bold=True)
     summ("Value per Share", "vps", f"IF({R['shares']}>0,{R['equity']}/{R['shares']},\"\")",
          fmt='#,##0.00', big=True)

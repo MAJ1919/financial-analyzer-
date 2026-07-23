@@ -473,7 +473,7 @@ export default function Valuation() {
               <div style={{ borderTop: '1px solid var(--color-border)', margin: '12px 0' }} />
               {[
                 ["Enterprise Value:",  fmtMoney(result?.enterpriseValue, currency), true],
-                ["Less: Net Debt:",    fmtMoney(netDebt, currency)],
+                ["Less: Net Debt (excl. lease liabilities):", fmtMoney(netDebt, currency)],
                 ["Equity Value:",      fmtMoney(result?.equityValue, currency), true],
               ].map(([label, val, bold]) => (
                 <div key={label} style={{ ...styles.compRow, fontWeight: bold ? 700 : 400 }}>
@@ -593,7 +593,7 @@ export default function Valuation() {
                   {[
                     ["Base FCF",       fmtMoney(baseMetrics.base_fcf, currency)],
                     ["EBITDA",         fmtMoney(baseMetrics.ebitda, currency)],
-                    ["Net Debt",       fmtMoney(baseMetrics.net_debt, currency)],
+                    ["Net Debt (excl. leases)", fmtMoney(baseMetrics.net_debt, currency)],
                     ["Shares ('000)",  sharesOutstanding ? Number(sharesOutstanding).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '—'],
                     ["Historical WACC", fmtPercent(baseMetrics.wacc?.historical_wacc)],
                   ].map(([label, val]) => (
