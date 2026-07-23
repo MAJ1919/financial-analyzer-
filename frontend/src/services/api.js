@@ -3,6 +3,7 @@
  * Base URL defaults to Vite proxy target or explicit env var.
  */
 import axios from 'axios'
+import { supabase } from './supabaseClient'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
@@ -13,10 +14,32 @@ const api = axios.create({
   // Axios v1.x auto-detects: JSON for objects, multipart for FormData.
 })
 
+// ── Request interceptor — attach the user's Supabase JWT ──────────
+// getSession() reads from local storage and transparently refreshes an expired
+// token, so every backend call carries a valid bearer for RLS enforcement.
+api.interceptors.request.use(async (config) => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+  return config
+})
+
 // ── Response interceptor — surface errors clearly ─────────────────
 api.interceptors.response.use(
   (response) => response.data,
-  (error) => {
+  async (error) => {
+    // A 401 means the token is missing/expired/invalid — end the session and
+    // send the user to sign in. (Auth itself uses the supabase client directly,
+    // not this axios instance, so there's no redirect loop.)
+    if (error.response?.status === 401) {
+      await supabase.auth.signOut()
+      if (window.location.pathname !== '/login') {
+        window.location.assign('/login')
+      }
+    }
     const message =
       error.response?.data?.detail ||
       error.response?.data?.message ||

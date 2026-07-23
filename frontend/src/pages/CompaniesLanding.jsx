@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { projectsApi } from '../services/api'
-import Header from '../components/layout/Header'
+import { useAuthStore } from '../store/authStore'
 
 export default function CompaniesLanding() {
   const [projects, setProjects]   = useState([])
@@ -10,6 +10,13 @@ export default function CompaniesLanding() {
   const [newName, setNewName]     = useState('')
   const [error, setError]         = useState('')
   const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
+  const signOut = useAuthStore((s) => s.signOut)
+
+  async function handleLogout() {
+    await signOut()
+    navigate('/login', { replace: true })
+  }
 
   useEffect(() => {
     loadProjects()
@@ -55,9 +62,19 @@ export default function CompaniesLanding() {
           <h1 style={styles.pageTitle}>Companies</h1>
           <p style={styles.pageSubtitle}>Select a project or create a new one to begin analysis</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setCreating(true)}>
-          + New Project
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {user?.email && (
+            <span style={styles.userEmail} title={user.email}>
+              {user.email}
+            </span>
+          )}
+          <button className="btn btn-primary" onClick={() => setCreating(true)}>
+            + New Project
+          </button>
+          <button className="btn btn-ghost" onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
       </div>
 
       {/* New project form */}
@@ -159,6 +176,14 @@ const styles = {
     fontSize: 14,
     color: 'var(--color-text-muted)',
     marginTop: 4,
+  },
+  userEmail: {
+    fontSize: 13,
+    color: 'var(--color-text-muted)',
+    maxWidth: 220,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   grid: {
     display: 'grid',

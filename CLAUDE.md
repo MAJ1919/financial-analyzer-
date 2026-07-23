@@ -112,6 +112,8 @@ Revenue growth: flat `revenue_growth_rate` or per-year `revenue_growth_rates` li
 - Number formatting is unified in `frontend/src/utils/formatters.js` (audit item A5, **resolved**). Add to that file rather than writing a local formatter.
 - Windows dev machine: Git Bash + PowerShell both in play; watch CRLF warnings, they're harmless here. Python `multiprocessing` needs an `if __name__ == '__main__'` guard here (spawn, not fork).
 - pytest must run from `backend/` (imports resolve via cwd).
+- **NFR-S-03 (no financial data in logs/errors):** service-layer `raise ValueError(...)` messages and any `logging` calls must describe structural/shape problems only — never interpolate actual cell/row values, statement bodies, or figures. Unhandled exceptions are caught by a global handler in `main.py` that returns a generic 500 and logs only method/path/exception-type; keep it that way. Use `app.core.logging_config.get_logger`.
+- **Auth/RLS:** project-scoped routes depend on `get_user_db` (per-request anon-key client carrying the caller's JWT) so Postgres RLS enforces ownership — a request for another user's project id returns no rows (→ 404), not a leak. `get_db` (service-role, bypasses RLS) is reserved for genuinely non-user-scoped work. Don't "fix" a 404 on someone else's project by switching a route back to `get_db`.
 - Branches: work has landed on `main`; `version-2-claude` and `old-main` are older lines still on the remote.
 
 ## graphify

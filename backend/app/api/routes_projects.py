@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 from supabase import Client
 
-from app.api.dependencies import get_db
+from app.api.dependencies import get_user_db, get_current_user
 from app.models.project import ProjectCreate, ProjectUpdate, ProjectResponse
 from app.services.excel_export import export_project_to_xlsx_bytes
 
@@ -13,15 +13,23 @@ router = APIRouter()
 
 
 @router.get("/", response_model=list[ProjectResponse])
-def list_projects(db: Client = Depends(get_db)):
-    """Return all saved projects (Companies landing page)."""
-    result = db.table("projects").select("*").order("created_at", desc=True).execute()
+def list_projects(db: Client = Depends(get_user_db), user: dict = Depends(get_current_user)):
+    """Return the current user's saved projects (Companies landing page)."""
+    # RLS already scopes rows to the caller; the explicit filter keeps the query
+    # itself owner-scoped rather than relying solely on the policy.
+    result = (
+        db.table("projects")
+        .select("*")
+        .eq("user_id", user["id"])
+        .order("created_at", desc=True)
+        .execute()
+    )
     return result.data
 
 
 @router.get("/{project_id}", response_model=ProjectResponse)
-def get_project(project_id: str, db: Client = Depends(get_db)):
-    """Fetch a single project by ID."""
+def get_project(project_id: str, db: Client = Depends(get_user_db)):
+    """Fetch a single project by ID (RLS: only the owner sees it)."""
     result = db.table("projects").select("*").eq("id", project_id).execute()
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
@@ -29,15 +37,23 @@ def get_project(project_id: str, db: Client = Depends(get_db)):
 
 
 @router.post("/", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
-def create_project(payload: ProjectCreate, db: Client = Depends(get_db)):
-    """Create a new project shell (no financial data yet)."""
-    result = db.table("projects").insert(payload.model_dump()).execute()
+def create_project(
+    payload: ProjectCreate,
+    db: Client = Depends(get_user_db),
+    user: dict = Depends(get_current_user),
+):
+    """Create a new project shell (no financial data yet), owned by the caller."""
+    result = (
+        db.table("projects")
+        .insert({**payload.model_dump(), "user_id": user["id"]})
+        .execute()
+    )
     return result.data[0]
 
 
 @router.patch("/{project_id}", response_model=ProjectResponse)
-def update_project(project_id: str, payload: ProjectUpdate, db: Client = Depends(get_db)):
-    """Partial update of project metadata or financial data."""
+def update_project(project_id: str, payload: ProjectUpdate, db: Client = Depends(get_user_db)):
+    """Partial update of project metadata or financial data (RLS: owner only)."""
     result = (
         db.table("projects")
         .update(payload.model_dump(exclude_none=True))
@@ -50,7 +66,7 @@ def update_project(project_id: str, payload: ProjectUpdate, db: Client = Depends
 
 
 @router.get("/{project_id}/export/excel")
-def export_project_excel(project_id: str, db: Client = Depends(get_db)):
+def export_project_excel(project_id: str, db: Client = Depends(get_user_db)):
     """
     Build and stream a fully-formatted, formula-driven Excel workbook for the
     project: the three statements (actuals + a live projected model), Ratios,
@@ -84,8 +100,8 @@ def export_project_excel(project_id: str, db: Client = Depends(get_db)):
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_project(project_id: str, db: Client = Depends(get_db)):
-    """Permanently delete a project."""
+def delete_project(project_id: str, db: Client = Depends(get_user_db)):
+    """Permanently delete a project (RLS: owner only)."""
     result = db.table("projects").delete().eq("id", project_id).execute()
     if not result.data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from supabase import Client
 
-from app.api.dependencies import get_db
+from app.api.dependencies import get_user_db
 from app.services import analysis_engine
 from app.services.forecasting_engine import (
     run_forecast,
@@ -39,7 +39,7 @@ router = APIRouter()
 
 
 @router.get("/{project_id}/ratios")
-def get_financial_ratios(project_id: str, db: Client = Depends(get_db)):
+def get_financial_ratios(project_id: str, db: Client = Depends(get_user_db)):
     """
     Compute and return financial ratios for all available historical years.
 
@@ -61,7 +61,7 @@ def get_financial_ratios(project_id: str, db: Client = Depends(get_db)):
 
 
 @router.get("/{project_id}/horizontal")
-def get_horizontal_analysis(project_id: str, db: Client = Depends(get_db)):
+def get_horizontal_analysis(project_id: str, db: Client = Depends(get_user_db)):
     """
     Compute year-over-year percentage changes (horizontal analysis)
     for all line items across the IS and BS.
@@ -80,7 +80,7 @@ def get_horizontal_analysis(project_id: str, db: Client = Depends(get_db)):
 
 
 @router.get("/{project_id}/forecast")
-def get_forecast(project_id: str, db: Client = Depends(get_db)):
+def get_forecast(project_id: str, db: Client = Depends(get_user_db)):
     """Return the stored 5-year projection data for the project."""
     project = db.table("projects").select("forecast_data").eq("id", project_id).execute()
 
@@ -91,7 +91,7 @@ def get_forecast(project_id: str, db: Client = Depends(get_db)):
 
 
 @router.get("/{project_id}/dcf-metrics")
-def get_dcf_base_metrics(project_id: str, db: Client = Depends(get_db)):
+def get_dcf_base_metrics(project_id: str, db: Client = Depends(get_user_db)):
     """
     Compute base financial metrics for the DCF Valuation page:
     Base FCF, EBITDA, Net Debt, and historical WACC (using ROE as cost-of-equity proxy).
@@ -118,7 +118,7 @@ def get_dcf_base_metrics(project_id: str, db: Client = Depends(get_db)):
 def compute_forecast(
     project_id: str,
     payload: ComputeForecastPayload,
-    db: Client = Depends(get_db),
+    db: Client = Depends(get_user_db),
 ):
     """
     Run the 5-year ForecastingEngine with user-supplied inputs.
@@ -162,7 +162,7 @@ def compute_forecast(
 
 
 @router.get("/{project_id}/forecast/assumptions")
-def get_historical_assumptions(project_id: str, db: Client = Depends(get_db)):
+def get_historical_assumptions(project_id: str, db: Client = Depends(get_user_db)):
     """
     Derive suggested ForecastInputs from historical financial statement data.
     Called when the Forecasting page first loads to pre-populate the input form.

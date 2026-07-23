@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # ---- Supabase ----
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
+    # Anon (public) key — used for per-request, user-scoped clients that run
+    # under Row Level Security. The service-role key above bypasses RLS.
+    SUPABASE_ANON_KEY: str = ""
 
     # ---- CORS ----
     # Comma-separated list of allowed origins in .env,
