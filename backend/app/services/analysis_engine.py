@@ -316,7 +316,10 @@ def calculate_ratio(
 
         # ── PER SHARE ────────────────────────────────────────────
         case "basicEPS":
-            return _safe_div(net_income, shares) if shares else None
+            # `basic_eps` already prefers the entered (audited) row and only
+            # falls back to net income / shares. Recomputing here discarded the
+            # user's own figure even when they had supplied it.
+            return basic_eps or None
 
         case "revenuePerShare":
             return _safe_div(revenue, shares) if shares else None

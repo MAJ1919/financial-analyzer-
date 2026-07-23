@@ -1,16 +1,16 @@
 # Graph Report - financial-analyzer-platform - Claude  (2026-07-23)
 
 ## Corpus Check
-- 70 files · ~47,881 words
+- 70 files · ~48,331 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 541 nodes · 1045 edges · 23 communities (21 shown, 2 thin omitted)
+- 543 nodes · 1049 edges · 24 communities (22 shown, 2 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 33 edges (avg confidence: 0.59)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `76e23a4c`
+- Built from commit: `70ec68e6`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,6 +26,7 @@
 - Shared Utils (Compat Map)
 - Projects API Routes
 - Analysis API Routes
+- compute_ratios
 - E2E Dev Dependencies
 - Lint Config
 - Playwright Config
@@ -39,7 +40,7 @@
 2. `run_forecast()` - 26 edges
 3. `ForecastingEngine` - 25 edges
 4. `build_workbook()` - 23 edges
-5. `compute_ratios()` - 17 edges
+5. `compute_ratios()` - 18 edges
 6. `parse_template_upload()` - 17 edges
 7. `_parse_year()` - 16 edges
 8. `_get_compat()` - 15 edges
@@ -66,7 +67,7 @@
 - **The three architectural contracts that govern the platform** — claude_split_calculation_ownership, claude_single_source_of_truth_template, claude_compat_key_map_single_home, claude_headers_are_the_totals [EXTRACTED 1.00]
 - **DCF valuation flow and its known gaps** — frontend_src_pages_valuation_projectfcfs, claude_gap_dcf_ignores_forecast_engine, claude_gap_valuation_method_not_persisted, backend_app_services_forecasting_engine_run_forecast, claude_per_share_scale_trap [INFERRED 0.85]
 
-## Communities (23 total, 2 thin omitted)
+## Communities (24 total, 2 thin omitted)
 
 ### Community 0 - "React Frontend UI"
 Cohesion: 0.06
@@ -77,12 +78,12 @@ Cohesion: 0.09
 Nodes (29): BaseFinancialData, calculate_historical_assumptions(), extract_base_data(), ForecastingEngine, ForecastInputs, ForecastScenario, Forecasting Engine Service ========================== Complete 5-year financia, Pull the most-recent-year values from stored JSONB statements     into a flat B (+21 more)
 
 ### Community 2 - "Analysis Engine (Ratios/DCF)"
-Cohesion: 0.05
-Nodes (42): calculate_ratio(), compute_dcf_base_metrics(), compute_horizontal_analysis(), compute_ratios(), _get(), _get_avg(), Any, Analysis Engine Service ======================= All financial arithmetic lives (+34 more)
+Cohesion: 0.06
+Nodes (34): label_to_key(), Financial data models (Pydantic) + Line Item Key Mapping.  Storage model (JSONB, Convert a display label to a camelCase canonical key. Returns label as-is if unk, Convert a stored FinancialStatement dict into a flat lookup:         { camelCase, statement_to_lookup(), calculate_ratio(), compute_dcf_base_metrics(), compute_horizontal_analysis() (+26 more)
 
 ### Community 3 - "Excel Parser"
-Cohesion: 0.07
-Nodes (35): Client, Step 1 & 2 combined: Reads a template-conforming .xlsx file,     parses it direc, Alternative ingestion path - direct manual entry from a structured template., save_manual_entry(), upload_template(), FinancialRow, FinancialStatement, label_to_key() (+27 more)
+Cohesion: 0.08
+Nodes (30): get_statement_templates(), Canonical statement structure for manual entry initialization.      Returns the, FinancialRow, FinancialStatement, BaseModel, Represents a single line item in a financial statement.     Values are stored pe, Wrapper for a full financial statement (IS or BS)., load_statement_templates() (+22 more)
 
 ### Community 4 - "Excel Export"
 Cohesion: 0.09
@@ -98,7 +99,7 @@ Nodes (20): App(), ErrorBoundary, ProjectLayout(), NAV_ITEMS, Sidebar(), styles,
 
 ### Community 7 - "Templates & Compat Map"
 Cohesion: 0.08
-Nodes (21): get_statement_templates(), Canonical statement structure for manual entry initialization.      Returns the, Any, Settings, configure_logging(), get_logger(), Central logging configuration (NFR-S-03).  Establishes ONE logging convention fo, Idempotently configure root logging. Called once at app startup. (+13 more)
+Nodes (20): Client, Step 1 & 2 combined: Reads a template-conforming .xlsx file,     parses it direc, Alternative ingestion path - direct manual entry from a structured template., save_manual_entry(), upload_template(), Any, Settings, configure_logging() (+12 more)
 
 ### Community 8 - "Shared Utils (Compat Map)"
 Cohesion: 0.11
@@ -109,8 +110,12 @@ Cohesion: 0.08
 Nodes (35): _extract_bearer_token(), get_current_user(), get_db(), get_user_db(), Client, Shared FastAPI dependencies — injected via Depends()., Yield the **service-role** Supabase client (bypasses RLS).      Reserved for ope, Pull the raw JWT out of an ``Authorization: Bearer <token>`` header. (+27 more)
 
 ### Community 10 - "Analysis API Routes"
-Cohesion: 0.16
+Cohesion: 0.17
 Nodes (16): compute_forecast(), ComputeForecastPayload, ForecastInputsPayload, get_dcf_base_metrics(), get_financial_ratios(), get_forecast(), get_historical_assumptions(), get_horizontal_analysis() (+8 more)
+
+### Community 11 - "compute_ratios"
+Cohesion: 0.12
+Nodes (15): compute_ratios(), Compute all 32 financial ratios for each available fiscal year.      Returns:, balance_sheet(), base_balanced(), income_statement(), label_for(), make_statement(), Shared fixtures for the backend test suite.  Statement fixtures use the SAME can (+7 more)
 
 ### Community 13 - "E2E Dev Dependencies"
 Cohesion: 0.25

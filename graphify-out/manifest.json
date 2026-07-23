@@ -80,8 +80,8 @@
     "semantic_hash": "9819d3d18e2e98ddc6bf39f014d17b9a"
   },
   "backend/app/services/analysis_engine.py": {
-    "mtime": 1784792326.1994221,
-    "ast_hash": "e321afbe0dda0c161eb4d10b8d8f32fe",
+    "mtime": 1784796298.1609645,
+    "ast_hash": "7ca0e8234c93a35131c3bf4f5608213a",
     "semantic_hash": ""
   },
   "backend/app/services/excel_export.py": {
@@ -100,9 +100,9 @@
     "semantic_hash": "ad55e011f0949c8606737d6cbecea796"
   },
   "backend/app/services/shared_utils.py": {
-    "mtime": 1783937292.0253675,
-    "ast_hash": "78dea793bea2c06517f2d4395ef703ed",
-    "semantic_hash": "78dea793bea2c06517f2d4395ef703ed"
+    "mtime": 1784795765.3444695,
+    "ast_hash": "8ea363fce83d99189c06c0695091b292",
+    "semantic_hash": ""
   },
   "backend/app/services/supabase_client.py": {
     "mtime": 1784705685.812958,
@@ -125,8 +125,8 @@
     "semantic_hash": "e3077504a9af2ac19c24654ea96fe57e"
   },
   "backend/tests/test_analysis_engine.py": {
-    "mtime": 1784792491.208805,
-    "ast_hash": "ebb53aa0d64d143cce72352cd3fb13b3",
+    "mtime": 1784795773.1767664,
+    "ast_hash": "b50399e365f068f93286d2b34de4de32",
     "semantic_hash": ""
   },
   "backend/tests/test_excel_export.py": {
@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/layout/Sidebar.jsx": {
-    "mtime": 1784706187.0626452,
-    "ast_hash": "275ee619fd2e86b6bdb3a3ffc447b497",
+    "mtime": 1784796470.1997447,
+    "ast_hash": "982e4d37306c856d3571971d27f5ebb7",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {

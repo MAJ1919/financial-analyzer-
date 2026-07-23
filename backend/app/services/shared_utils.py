@@ -75,6 +75,12 @@ KEY_COMPAT_MAP: dict[str, list[str]] = {
     "accountsPayable":         ["tradePayablesHeader"],
 
     # ── Shares / Dividends ──────────────────────────────────────────────
+    # The template row is `basicEps`; the engine asks for `basicEPS`. Without
+    # this the user's entered EPS was silently ignored and always recomputed as
+    # net income / shares — which hides any difference between the audited EPS
+    # and a naive recomputation (preferred dividends, weighted-average timing).
+    "basicEPS":                ["basicEps"],
+    "dilutedEPS":              ["dilutedEps"],
     "basicSharesOutstanding":  ["weightedAvgBasicShares"],
     "basicAverageShares":      ["weightedAvgBasicShares"],
     "dilutedAverageShares":    ["weightedAvgDilutedShares"],

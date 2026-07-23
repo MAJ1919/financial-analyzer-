@@ -80,6 +80,21 @@ class TestComputeRatios:
         r = compute_ratios(inc, make_statement({"totalEquity": {"2023": 1.0}}), cf)
         assert r["ratios"]["Per Share"]["dividendPayoutRatio"]["2023"] == pytest.approx(0.40)
 
+    def test_entered_basic_eps_is_used_not_recomputed(self):
+        """Regression: engine asked for `basicEPS`, template row is `basicEps`.
+
+        The case mismatch meant a user's entered (audited) EPS was silently
+        discarded and always recomputed as net income / shares.
+        """
+        inc = make_statement({
+            "totalRevenue":           {"2023": 1.0},
+            "netIncome":              {"2023": 1_000.0},
+            "basicEps":               {"2023": 1.75},     # audited figure
+            "weightedAvgBasicShares": {"2023": 500.0},    # naive recompute = 2.00
+        })
+        r = compute_ratios(inc, make_statement({"totalEquity": {"2023": 1.0}}))
+        assert r["ratios"]["Per Share"]["basicEPS"]["2023"] == pytest.approx(1.75)
+
     def test_ev_to_ebitda_is_none_without_market_cap(self):
         """Nothing supplies a share price, so EV collapses to net debt. Report
         nothing rather than a plausible-looking wrong multiple."""
