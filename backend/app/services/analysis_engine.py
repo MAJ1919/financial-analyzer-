@@ -158,7 +158,11 @@ def calculate_ratio(
     accounts_payable = bsg("tradePayablesHeader") or bsg("accountsPayable")
     total_assets = bsg("assetsHeader") or bsg("totalAssets")
     total_liabilities = bsg("liabilitiesHeader") or bsg("totalLiabilities")
-    current_debt = bsg("stBorrowingsData") + bsg("currentPortionLTDebt") + bsg("currentDebt")
+    # NOTE: "currentDebt" is a COMPAT ALIAS for "currentPortionLTDebt" (see
+    # KEY_COMPAT_MAP), so bsg("currentDebt") already resolves the canonical row
+    # and falls back to a legacy one. Adding both counted it twice and inflated
+    # every debt ratio. Keep this identical to the DCF-side definition below.
+    current_debt = bsg("stBorrowingsData") + bsg("currentDebt")
     long_term_debt = bsg("ltDebtData")
     other_debt = 0.0
     total_debt = current_debt + long_term_debt + other_debt
@@ -175,8 +179,13 @@ def calculate_ratio(
     diluted_shares = isg("dilutedAverageShares") or shares
     price = isg("pricePerShare")
     market_cap = isg("marketCap") or (price * shares if price and shares else 0.0)
-    dividends_per_share = isg("commonStockDividendPerShare")
     total_dividends_paid = abs(cfg("commonStockDividendPaid") or cfg("dividendsPaid"))
+    # No template row carries a *declared* DPS, so fall back to dividends
+    # actually paid (from the CFS) divided by shares. Without this fallback the
+    # key resolves to 0 for every project and dividend yield reads a silent zero.
+    dividends_per_share = isg("commonStockDividendPerShare") or (
+        _safe_div(total_dividends_paid, shares) if shares else 0.0
+    ) or 0.0
 
     # Derived aggregates
     enterprise_value = market_cap + total_debt - cash
@@ -297,7 +306,10 @@ def calculate_ratio(
             return _safe_div(market_cap, total_equity) if market_cap else None
 
         case "evToEbitda":
-            return _safe_div(enterprise_value, ebitda) if ebitda else None
+            # Nothing in the template supplies a share price or market cap, so
+            # without one `enterprise_value` collapses to net debt. Reporting
+            # that as "EV/EBITDA" looks plausible and is wrong — report nothing.
+            return _safe_div(enterprise_value, ebitda) if (market_cap and ebitda) else None
 
         case "dividendYield":
             return _safe_div(dividends_per_share, price) if price else None
@@ -316,7 +328,10 @@ def calculate_ratio(
             return _safe_div(free_cf, shares) if shares else None
 
         case "dividendPayoutRatio":
-            return _safe_div(dividends_per_share, basic_eps) if basic_eps else None
+            # Straight from the aggregates rather than DPS/EPS: it avoids
+            # compounding two per-share roundings and still works when the
+            # share count is missing.
+            return _safe_div(total_dividends_paid, net_income) if net_income else None
 
         case "dividendsPerShare":
             return _safe_div(total_dividends_paid, shares) if shares else None

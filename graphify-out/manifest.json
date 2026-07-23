@@ -10,19 +10,19 @@
     "semantic_hash": "e14b5d5cae13710abd978a502d1c1b19"
   },
   "backend/app/api/dependencies.py": {
-    "mtime": 1782741455.4062479,
-    "ast_hash": "7e8c17f701a7b5586355b3648cf780e6",
-    "semantic_hash": "7e8c17f701a7b5586355b3648cf780e6"
+    "mtime": 1784706459.5386627,
+    "ast_hash": "262839b388475a906bcb09360eb03fee",
+    "semantic_hash": ""
   },
   "backend/app/api/routes_analysis.py": {
-    "mtime": 1783874585.1303966,
-    "ast_hash": "330ffd87378e2409e624434aca920391",
-    "semantic_hash": "330ffd87378e2409e624434aca920391"
+    "mtime": 1784705788.0892837,
+    "ast_hash": "5e0be69b1c9003acd0119e7116916567",
+    "semantic_hash": ""
   },
   "backend/app/api/routes_projects.py": {
-    "mtime": 1783950674.8712325,
-    "ast_hash": "c5b8e1546979a4c9f265f11cc375311c",
-    "semantic_hash": "c5b8e1546979a4c9f265f11cc375311c"
+    "mtime": 1784705736.2460482,
+    "ast_hash": "d4b78dfb2f0bfbc13ba399322ae9b742",
+    "semantic_hash": ""
   },
   "backend/app/api/routes_templates.py": {
     "mtime": 1783874450.3670223,
@@ -30,9 +30,9 @@
     "semantic_hash": "5216ee36e23563950c58e4cb02c1b7ae"
   },
   "backend/app/api/routes_upload.py": {
-    "mtime": 1783874576.2226222,
-    "ast_hash": "e78d508a3042105b74bbe7fd4e0bfdb1",
-    "semantic_hash": "e78d508a3042105b74bbe7fd4e0bfdb1"
+    "mtime": 1784705772.2390313,
+    "ast_hash": "c4b66e4ca9184ed895ffe9d8eead8932",
+    "semantic_hash": ""
   },
   "backend/app/core/__init__.py": {
     "mtime": 1782741604.068451,
@@ -40,14 +40,14 @@
     "semantic_hash": "597f7aad4a3f4423e1807066d8c14058"
   },
   "backend/app/core/config.py": {
-    "mtime": 1783874600.5163085,
-    "ast_hash": "c759455abc2475dbb8ad0092b9a944ba",
-    "semantic_hash": "c759455abc2475dbb8ad0092b9a944ba"
+    "mtime": 1784705542.321806,
+    "ast_hash": "3ef1cdaad066c1b255b95b1686c86507",
+    "semantic_hash": ""
   },
   "backend/app/main.py": {
-    "mtime": 1783874454.1579752,
-    "ast_hash": "eb4df9cb413d6d45c1d59bdd268c4516",
-    "semantic_hash": "eb4df9cb413d6d45c1d59bdd268c4516"
+    "mtime": 1784705856.443487,
+    "ast_hash": "e6fcf111e5b105bf8a96b2eab0807539",
+    "semantic_hash": ""
   },
   "backend/app/models/__init__.py": {
     "mtime": 1782741605.2223687,
@@ -80,9 +80,9 @@
     "semantic_hash": "9819d3d18e2e98ddc6bf39f014d17b9a"
   },
   "backend/app/services/analysis_engine.py": {
-    "mtime": 1783873705.5602772,
-    "ast_hash": "0c0fcc84efd1701f2a472fb6d61f538e",
-    "semantic_hash": "0c0fcc84efd1701f2a472fb6d61f538e"
+    "mtime": 1784792326.1994221,
+    "ast_hash": "e321afbe0dda0c161eb4d10b8d8f32fe",
+    "semantic_hash": ""
   },
   "backend/app/services/excel_export.py": {
     "mtime": 1784189966.0311666,
@@ -105,9 +105,9 @@
     "semantic_hash": "78dea793bea2c06517f2d4395ef703ed"
   },
   "backend/app/services/supabase_client.py": {
-    "mtime": 1782741523.9871304,
-    "ast_hash": "d405d9356f16886e8dc21cb46db01e26",
-    "semantic_hash": "d405d9356f16886e8dc21cb46db01e26"
+    "mtime": 1784705685.812958,
+    "ast_hash": "ff475119dc1a30da0eb716167a8c8d49",
+    "semantic_hash": ""
   },
   "backend/app/utils/__init__.py": {
     "mtime": 1782741607.0413425,
@@ -125,9 +125,9 @@
     "semantic_hash": "e3077504a9af2ac19c24654ea96fe57e"
   },
   "backend/tests/test_analysis_engine.py": {
-    "mtime": 1783874044.088215,
-    "ast_hash": "3317e2bd4fef55ab18724f2ffc6bbc3a",
-    "semantic_hash": "3317e2bd4fef55ab18724f2ffc6bbc3a"
+    "mtime": 1784792491.208805,
+    "ast_hash": "ebb53aa0d64d143cce72352cd3fb13b3",
+    "semantic_hash": ""
   },
   "backend/tests/test_excel_export.py": {
     "mtime": 1784189986.027781,
@@ -175,14 +175,14 @@
     "semantic_hash": "5e6e3cea3e89137071c142dd7835b0ef"
   },
   "frontend/package.json": {
-    "mtime": 1783875117.33548,
-    "ast_hash": "fbe5e0e2e339f4f0ac7aebe0a642abbf",
-    "semantic_hash": "fbe5e0e2e339f4f0ac7aebe0a642abbf"
+    "mtime": 1784705959.855601,
+    "ast_hash": "d89b0e71ddab7c0aa173f17e52cc53ed",
+    "semantic_hash": ""
   },
   "frontend/src/App.jsx": {
-    "mtime": 1782812740.7407324,
-    "ast_hash": "6971ce9c9c3bcdfc903ceb2848e04a60",
-    "semantic_hash": "6971ce9c9c3bcdfc903ceb2848e04a60"
+    "mtime": 1784706120.843926,
+    "ast_hash": "660f47e817f4a26a17a1649b5483ceea",
+    "semantic_hash": ""
   },
   "frontend/src/components/ErrorBoundary.jsx": {
     "mtime": 1782812936.9432666,
@@ -210,8 +210,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/layout/Sidebar.jsx": {
-    "mtime": 1784537903.8712556,
-    "ast_hash": "d2659e0974159672fa002967744cec88",
+    "mtime": 1784706187.0626452,
+    "ast_hash": "275ee619fd2e86b6bdb3a3ffc447b497",
     "semantic_hash": ""
   },
   "frontend/src/main.jsx": {
@@ -220,9 +220,9 @@
     "semantic_hash": "782970e72e6372a389421d455825626a"
   },
   "frontend/src/pages/CompaniesLanding.jsx": {
-    "mtime": 1783875117.7092924,
-    "ast_hash": "57045a4198a87a9f3ce09298679f4456",
-    "semantic_hash": "57045a4198a87a9f3ce09298679f4456"
+    "mtime": 1784706206.1473641,
+    "ast_hash": "8f8b73ce40e209376fba0bf267b110d2",
+    "semantic_hash": ""
   },
   "frontend/src/pages/ProjectView/Analysis.jsx": {
     "mtime": 1784537697.6296568,
@@ -245,9 +245,9 @@
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
-    "mtime": 1783950710.5251331,
-    "ast_hash": "9c5b7aeb50ddf0b9272ea89dbc98a723",
-    "semantic_hash": "9c5b7aeb50ddf0b9272ea89dbc98a723"
+    "mtime": 1784706146.5465283,
+    "ast_hash": "76e886d11c23b6304203519179abf1e8",
+    "semantic_hash": ""
   },
   "frontend/src/store/projectStore.js": {
     "mtime": 1783937278.180321,
@@ -290,8 +290,8 @@
     "semantic_hash": "2902b57a4039521edc5299ba8188b6dc"
   },
   "CLAUDE.md": {
-    "mtime": 1784539751.1764646,
-    "ast_hash": "4bc4d1e53009fdaf1875882162cdbdc7",
+    "mtime": 1784705875.107389,
+    "ast_hash": "cb1678408ae9e641abf237be8ec8b4ee",
     "semantic_hash": ""
   },
   "ORIGINAL_REQUEST.md": {
@@ -332,6 +332,41 @@
   "frontend/src/components/Skeleton.jsx": {
     "mtime": 1784537664.359811,
     "ast_hash": "ce50f555988e07d4f5ea52665ed73c4a",
+    "semantic_hash": ""
+  },
+  "backend/app/core/logging_config.py": {
+    "mtime": 1784705846.1618361,
+    "ast_hash": "92283da32d81896acef62532d328200f",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ProtectedRoute.jsx": {
+    "mtime": 1784706110.9460976,
+    "ast_hash": "42ee51f29409c3e8071e4a967c9178aa",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/Login.jsx": {
+    "mtime": 1784706072.504026,
+    "ast_hash": "d4b30813a23aa9487e9d36cc6dcd92af",
+    "semantic_hash": ""
+  },
+  "frontend/src/pages/ResetPassword.jsx": {
+    "mtime": 1784706097.1062963,
+    "ast_hash": "ac13fb0027999f968fff5e7fb62e0ca7",
+    "semantic_hash": ""
+  },
+  "frontend/src/services/supabaseClient.js": {
+    "mtime": 1784705986.647787,
+    "ast_hash": "48ad80627159aa754167f0a9eb71d53e",
+    "semantic_hash": ""
+  },
+  "frontend/src/store/authStore.js": {
+    "mtime": 1784706008.3002553,
+    "ast_hash": "17ea2a3d7bf7c9e60d536268581a8de0",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260722_add_user_auth.sql": {
+    "mtime": 1784705829.6563303,
+    "ast_hash": "70ec6102789115cfb239eeac3447e7e0",
     "semantic_hash": ""
   }
 }

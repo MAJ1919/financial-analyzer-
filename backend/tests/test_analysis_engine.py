@@ -12,6 +12,7 @@ from app.services.analysis_engine import (
     compute_dcf_base_metrics,
 )
 from app.models.financial import statement_to_lookup, label_to_key
+from conftest import make_statement
 
 
 class TestComputeRatios:
@@ -51,6 +52,41 @@ class TestComputeRatios:
     def test_empty_input(self):
         r = compute_ratios(None, None)
         assert r["years"] == [] and r["ratios"] == {}
+
+    def test_current_portion_lt_debt_not_double_counted(self):
+        """Regression: `currentDebt` is a compat ALIAS for `currentPortionLTDebt`.
+
+        Summing both counted the current portion twice and inflated every
+        debt-based ratio (same class of bug as cost-of-debt below).
+        """
+        bs = make_statement({
+            "totalAssets":          {"2023": 10_000.0},
+            "totalEquity":          {"2023": 5_000.0},
+            "cashAndEquivalents":   {"2023": 0.0},
+            "stBorrowingsData":     {"2023": 100.0},
+            "currentPortionLTDebt": {"2023": 400.0},
+            "ltDebtData":           {"2023": 1_500.0},
+        })
+        r = compute_ratios(make_statement({"totalRevenue": {"2023": 1.0}}), bs)
+        # total debt = 100 + 400 + 1,500 = 2,000 (NOT 2,400)
+        assert r["ratios"]["Solvency"]["debtToAssets"]["2023"] == pytest.approx(0.20)
+        assert r["ratios"]["Solvency"]["debtToCapital"]["2023"] == pytest.approx(2000 / 7000)
+
+    def test_dividend_payout_ratio_uses_dividends_actually_paid(self):
+        """Regression: payout read a `commonStockDividendPerShare` key that no
+        template row and no compat alias ever populates, so it was always 0."""
+        inc = make_statement({"totalRevenue": {"2023": 1.0}, "netIncome": {"2023": 1_000.0}})
+        cf = make_statement({"cfDividendsPaid": {"2023": 400.0}})
+        r = compute_ratios(inc, make_statement({"totalEquity": {"2023": 1.0}}), cf)
+        assert r["ratios"]["Per Share"]["dividendPayoutRatio"]["2023"] == pytest.approx(0.40)
+
+    def test_ev_to_ebitda_is_none_without_market_cap(self):
+        """Nothing supplies a share price, so EV collapses to net debt. Report
+        nothing rather than a plausible-looking wrong multiple."""
+        inc = make_statement({"totalRevenue": {"2023": 1.0}, "operatingIncome": {"2023": 500.0}})
+        bs = make_statement({"ltDebtData": {"2023": 1_000.0}, "totalEquity": {"2023": 1.0}})
+        r = compute_ratios(inc, bs)
+        assert r["ratios"]["Market"]["evToEbitda"]["2023"] is None
 
 
 class TestHorizontalAnalysis:
