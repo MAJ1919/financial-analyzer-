@@ -1,22 +1,29 @@
+# Pinned exactly to the versions the 99-test suite is verified against.
+# Deploys must be reproducible: a `>=` floor lets the build host resolve a
+# different (possibly breaking) release than the one that was tested, and the
+# failure would surface in production rather than in CI.
+# To upgrade: bump here, run `python -m pytest` from backend/, commit together.
+# Requires Python 3.13 (numpy 2.4.x / pandas 2.3.x ship cp313 wheels).
+
 # Runtime
-fastapi==0.111.0
-uvicorn[standard]==0.30.1
-pydantic==2.7.1
-pydantic-settings==2.3.1
+fastapi==0.136.3
+uvicorn[standard]==0.49.0
+pydantic==2.12.5
+pydantic-settings==2.14.1
 
 # Database
-supabase==2.5.0
+supabase==2.31.0
 
 # Excel Parsing
-openpyxl==3.1.2
-rapidfuzz==3.9.1
+openpyxl==3.1.5
+rapidfuzz==3.14.5
 
 # Data Processing (all financial arithmetic in Python)
-pandas==2.2.2
-numpy==1.26.4
+pandas==2.3.3
+numpy==2.4.6
 
 # File handling
-python-multipart>=0.0.18
+python-multipart==0.0.32
 
 # Optional: PDF export (stretch goal)
 # reportlab==4.2.0
