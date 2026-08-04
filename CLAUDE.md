@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Financial Statement Analysis & Business Valuation platform (KFUPM Summer Training / Bayan Altharwah). React 19 + Vite frontend, FastAPI backend, Supabase (single `projects` table, statements stored as JSONB). No auth — development tool, backend uses the Supabase service-role key.
+Financial Statement Analysis & Business Valuation platform (KFUPM Summer Training / Bayan Altharwah). React 19 + Vite frontend, FastAPI backend, Supabase (single `projects` table, statements stored as JSONB). Supabase Auth (email/password) with per-user ownership enforced by Postgres RLS — every project-scoped route runs under the caller's JWT.
 
 Note: code comments cite "SRS §x.y" — that document is NOT in the repo. `ORIGINAL_REQUEST.md` and `README.md` are the closest requirement sources.
 
@@ -23,15 +23,12 @@ npm run dev                                   # :5173 (expects backend on :8000)
 npm run build
 npm run lint                                  # oxlint
 
-# E2E (from e2e/) — needs BOTH servers already running
-npx playwright test                           # smoke suite, tests/smoke.spec.js
-
 # Database: run supabase/migrations/*.sql in order via Supabase SQL Editor
 ```
 
-Backend `.env` needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`; frontend `.env` needs `VITE_API_URL`. Copy from the `.env.example` files.
+Backend `.env` needs `SUPABASE_URL` + `SUPABASE_ANON_KEY`; frontend `.env` needs `VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Copy from the `.env.example` files. `SUPABASE_SERVICE_ROLE_KEY` is **not required** — `get_db` (the only service-role consumer) has no callers; every route uses `get_user_db`.
 
-Backend suite is **95 tests, ~3.5s**, all passing. The `e2e/` Playwright suite was **fictional** in early revisions; it was replaced with a real smoke suite (`e2e/tests/smoke.spec.js`) that does pass — it cleans up via the API, not the UI. It's a thin smoke test, not broad coverage.
+Backend suite is **99 tests, ~4s**, all passing — that is the whole automated suite. There is no e2e/browser suite: the Playwright smoke test was removed once auth landed (it had no sign-in step, so every request 401'd). If you reintroduce one, it must authenticate first.
 
 ## Architecture — the three contracts that matter
 

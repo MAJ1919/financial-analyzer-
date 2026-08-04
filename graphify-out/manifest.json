@@ -154,21 +154,6 @@
     "ast_hash": "fc130630f30c4a8ddc0ca5b8931d3107",
     "semantic_hash": "fc130630f30c4a8ddc0ca5b8931d3107"
   },
-  "e2e/package.json": {
-    "mtime": 1783589192.4406536,
-    "ast_hash": "925b1d9ee005252a4a84d595cfb3e7e8",
-    "semantic_hash": "925b1d9ee005252a4a84d595cfb3e7e8"
-  },
-  "e2e/playwright.config.js": {
-    "mtime": 1783876249.575637,
-    "ast_hash": "68f947b4c7309fda55366a6d286922dd",
-    "semantic_hash": "68f947b4c7309fda55366a6d286922dd"
-  },
-  "e2e/tests/smoke.spec.js": {
-    "mtime": 1783876326.4929788,
-    "ast_hash": "3c093c678cd7e454faabec54d79552b7",
-    "semantic_hash": "3c093c678cd7e454faabec54d79552b7"
-  },
   "frontend/.oxlintrc.json": {
     "mtime": 1782741644.505791,
     "ast_hash": "5e6e3cea3e89137071c142dd7835b0ef",
@@ -274,11 +259,6 @@
     "ast_hash": "88439104b3c207f17d33ef3160e3b080",
     "semantic_hash": "88439104b3c207f17d33ef3160e3b080"
   },
-  "skills-lock.json": {
-    "mtime": 1782747920.7376792,
-    "ast_hash": "cf17d99319c0b1bd8c2df5c6c3fa955f",
-    "semantic_hash": "cf17d99319c0b1bd8c2df5c6c3fa955f"
-  },
   "supabase/migrations/20260101_init.sql": {
     "mtime": 1782742058.3516135,
     "ast_hash": "bc3e93d1e880847ff1486816c0c23a18",
@@ -290,9 +270,9 @@
     "semantic_hash": "2902b57a4039521edc5299ba8188b6dc"
   },
   "CLAUDE.md": {
-    "mtime": 1784705875.107389,
-    "ast_hash": "cb1678408ae9e641abf237be8ec8b4ee",
-    "semantic_hash": "cb1678408ae9e641abf237be8ec8b4ee"
+    "mtime": 1785870703.2084148,
+    "ast_hash": "b25424ddabd7f1cd5ca68752ffb02a7b",
+    "semantic_hash": ""
   },
   "ORIGINAL_REQUEST.md": {
     "mtime": 1783588874.9037335,

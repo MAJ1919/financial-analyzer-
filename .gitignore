@@ -36,10 +36,6 @@ npm-debug.log*
 # Agent scratch directories
 .agents/
 
-# Playwright artifacts
-e2e/test-results/
-e2e/playwright-report/
-
 # graphify knowledge graph — commit the graph itself (graph.json / graph.html /
 # GRAPH_REPORT.md) so the team shares one map, but keep local-only artifacts out:
 graphify-out/cost.json
