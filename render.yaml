@@ -1,0 +1,47 @@
+# Render blueprint for the FastAPI backend.
+# Render > New > Blueprint > connect this repo. Render reads this file, creates
+# the service, and prompts for the four values marked `sync: false`.
+#
+# The frontend is NOT here — it stays on Vercel (see frontend/vercel.json).
+services:
+  - type: web
+    name: financial-analyzer-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Render injects $PORT and routes external traffic to it. Binding 0.0.0.0
+    # (not 127.0.0.1) is required or the health check can't reach the process.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      # 3.13.x is required: requirements.txt pins numpy 2.4.x / pandas 2.3.x,
+      # which ship cp313 wheels. An older Render default would try to build
+      # them from source and fail. Matches the local/tested interpreter.
+      - key: PYTHON_VERSION
+        value: "3.13.13"
+      - key: APP_ENV
+        value: production
+
+      # ---- Set these in the Render dashboard (never commit them) ----
+      # sync: false = Render prompts on first deploy and stores the value.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+
+      # Your live Vercel domain, comma-separated for more than one.
+      # e.g. https://financial-analyzer.vercel.app,https://www.yourdomain.com
+      # No trailing slash — an origin is scheme://host[:port] only, and
+      # "https://x.vercel.app/" will never match the browser's Origin header.
+      - key: CORS_ORIGINS
+        sync: false
+
+      # Optional: anchored regex to also allow Vercel preview deploys.
+      # e.g. https://my-app-git-[a-z0-9-]+-myscope\.vercel\.app
+      - key: CORS_ORIGIN_REGEX
+        sync: false
+
+      # SUPABASE_SERVICE_ROLE_KEY is deliberately absent: get_db (its only
+      # consumer) has no callers, every route uses get_user_db under RLS.
+      # Don't add it "just in case" — it bypasses RLS.

@@ -84,9 +84,13 @@ App available at: http://localhost:5173
 ### Backend (`backend/.env`)
 ```
 SUPABASE_URL=https://your-project-id.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SUPABASE_ANON_KEY=your-anon-key          # required — routes run under RLS
 CORS_ORIGINS=http://localhost:5173
+CORS_ORIGIN_REGEX=                       # optional, for Vercel preview deploys
 ```
+
+`SUPABASE_SERVICE_ROLE_KEY` is **not required**: it bypasses RLS and its only
+consumer (`get_db`) has no callers. Every route uses `get_user_db`.
 
 ### Frontend (`frontend/.env`)
 ```
@@ -94,6 +98,59 @@ VITE_API_URL=http://localhost:8000/api
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+---
+
+## Deployment
+
+Frontend on **Vercel**, backend on **Render**. They are separate deployments —
+running one without the other gives a working page whose data calls all fail.
+
+### Backend (Render)
+
+`render.yaml` at the repo root is a Blueprint. In Render: **New > Blueprint**,
+connect this repo, and it creates the service and prompts for the four values
+marked `sync: false`:
+
+| Variable | Value |
+|---|---|
+| `SUPABASE_URL` | `https://<project-id>.supabase.co` |
+| `SUPABASE_ANON_KEY` | Supabase > Settings > API > `anon` key |
+| `CORS_ORIGINS` | Your Vercel domain, e.g. `https://<app>.vercel.app` |
+| `CORS_ORIGIN_REGEX` | Optional; leave blank unless you want preview deploys |
+
+`backend/Dockerfile` is an alternative if you'd rather deploy a container
+(Cloud Run, Fly, a VPS); the Blueprint above uses Render's native Python runtime
+and does not need it.
+
+### Frontend (Vercel)
+
+Set these in **Settings > Environment Variables**, then **redeploy**:
+
+```
+VITE_API_URL=https://<your-render-service>.onrender.com/api
+VITE_SUPABASE_URL=https://<project-id>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon key>
+```
+
+`VITE_*` values are inlined at **build** time, so changing one requires a new
+deployment — editing it in the dashboard alone does nothing to the live bundle.
+`vite.config.js` fails the build on Vercel/CI if `VITE_API_URL` is missing or
+points at `localhost`, so a bundle that asks the visitor's own machine for the
+API can't ship silently.
+
+### Order of operations
+
+Deploy the backend first — you need its `.onrender.com` URL for `VITE_API_URL`,
+and its `CORS_ORIGINS` needs the Vercel domain. If you're standing both up at
+once: deploy backend → set Vercel env vars → redeploy frontend → set
+`CORS_ORIGINS` on Render to the final Vercel domain.
+
+**Origins are `scheme://host[:port]`** — no trailing slash, no path.
+`https://app.vercel.app/` will never match the browser's `Origin` header.
+
+On Render's free plan the service sleeps when idle; the first request after a
+sleep can take ~50s. That looks like a hang in the UI, not an error.
 
 ---
 

@@ -387,7 +387,7 @@ export default function Valuation() {
           {/* Left — Key Assumptions */}
           <div className="card">
             <div className="card-header"><span className="card-title">Key Assumptions</span></div>
-            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr max-content', rowGap: 12, columnGap: 16, alignItems: 'center' }}>
               <AssumptionRow label="WACC">
                 <input
                   id="wacc-input"
@@ -638,10 +638,12 @@ function KpiCard({ label, value, color, bg }) {
 
 function AssumptionRow({ label, children }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
-      <span className="text-muted" style={{ fontWeight: 500 }}>{label}:</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{children}</div>
-    </div>
+    <>
+      <span className="text-muted" style={{ fontWeight: 500, fontSize: 14 }}>{label}:</span>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 6, fontSize: 14 }}>
+        {children}
+      </div>
+    </>
   )
 }
 
@@ -677,7 +679,7 @@ const styles = {
     fontSize: 14,
     fontWeight: 600,
     width: 80,
-    textAlign: 'right',
+    textAlign: 'left',
     color: '#1E3A8A',
     fontFamily: 'inherit',
   },

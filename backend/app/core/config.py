@@ -42,6 +42,17 @@ class Settings(BaseSettings):
             
         return ["http://localhost:5173"]
 
+    # Regex alternative to the fixed list above, for origins whose hostname is
+    # not known ahead of time. The motivating case is Vercel: every preview
+    # deployment gets its own domain (my-app-git-<branch>-<scope>.vercel.app),
+    # so no static list can cover them. Empty => disabled (production default;
+    # only the explicit CORS_ORIGINS list is honoured).
+    #
+    # Anchor any value you set. A bare "vercel\.app" is a substring match, and
+    # CORSMiddleware would then accept https://vercel.app.evil.com.
+    # e.g. CORS_ORIGIN_REGEX=https://my-app-git-[a-z0-9-]+-myscope\.vercel\.app
+    CORS_ORIGIN_REGEX: str = ""
+
     # ---- App ----
     APP_ENV: str = "development"
 

@@ -40,6 +40,15 @@ api.interceptors.response.use(
         window.location.assign('/login')
       }
     }
+    // No `response` at all => the request never got an HTTP reply: the API is
+    // down, the URL/port is wrong, or CORS blocked it. Axios reports this as a
+    // bare "Network Error", which tells the user nothing — name the target so
+    // the usual cause (backend not running) is obvious.
+    if (!error.response && error.code !== 'ECONNABORTED') {
+      return Promise.reject(
+        new Error(`Cannot reach the API server at ${BASE_URL}. Is the backend running?`)
+      )
+    }
     const message =
       error.response?.data?.detail ||
       error.response?.data?.message ||
