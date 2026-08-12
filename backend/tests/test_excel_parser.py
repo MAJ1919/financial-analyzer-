@@ -12,6 +12,7 @@ import openpyxl
 import pytest
 
 from app.services.excel_parser import (
+    LEGACY_LABEL_ALIASES,
     TEMPLATE_DATA,
     parse_template_upload,
     _clean_numeric_value,
@@ -134,6 +135,97 @@ class TestParseTemplateUpload:
         cfs = rows_by_key(parse_template_upload(content)["cash_flow_statement"])
         # CapEx = −(ΔGross PPE) = −500
         assert cfs["capitalExpenditures"]["values"]["2023"] == pytest.approx(-500.0)
+
+
+class TestLegacyLabelAliases:
+    """Workbooks downloaded before the template was regenerated still carry the
+    labels this project shipped back then. Re-downloading a blank template is
+    not a remedy — it discards everything the user entered."""
+
+    def test_alias_map_targets_are_real_canonical_labels(self):
+        """An alias pointing at a label the template no longer has is dead
+        config that would silently never fire."""
+        all_labels = {
+            r["label"].strip()
+            for rows in TEMPLATE_DATA.values()
+            for r in rows
+            if r.get("label")
+        }
+        for legacy, canonical in LEGACY_LABEL_ALIASES.items():
+            assert canonical in all_labels, f"alias target not in template: {canonical}"
+            assert legacy == legacy.lower(), f"alias key must be lowercased: {legacy}"
+            assert legacy not in {lbl.lower() for lbl in all_labels}, (
+                f"{legacy!r} is still a live canonical label — aliasing it would "
+                f"shadow the real row"
+            )
+
+    def test_legacy_label_lands_on_the_canonical_row(self):
+        content = build_workbook({
+            "Income Statement": [
+                ["Line Item", 2023],
+                ["Operating Income", 4200],      # label from the pre-regeneration template
+            ],
+        })
+        result = parse_template_upload(content)
+        rows = rows_by_key(result["income_statement"])
+        assert rows["operatingIncome"]["values"]["2023"] == 4200.0
+        assert result["unmapped_rows"] == {}
+
+    def test_canonical_row_wins_over_legacy_duplicate(self):
+        """A part-migrated workbook holding both labels must not have its
+        current row overwritten by the stale one."""
+        content = build_workbook({
+            "Income Statement": [
+                ["Line Item", 2023],
+                ["Operating Income (EBIT)", 999],
+                ["Operating Income", 111],
+            ],
+        })
+        result = parse_template_upload(content)
+        rows = rows_by_key(result["income_statement"])
+        assert rows["operatingIncome"]["values"]["2023"] == 999.0
+        # The stale row was not consumed, so it is reported rather than dropped.
+        assert "Operating Income" in result["unmapped_rows"]["Income Statement"]
+
+
+class TestUnmappedHints:
+    def test_near_miss_label_gets_a_did_you_mean_hint(self):
+        content = build_workbook({
+            "Income Statement": [
+                ["Line Item", 2023],
+                ["Operating Income (EBITDA)", 10],   # close to a real label
+            ],
+        })
+        result = parse_template_upload(content)
+        hint = result["unmapped_hints"]["Income Statement"]["Operating Income (EBITDA)"]
+        assert "Operating Income (EBIT)" in hint
+
+    def test_unrecognisable_label_gets_no_guess(self):
+        content = build_workbook({
+            "Income Statement": [
+                ["Line Item", 2023],
+                ["Zzzz Qqqq Wholly Unrelated", 10],
+            ],
+        })
+        result = parse_template_upload(content)
+        assert "Zzzz Qqqq Wholly Unrelated" in result["unmapped_rows"]["Income Statement"]
+        assert "Zzzz Qqqq Wholly Unrelated" not in result["unmapped_hints"].get("Income Statement", {})
+
+    def test_duplicate_rows_are_reported_not_silently_dropped(self):
+        l1, l2 = leaf_labels("income_statement", 2)
+        content = build_workbook({
+            "Income Statement": [
+                ["Line Item", 2023],
+                [l1, 10],
+                [l2, 20],
+                [l1, 99],       # duplicate of the first row
+            ],
+        })
+        result = parse_template_upload(content)
+        rows = {r["label"]: r for r in result["income_statement"]["rows"]}
+        assert rows[l1]["values"]["2023"] == 10.0        # first occurrence wins
+        assert l1 in result["unmapped_rows"]["Income Statement"]
+        assert "Duplicate" in result["unmapped_hints"]["Income Statement"][l1]
 
 
 class TestCleanNumericValue:

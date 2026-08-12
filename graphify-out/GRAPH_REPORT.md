@@ -1,16 +1,16 @@
 # Graph Report - financial-analyzer-platform - Claude  (2026-08-12)
 
 ## Corpus Check
-- 68 files · ~49,499 words
+- 68 files · ~50,475 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 555 nodes · 1045 edges · 31 communities (18 shown, 13 thin omitted)
+- 566 nodes · 1069 edges · 31 communities (18 shown, 13 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 29 edges (avg confidence: 0.54)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8aa27670`
+- Built from commit: `febef326`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -45,9 +45,9 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `ForecastInputs` - 27 edges
-2. `ForecastingEngine` - 25 edges
-3. `build_workbook()` - 23 edges
-4. `parse_template_upload()` - 21 edges
+2. `parse_template_upload()` - 26 edges
+3. `ForecastingEngine` - 25 edges
+4. `build_workbook()` - 23 edges
 5. `run_forecast()` - 20 edges
 6. `compute_ratios()` - 18 edges
 7. `_parse_year()` - 17 edges
@@ -64,8 +64,8 @@
   CLAUDE.md → backend/app/core/logging_config.py
 - `Forecasting Engine Specifics (balanced vs faithful modes)` --references--> `run_forecast()`  [EXTRACTED]
   CLAUDE.md → backend/app/services/forecasting_engine.py
-- `Contract 4: Headers Are The Totals (No Standalone Aggregate Rows)` --references--> `deriveCashFlow()`  [EXTRACTED]
-  CLAUDE.md → frontend/src/utils/calculations.js
+- `Contract 3: Compat Key Map Single Home` --references--> `_parse_year()`  [EXTRACTED]
+  CLAUDE.md → backend/app/services/shared_utils.py
 
 ## Import Cycles
 - None detected.
@@ -79,15 +79,15 @@
 
 ### Community 0 - "Forecasting Engine"
 Cohesion: 0.09
-Nodes (30): BaseFinancialData, calculate_historical_assumptions(), extract_base_data(), ForecastingEngine, ForecastInputs, ForecastScenario, Forecasting Engine Service ========================== Complete 5-year financia, Pull the most-recent-year values from stored JSONB statements     into a flat B (+22 more)
+Nodes (28): BaseFinancialData, calculate_historical_assumptions(), ForecastingEngine, ForecastInputs, ForecastScenario, Forecasting Engine Service ========================== Complete 5-year financia, Derive sensible ForecastInputs from historical financial data.     Falls back t, Forecast assumptions, split in two tiers:      CORE (user-facing form): (+20 more)
 
 ### Community 1 - "Analysis Engine (Ratios/DCF)"
-Cohesion: 0.08
-Nodes (22): compute_horizontal_analysis(), compute_ratios(), Compute all 32 financial ratios for each available fiscal year.      Returns:, Convert stored JSONB FinancialStatement to a pandas DataFrame (label->year->valu, YoY % change for every line item.      Returns:         {           "income_, _to_dataframe(), balance_sheet(), base_balanced() (+14 more)
+Cohesion: 0.06
+Nodes (37): calculate_ratio(), compute_dcf_base_metrics(), compute_horizontal_analysis(), compute_ratios(), _get(), _get_avg(), Any, Analysis Engine Service ======================= All financial arithmetic lives (+29 more)
 
 ### Community 2 - "Excel Export"
-Cohesion: 0.11
-Nodes (38): _apply_col_widths(), _build_assumptions(), _build_dcf(), _build_engine(), _build_horizontal(), _build_overrides(), _build_ratios(), _build_statement() (+30 more)
+Cohesion: 0.09
+Nodes (43): _apply_col_widths(), _build_assumptions(), _build_dcf(), _build_engine(), _build_horizontal(), _build_overrides(), _build_ratios(), _build_statement() (+35 more)
 
 ### Community 3 - "React App Shell & Valuation"
 Cohesion: 0.05
@@ -103,15 +103,15 @@ Nodes (39): ag-grid-community, ag-grid-react, axios, dependencies, ag-grid-commu
 
 ### Community 6 - "Financial Models & Excel Parser"
 Cohesion: 0.05
-Nodes (41): Client, Step 1 & 2 combined: Reads a template-conforming .xlsx file,     parses it dire, Alternative ingestion path - direct manual entry from a structured template., save_manual_entry(), upload_template(), FinancialRow, FinancialStatement, label_to_key() (+33 more)
+Nodes (43): Client, Step 1 & 2 combined: Reads a template-conforming .xlsx file,     parses it dire, Alternative ingestion path - direct manual entry from a structured template., save_manual_entry(), upload_template(), FinancialRow, FinancialStatement, label_to_key() (+35 more)
 
 ### Community 7 - "Auth & Request Dependencies"
 Cohesion: 0.08
 Nodes (36): _extract_bearer_token(), get_current_user(), get_db(), get_user_db(), Client, Shared FastAPI dependencies — injected via Depends()., Yield the **service-role** Supabase client (bypasses RLS).      Reserved for o, Pull the raw JWT out of an ``Authorization: Bearer <token>`` header. (+28 more)
 
 ### Community 8 - "Shared Utils (Compat Map)"
-Cohesion: 0.06
-Nodes (29): calculate_ratio(), compute_dcf_base_metrics(), _get(), _get_avg(), Any, Analysis Engine Service ======================= All financial arithmetic lives, Return average of current and previous year values for turnover ratios., Calculate a single ratio for a given year.     Direct Python port of the refere (+21 more)
+Cohesion: 0.09
+Nodes (14): Convert a stored FinancialStatement dict into a flat lookup:         { camelCase, statement_to_lookup(), _build_lookups(), _get_compat(), Shared Financial Data Utilities =============================== Single source, Convert stored JSONB statement dicts to flat key→{year→value} lookups., # NOTE: compat returns the FIRST non-zero hit only; the summed, Fetch a value for `key`/`year`, falling back through KEY_COMPAT_MAP.      Reso (+6 more)
 
 ### Community 9 - "Analysis API Routes"
 Cohesion: 0.16
@@ -141,10 +141,10 @@ Nodes (6): Architecture, Backend ↔ Frontend, Code Layout, Interface Contracts,
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `label_to_key()` connect `Financial Models & Excel Parser` to `Shared Utils (Compat Map)`, `Analysis Engine (Ratios/DCF)`?**
+  _High betweenness centrality (0.035) - this node is a cross-community bridge._
 - **Why does `run_forecast()` connect `Forecasting Engine` to `Analysis API Routes`, `Excel Export`?**
   _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `calculate_historical_assumptions()` connect `Forecasting Engine` to `Shared Utils (Compat Map)`, `Analysis API Routes`, `Excel Export`, `Financial Models & Excel Parser`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `ForecastInputs` (e.g. with `TestBalancedMode` and `TestFaithfulMode`) actually correct?**
   _`ForecastInputs` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 6 inferred relationships involving `ForecastingEngine` (e.g. with `TestBalancedMode` and `TestFaithfulMode`) actually correct?**
@@ -152,6 +152,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `oxc`, `react/rules-of-hooks` to the rest of the system?**
   _72 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Forecasting Engine` be split into smaller, more focused modules?**
-  _Cohesion score 0.08583959899749373 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08956228956228957 - nodes in this community are weakly interconnected._
 - **Should `Analysis Engine (Ratios/DCF)` be split into smaller, more focused modules?**
-  _Cohesion score 0.08392603129445235 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05747126436781609 - nodes in this community are weakly interconnected._

@@ -7,6 +7,7 @@ STRICTLY matches rows based on the exact labels provided in manualEntryTemplate.
 If a user uploads an Excel file not matching this structure, it will fail gracefully.
 """
 
+import difflib
 import io
 import re
 import datetime as _dt
@@ -26,6 +27,28 @@ STRICT_SHEET_MAP = {
     "balance sheet": "balance_sheet",
     "cash flow statement": "cash_flow_statement",
 }
+
+# Labels THIS PROJECT shipped in earlier versions of Saudi_Template.xlsx.
+#
+# A curated exception to strict matching — and only that. Workbooks downloaded
+# before the template was regenerated carry these labels, and the alternative
+# remedy (download a fresh blank template) destroys whatever the user already
+# entered. Matching stays exact: this maps one label the project is known to
+# have published onto its current canonical label. It is NOT fuzzy matching,
+# and unrecognised labels are still reported rather than guessed.
+#
+# Distinct from KEY_COMPAT_MAP in shared_utils.py, which remaps canonical
+# *keys* for the analysis engines. This map is upload-time *labels* only.
+#
+# Keys are lowercased legacy labels; values are the current canonical label.
+LEGACY_LABEL_ALIASES: dict[str, str] = {
+    # Renamed when the download template was regenerated from the canonical JSON.
+    "operating income": "Operating Income (EBIT)",
+}
+
+# A nearest-match below this ratio is too weak to suggest; the user is better
+# served by "unmapped" alone than by a confidently wrong guess.
+_SUGGESTION_CUTOFF = 0.6
 
 
 def _clean_numeric_value(val: Any) -> float | None:
@@ -138,12 +161,30 @@ def parse_template_upload(file_bytes: bytes) -> dict:
 
         # Build a lookup dictionary of the Excel data: { "label_lowercase": [col1_val, col2_val...] }
         excel_data_lookup = {}
+        duplicate_labels: list[str] = []
         for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
             if not row or not row[0] or not isinstance(row[0], str):
                 continue
             label = row[0].strip()
-            if label:
-                excel_data_lookup[label.lower()] = row
+            if not label:
+                continue
+            # First occurrence wins. A later duplicate used to overwrite it
+            # silently, so one of the two rows vanished without ever being
+            # reported — record it instead of dropping it.
+            if label.lower() in excel_data_lookup:
+                duplicate_labels.append(label)
+                continue
+            excel_data_lookup[label.lower()] = row
+
+        # Redirect labels from templates this project previously shipped onto
+        # their canonical row. An explicit canonical row in the sheet always
+        # wins, so a partially-migrated workbook is never silently overridden.
+        aliased_to: dict[str, str] = {}
+        for legacy_lower, canonical in LEGACY_LABEL_ALIASES.items():
+            canonical_lower = canonical.lower()
+            if legacy_lower in excel_data_lookup and canonical_lower not in excel_data_lookup:
+                excel_data_lookup[canonical_lower] = excel_data_lookup[legacy_lower]
+                aliased_to[legacy_lower] = canonical_lower
 
         fin_rows = []
         used_labels = set()
@@ -188,19 +229,39 @@ def parse_template_upload(file_bytes: bytes) -> dict:
         statement = FinancialStatement(years=global_years, rows=fin_rows)
         result[stmt_type] = statement.model_dump()
 
-        # Track unmapped labels for this sheet
+        # Track unmapped labels for this sheet, with a hint per label so the
+        # user can act on the warning instead of diffing 236 canonical labels.
+        canonical_labels = [r.get("label", "").strip() for r in template_rows if r.get("label")]
         unmapped = []
+        hints: dict[str, str] = {}
+
         for label in excel_data_lookup:
-            if label not in used_labels:
-                # Store the original casing from the excel row, not the lowercased key
-                original_label = str(excel_data_lookup[label][0]).strip()
-                if original_label:
-                    unmapped.append(original_label)
-        
-        if "unmapped_rows" not in result:
-            result["unmapped_rows"] = {}
+            if label in used_labels:
+                continue
+            # A legacy label whose canonical row was matched is not unmapped —
+            # its values were imported under the current label.
+            if aliased_to.get(label) in used_labels:
+                continue
+            original_label = str(excel_data_lookup[label][0]).strip()
+            if not original_label:
+                continue
+            unmapped.append(original_label)
+            near = difflib.get_close_matches(
+                original_label, canonical_labels, n=1, cutoff=_SUGGESTION_CUTOFF
+            )
+            if near:
+                hints[original_label] = f'Did you mean "{near[0]}"?'
+
+        for original_label in duplicate_labels:
+            unmapped.append(original_label)
+            hints[original_label] = "Duplicate row — only the first occurrence was imported."
+
+        result.setdefault("unmapped_rows", {})
+        result.setdefault("unmapped_hints", {})
         if unmapped:
             result["unmapped_rows"][sheet_name] = unmapped
+        if hints:
+            result["unmapped_hints"][sheet_name] = hints
 
     # 3. Ensure all 3 statements exist in the result using empty templates if missing
     # THIS FIXES THE MANUAL ENTRY BUG: Frontend always expects these keys to exist.

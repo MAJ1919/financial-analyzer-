@@ -30,8 +30,8 @@
     "semantic_hash": "5216ee36e23563950c58e4cb02c1b7ae"
   },
   "backend/app/api/routes_upload.py": {
-    "mtime": 1785872046.5767174,
-    "ast_hash": "7f3bd4b7814792d36ef4fa93dff9d9d9",
+    "mtime": 1786526015.1096106,
+    "ast_hash": "1cb2b6ea743dee44a54eeaebe4cbceb8",
     "semantic_hash": ""
   },
   "backend/app/core/__init__.py": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/excel_parser.py": {
-    "mtime": 1783874458.1461644,
-    "ast_hash": "e933f2339c71263fa905288d61cdf97a",
-    "semantic_hash": "e933f2339c71263fa905288d61cdf97a"
+    "mtime": 1786526008.538283,
+    "ast_hash": "cf39d18f8a0fa88458a4ed80a31a4d47",
+    "semantic_hash": ""
   },
   "backend/app/services/forecasting_engine.py": {
     "mtime": 1784104693.423368,
@@ -115,8 +115,8 @@
     "semantic_hash": "41296543a2a0c33ba4ecc5802330fa99"
   },
   "backend/scripts/generate_templates.py": {
-    "mtime": 1786523859.2169695,
-    "ast_hash": "38fd1bd247a773ce022110f9ce8276d6",
+    "mtime": 1786526047.3503947,
+    "ast_hash": "5e0062f49ed74cb884f1a29d05096178",
     "semantic_hash": ""
   },
   "backend/tests/conftest.py": {
@@ -135,9 +135,9 @@
     "semantic_hash": "60cd5de2455526699aa46a4608f9fc77"
   },
   "backend/tests/test_excel_parser.py": {
-    "mtime": 1783874157.8259525,
-    "ast_hash": "2b3850a1e7212aafa65d017b38fda42a",
-    "semantic_hash": "2b3850a1e7212aafa65d017b38fda42a"
+    "mtime": 1786526069.2366602,
+    "ast_hash": "64ca56b689346c1b508c41fb206bde76",
+    "semantic_hash": ""
   },
   "backend/tests/test_forecasting_engine.py": {
     "mtime": 1783874073.9345522,
@@ -215,9 +215,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/ProjectView/FinancialStatements.jsx": {
-    "mtime": 1783874578.5348473,
-    "ast_hash": "826470e1e13fe47cbff549162b8ba19b",
-    "semantic_hash": "826470e1e13fe47cbff549162b8ba19b"
+    "mtime": 1786526030.286571,
+    "ast_hash": "304862e0f1dca93a28fa784b6430ec74",
+    "semantic_hash": ""
   },
   "frontend/src/pages/ProjectView/Forecasting.jsx": {
     "mtime": 1784191081.2233582,
@@ -270,8 +270,8 @@
     "semantic_hash": "2902b57a4039521edc5299ba8188b6dc"
   },
   "CLAUDE.md": {
-    "mtime": 1786524022.152856,
-    "ast_hash": "857caa8853fee7f16d4ecb8b4d9d67a7",
+    "mtime": 1786526246.4205422,
+    "ast_hash": "62848a022831d98c4fbf82ddecf5b832",
     "semantic_hash": ""
   },
   "ORIGINAL_REQUEST.md": {
@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "backend/tests/test_template_workbook.py": {
-    "mtime": 1786523909.995733,
-    "ast_hash": "29cbe237821471a95afc515331fa18c9",
+    "mtime": 1786526036.1617155,
+    "ast_hash": "44437a3911ffe1b768b45abca83b9ab6",
     "semantic_hash": ""
   }
 }

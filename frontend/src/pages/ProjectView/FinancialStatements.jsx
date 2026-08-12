@@ -71,6 +71,7 @@ export default function FinancialStatements() {
 
   const [error, setError] = useState('')
   const [unmappedWarning, setUnmappedWarning] = useState(null)
+  const [unmappedHints, setUnmappedHints] = useState({})
 
   // Upload and Mapping state
   const fileInputRef = useRef(null)
@@ -100,13 +101,15 @@ export default function FinancialStatements() {
     setIsUploading(true)
     setError('')
     setUnmappedWarning(null)
+    setUnmappedHints({})
     try {
       const res = await uploadApi.uploadTemplate(projectId, file)
       const updatedProject = await projectsApi.get(projectId)
       setProject(updatedProject)
-      
+
       if (res?.unmapped_rows && Object.keys(res.unmapped_rows).length > 0) {
         setUnmappedWarning(res.unmapped_rows)
+        setUnmappedHints(res.unmapped_hints || {})
       }
     } catch (err) {
       setError(err.message || 'Failed to upload Excel file')
@@ -166,7 +169,16 @@ export default function FinancialStatements() {
               <div key={sheet} style={{ marginBottom: 8 }}>
                 <strong style={{ fontSize: 13, color: 'var(--color-navy)' }}>{sheet}:</strong>
                 <ul style={{ margin: '4px 0 0 20px', fontSize: 13, color: 'var(--color-text-light)' }}>
-                  {rows.map((row, idx) => <li key={idx}>{row}</li>)}
+                  {rows.map((row, idx) => (
+                    <li key={idx}>
+                      {row}
+                      {unmappedHints[sheet]?.[row] && (
+                        <span style={{ marginLeft: 6, color: '#b26a00' }}>
+                          — {unmappedHints[sheet][row]}
+                        </span>
+                      )}
+                    </li>
+                  ))}
                 </ul>
               </div>
             ))}

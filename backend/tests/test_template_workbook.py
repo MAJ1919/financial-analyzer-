@@ -54,7 +54,7 @@ class TestShippedTemplateWorkbook:
             assert name.lower().strip() in STRICT_SHEET_MAP
 
     @pytest.mark.parametrize("sheet_name, stmt_type", SHEET_TO_STMT.items())
-    def test_labels_match_canonical_template_exactly(self, sheet_name, stmt_type):
+    def test_labels_match_canonical_template_exactly(self, workbook_bytes, sheet_name, stmt_type):
         wb = openpyxl.load_workbook(TEMPLATE_XLSX)
         shipped = sheet_labels(wb, sheet_name)
         canonical = [r["label"].strip() for r in TEMPLATE_DATA[stmt_type]]

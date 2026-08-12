@@ -64,11 +64,14 @@ async def upload_template(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     # Slim response: the frontend refetches the project for statement data;
-    # it only needs the unmapped-row report from this call.
+    # it only needs the unmapped-row report from this call. `unmapped_hints`
+    # is {sheet: {label: hint}} — the nearest canonical label, or a note that
+    # the row was a duplicate — so the warning is actionable.
     return {
         "status": "saved",
         "project_id": project_id,
         "unmapped_rows": parsed_data.get("unmapped_rows", {}),
+        "unmapped_hints": parsed_data.get("unmapped_hints", {}),
     }
 
 @router.post("/manual/{project_id}")

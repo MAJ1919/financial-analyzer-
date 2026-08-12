@@ -13,6 +13,7 @@ Run from backend/:
 Guarded by tests/test_template_workbook.py, which fails if the committed
 workbook stops matching the canonical template.
 """
+import datetime as _dt
 import sys
 from pathlib import Path
 
@@ -33,9 +34,12 @@ SHEET_ORDER = [
     ("Cash Flow Statement", "cash_flow_statement"),
 ]
 
-# Placeholder year columns. The parser reads whatever years the header row
-# holds, so users may overwrite or extend these.
-YEARS = ["2021", "2022", "2023", "2024"]
+# Placeholder year columns: the four most recent completed fiscal years at
+# generation time, rather than a hardcoded window that goes stale on the shelf.
+# The parser reads whatever years the header row holds, so users may overwrite
+# or extend these.
+_LAST_COMPLETE_YEAR = _dt.date.today().year - 1
+YEARS = [str(y) for y in range(_LAST_COMPLETE_YEAR - 3, _LAST_COMPLETE_YEAR + 1)]
 
 
 def build_workbook(templates: dict) -> Workbook:
