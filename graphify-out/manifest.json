@@ -115,9 +115,9 @@
     "semantic_hash": "41296543a2a0c33ba4ecc5802330fa99"
   },
   "backend/scripts/generate_templates.py": {
-    "mtime": 1783414196.6917663,
-    "ast_hash": "b3efa32b49d6fa569c252be48cb30610",
-    "semantic_hash": "b3efa32b49d6fa569c252be48cb30610"
+    "mtime": 1786523859.2169695,
+    "ast_hash": "38fd1bd247a773ce022110f9ce8276d6",
+    "semantic_hash": ""
   },
   "backend/tests/conftest.py": {
     "mtime": 1783874009.043225,
@@ -225,8 +225,8 @@
     "semantic_hash": "15d2e9f74da7c3b7deadb9a6752e5f4e"
   },
   "frontend/src/pages/ProjectView/Valuation.jsx": {
-    "mtime": 1785872046.725989,
-    "ast_hash": "82078de065673f21a6dab14b1dd476dd",
+    "mtime": 1786521261.3553038,
+    "ast_hash": "6d4399b5df29a21d238e7c41c81c93f1",
     "semantic_hash": ""
   },
   "frontend/src/services/api.js": {
@@ -270,8 +270,8 @@
     "semantic_hash": "2902b57a4039521edc5299ba8188b6dc"
   },
   "CLAUDE.md": {
-    "mtime": 1785872046.540548,
-    "ast_hash": "b25424ddabd7f1cd5ca68752ffb02a7b",
+    "mtime": 1786524022.152856,
+    "ast_hash": "857caa8853fee7f16d4ecb8b4d9d67a7",
     "semantic_hash": ""
   },
   "ORIGINAL_REQUEST.md": {
@@ -357,6 +357,11 @@
   "render.yaml": {
     "mtime": 1785876706.7053835,
     "ast_hash": "e1ff8eb8f3e0f2dfad50b574140cb07a",
+    "semantic_hash": ""
+  },
+  "backend/tests/test_template_workbook.py": {
+    "mtime": 1786523909.995733,
+    "ast_hash": "29cbe237821471a95afc515331fa18c9",
     "semantic_hash": ""
   }
 }

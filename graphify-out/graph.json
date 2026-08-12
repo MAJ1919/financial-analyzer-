@@ -922,8 +922,8 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "backend_app_models_financial_statement_to_lookup",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": "statement_to_lookup()"
     },
     {
@@ -988,8 +988,8 @@
       "source_location": "L217",
       "_origin": "ast",
       "id": "backend_app_models_financial_rationale_217",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": "convert a stored financialstatement dict into a flat lookup:         { camelcase"
     },
     {
@@ -1120,8 +1120,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "analysis_engine.py"
     },
     {
@@ -1131,8 +1131,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_safe_div",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "_safe_div()"
     },
     {
@@ -1142,8 +1142,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_py_any",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "any"
     },
     {
@@ -1153,8 +1153,8 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_get",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "_get()"
     },
     {
@@ -1164,8 +1164,8 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_get_avg",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "_get_avg()"
     },
     {
@@ -1175,8 +1175,8 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_calculate_ratio",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "calculate_ratio()"
     },
     {
@@ -1197,8 +1197,8 @@
       "source_location": "L413",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_to_dataframe",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "_to_dataframe()"
     },
     {
@@ -1208,8 +1208,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "dataframe",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "dataframe"
     },
     {
@@ -1219,8 +1219,8 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_compute_horizontal_analysis",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "compute_horizontal_analysis()"
     },
     {
@@ -1230,8 +1230,8 @@
       "source_location": "L480",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_compute_dcf_base_metrics",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "compute_dcf_base_metrics()"
     },
     {
@@ -1241,8 +1241,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_1",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "analysis engine service ======================= all financial arithmetic lives"
     },
     {
@@ -1252,8 +1252,8 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_84",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "safe division \u2014 returns none on zero / none / nan inputs."
     },
     {
@@ -1263,8 +1263,8 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_96",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "get a value from the flat lookup dict; returns 0.0 if missing.      thin alias"
     },
     {
@@ -1274,8 +1274,8 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_110",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "return average of current and previous year values for turnover ratios."
     },
     {
@@ -1285,8 +1285,8 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_130",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "calculate a single ratio for a given year.     direct python port of the refere"
     },
     {
@@ -1307,8 +1307,8 @@
       "source_location": "L414",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_414",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "convert stored jsonb financialstatement to a pandas dataframe (label->year->valu"
     },
     {
@@ -1318,8 +1318,8 @@
       "source_location": "L436",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_436",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "yoy % change for every line item.      returns:         {           \"income_"
     },
     {
@@ -1329,8 +1329,8 @@
       "source_location": "L485",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_485",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "derive the base financial metrics shown on the valuation page:         - base f"
     },
     {
@@ -1340,8 +1340,8 @@
       "source_location": "L161",
       "_origin": "ast",
       "id": "backend_app_services_analysis_engine_rationale_161",
-      "community": 15,
-      "community_name": "analysis_engine.py",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "# note: \"currentdebt\" is a compat alias for \"currentportionltdebt\" (see"
     },
     {
@@ -1395,8 +1395,8 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "backend_app_services_excel_export_stmtlayout_init",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": ".__init__()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "workbook",
+      "id": "backend_app_services_excel_export_py_workbook",
       "community": 2,
       "community_name": "Excel Export",
       "norm_label": "workbook"
@@ -1989,8 +1989,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "shared_utils.py"
     },
     {
@@ -2000,8 +2000,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_parse_year",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "_parse_year()"
     },
     {
@@ -2022,8 +2022,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_build_lookups",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "_build_lookups()"
     },
     {
@@ -2033,8 +2033,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_rationale_1",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "shared financial data utilities =============================== single source"
     },
     {
@@ -2044,8 +2044,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_rationale_21",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "extract the last block of digits from a string to form a valid year.      exam"
     },
     {
@@ -2066,8 +2066,8 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_rationale_138",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "convert stored jsonb statement dicts to flat key\u2192{year\u2192value} lookups."
     },
     {
@@ -2077,8 +2077,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "backend_app_services_shared_utils_rationale_57",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "# note: compat returns the first non-zero hit only; the summed"
     },
     {
@@ -2198,31 +2198,42 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_scripts_generate_templates",
-      "community": 2,
-      "community_name": "Excel Export",
+      "community": 11,
+      "community_name": "Statement Templates API",
       "norm_label": "generate_templates.py"
     },
     {
-      "label": "parse_markdown()",
+      "label": "build_workbook()",
       "file_type": "code",
       "source_file": "backend/scripts/generate_templates.py",
-      "source_location": "L5",
+      "source_location": "L41",
       "_origin": "ast",
-      "id": "backend_scripts_generate_templates_parse_markdown",
-      "community": 2,
-      "community_name": "Excel Export",
-      "norm_label": "parse_markdown()"
+      "id": "backend_scripts_generate_templates_build_workbook",
+      "community": 11,
+      "community_name": "Statement Templates API",
+      "norm_label": "build_workbook()"
     },
     {
-      "label": "create_excel()",
+      "label": "Workbook",
       "file_type": "code",
-      "source_file": "backend/scripts/generate_templates.py",
-      "source_location": "L52",
+      "source_file": "",
+      "source_location": "",
       "_origin": "ast",
-      "id": "backend_scripts_generate_templates_create_excel",
-      "community": 2,
-      "community_name": "Excel Export",
-      "norm_label": "create_excel()"
+      "id": "backend_scripts_generate_templates_py_workbook",
+      "community": 11,
+      "community_name": "Statement Templates API",
+      "norm_label": "workbook"
+    },
+    {
+      "label": "Regenerate the blank Excel upload template shipped to users.  The workbook is ge",
+      "file_type": "rationale",
+      "source_file": "backend/scripts/generate_templates.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "backend_scripts_generate_templates_rationale_1",
+      "community": 11,
+      "community_name": "Statement Templates API",
+      "norm_label": "regenerate the blank excel upload template shipped to users.  the workbook is ge"
     },
     {
       "label": "conftest.py",
@@ -2330,8 +2341,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "test_analysis_engine.py"
     },
     {
@@ -2484,8 +2495,8 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testhorizontalanalysis",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "testhorizontalanalysis"
     },
     {
@@ -2495,8 +2506,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testhorizontalanalysis_test_revenue_yoy",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": ".test_revenue_yoy()"
     },
     {
@@ -2506,8 +2517,8 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testhorizontalanalysis_test_single_year_yields_empty",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": ".test_single_year_yields_empty()"
     },
     {
@@ -2517,8 +2528,8 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testdcfbasemetrics",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "testdcfbasemetrics"
     },
     {
@@ -2528,8 +2539,8 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testdcfbasemetrics_test_golden_values",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_golden_values()"
     },
     {
@@ -2539,8 +2550,8 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testdcfbasemetrics_test_cost_of_debt_not_double_counted",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_cost_of_debt_not_double_counted()"
     },
     {
@@ -2550,8 +2561,8 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testdcfbasemetrics_test_wacc_composition",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_wacc_composition()"
     },
     {
@@ -2561,8 +2572,8 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testdcfbasemetrics_test_empty_input",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_empty_input()"
     },
     {
@@ -2572,8 +2583,8 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testmodels",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": "testmodels"
     },
     {
@@ -2583,8 +2594,8 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testmodels_test_statement_to_lookup_prefers_stored_key",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": ".test_statement_to_lookup_prefers_stored_key()"
     },
     {
@@ -2594,8 +2605,8 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testmodels_test_statement_to_lookup_none_values_become_zero",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": ".test_statement_to_lookup_none_values_become_zero()"
     },
     {
@@ -2605,8 +2616,8 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_testmodels_test_label_to_key_known_and_unknown",
-      "community": 10,
-      "community_name": "Projects API Routes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
       "norm_label": ".test_label_to_key_known_and_unknown()"
     },
     {
@@ -2616,8 +2627,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_rationale_1",
-      "community": 16,
-      "community_name": "test_analysis_engine.py",
+      "community": 1,
+      "community_name": "Analysis Engine (Ratios/DCF)",
       "norm_label": "golden-value tests for the analysis engine.  fixture data (see conftest): reve"
     },
     {
@@ -2671,8 +2682,8 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "backend_tests_test_analysis_engine_rationale_130",
-      "community": 18,
-      "community_name": "compute_dcf_base_metrics",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "regression: interest expense was summed with itself, doubling cost of debt."
     },
     {
@@ -3441,8 +3452,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testparseyear",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "testparseyear"
     },
     {
@@ -3452,8 +3463,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testparseyear_test_plain_year",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_plain_year()"
     },
     {
@@ -3463,8 +3474,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testparseyear_test_fy_two_digit",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_fy_two_digit()"
     },
     {
@@ -3474,8 +3485,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testparseyear_test_embedded_year",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_embedded_year()"
     },
     {
@@ -3485,8 +3496,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testparseyear_test_no_digits_falls_back",
-      "community": 20,
-      "community_name": "_parse_year",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_no_digits_falls_back()"
     },
     {
@@ -3584,8 +3595,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testnoduplication",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "testnoduplication"
     },
     {
@@ -3595,8 +3606,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testnoduplication_test_analysis_engine_uses_shared_get_compat",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_analysis_engine_uses_shared_get_compat()"
     },
     {
@@ -3606,8 +3617,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testnoduplication_test_forecasting_engine_uses_shared_get_compat",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_forecasting_engine_uses_shared_get_compat()"
     },
     {
@@ -3617,8 +3628,8 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testnoduplication_test_forecasting_engine_uses_shared_parse_year",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_forecasting_engine_uses_shared_parse_year()"
     },
     {
@@ -3628,8 +3639,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_testnoduplication_test_analysis_engine_uses_shared_build_lookups",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": ".test_analysis_engine_uses_shared_build_lookups()"
     },
     {
@@ -3650,9 +3661,152 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "backend_tests_test_shared_utils_rationale_72",
-      "community": 21,
-      "community_name": "TestNoDuplication",
+      "community": 8,
+      "community_name": "Shared Utils (Compat Map)",
       "norm_label": "if these fail, someone re-copied the helpers into an engine \u2014 don't."
+    },
+    {
+      "label": "test_template_workbook.py",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "test_template_workbook.py"
+    },
+    {
+      "label": "workbook_bytes()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_workbook_bytes",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "workbook_bytes()"
+    },
+    {
+      "label": "sheet_labels()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_sheet_labels",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "sheet_labels()"
+    },
+    {
+      "label": "TestShippedTemplateWorkbook",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "testshippedtemplateworkbook"
+    },
+    {
+      "label": ".test_sheet_names_are_strictly_recognised()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_sheet_names_are_strictly_recognised",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": ".test_sheet_names_are_strictly_recognised()"
+    },
+    {
+      "label": ".test_labels_match_canonical_template_exactly()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_labels_match_canonical_template_exactly",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": ".test_labels_match_canonical_template_exactly()"
+    },
+    {
+      "label": ".test_upload_of_the_shipped_template_has_zero_unmapped_rows()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_upload_of_the_shipped_template_has_zero_unmapped_rows",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": ".test_upload_of_the_shipped_template_has_zero_unmapped_rows()"
+    },
+    {
+      "label": ".test_every_template_row_is_addressable_after_upload()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_every_template_row_is_addressable_after_upload",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": ".test_every_template_row_is_addressable_after_upload()"
+    },
+    {
+      "label": ".test_year_headers_are_parseable()",
+      "file_type": "code",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L81",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_year_headers_are_parseable",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": ".test_year_headers_are_parseable()"
+    },
+    {
+      "label": "The shipped download template must stay in sync with the canonical template.  fr",
+      "file_type": "rationale",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_rationale_1",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "the shipped download template must stay in sync with the canonical template.  fr"
+    },
+    {
+      "label": "Data-row labels (column A, below the header row), stripped of indentation.",
+      "file_type": "rationale",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_rationale_40",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "data-row labels (column a, below the header row), stripped of indentation."
+    },
+    {
+      "label": "The exact symptom this guards: downloading the template, then         re-uploadi",
+      "file_type": "rationale",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_rationale_69",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "the exact symptom this guards: downloading the template, then         re-uploadi"
+    },
+    {
+      "label": "A workbook without recognisable year columns raises on upload.",
+      "file_type": "rationale",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "backend_tests_test_template_workbook_rationale_82",
+      "community": 6,
+      "community_name": "Financial Models & Excel Parser",
+      "norm_label": "a workbook without recognisable year columns raises on upload."
     },
     {
       "label": "test_templates_api.py",
@@ -3771,8 +3925,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "ref_react",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "react"
     },
     {
@@ -4277,8 +4431,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_app",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "app.jsx"
     },
     {
@@ -4288,8 +4442,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "frontend_src_app_app",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "app()"
     },
     {
@@ -4299,8 +4453,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_errorboundary",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "errorboundary.jsx"
     },
     {
@@ -4310,8 +4464,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "frontend_src_components_errorboundary_errorboundary",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "errorboundary"
     },
     {
@@ -4321,8 +4475,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "frontend_src_components_errorboundary_errorboundary_constructor",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": ".constructor()"
     },
     {
@@ -4332,8 +4486,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "frontend_src_components_errorboundary_errorboundary_getderivedstatefromerror",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": ".getderivedstatefromerror()"
     },
     {
@@ -4343,8 +4497,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_components_errorboundary_errorboundary_render",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": ".render()"
     },
     {
@@ -4387,8 +4541,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_protectedroute",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "protectedroute.jsx"
     },
     {
@@ -4398,8 +4552,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_components_protectedroute_protectedroute",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "protectedroute()"
     },
     {
@@ -4409,8 +4563,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_skeleton",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "skeleton.jsx"
     },
     {
@@ -4420,8 +4574,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_components_skeleton_skeletonline",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "skeletonline()"
     },
     {
@@ -4431,8 +4585,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frontend_src_components_skeleton_skeletontable",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "skeletontable()"
     },
     {
@@ -4442,8 +4596,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "frontend_src_components_skeleton_skeletonmetrics",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "skeletonmetrics()"
     },
     {
@@ -4519,8 +4673,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_layout_projectlayout",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "projectlayout.jsx"
     },
     {
@@ -4530,8 +4684,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_components_layout_projectlayout_projectlayout",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "projectlayout()"
     },
     {
@@ -4541,8 +4695,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_components_layout_sidebar",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "sidebar.jsx"
     },
     {
@@ -4552,8 +4706,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_components_layout_sidebar_nav_items",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "nav_items"
     },
     {
@@ -4563,8 +4717,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "frontend_src_components_layout_sidebar_sidebar",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "sidebar()"
     },
     {
@@ -4574,8 +4728,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "frontend_src_components_layout_sidebar_styles",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "styles"
     },
     {
@@ -4585,8 +4739,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_main",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "main.jsx"
     },
     {
@@ -4596,8 +4750,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_pages_companieslanding",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "companieslanding.jsx"
     },
     {
@@ -4607,8 +4761,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "frontend_src_pages_companieslanding_companieslanding",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "companieslanding()"
     },
     {
@@ -4618,8 +4772,8 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "frontend_src_pages_companieslanding_styles",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "styles"
     },
     {
@@ -4629,8 +4783,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_pages_login",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "login.jsx"
     },
     {
@@ -4640,8 +4794,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "frontend_src_pages_login_login",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "login()"
     },
     {
@@ -4651,8 +4805,8 @@
       "source_location": "L239",
       "_origin": "ast",
       "id": "frontend_src_pages_login_styles",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "styles"
     },
     {
@@ -4901,7 +5055,7 @@
       "label": "styles",
       "file_type": "code",
       "source_file": "frontend/src/pages/ProjectView/Valuation.jsx",
-      "source_location": "L649",
+      "source_location": "L651",
       "_origin": "ast",
       "id": "frontend_src_pages_projectview_valuation_styles",
       "community": 3,
@@ -4915,8 +5069,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_pages_resetpassword",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "resetpassword.jsx"
     },
     {
@@ -4926,8 +5080,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_pages_resetpassword_resetpassword",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "resetpassword()"
     },
     {
@@ -4937,8 +5091,8 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "frontend_src_pages_resetpassword_styles",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "styles"
     },
     {
@@ -4948,8 +5102,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_services_api",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "api.js"
     },
     {
@@ -4959,8 +5113,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "frontend_src_services_api_api",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "api"
     },
     {
@@ -4970,8 +5124,8 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "frontend_src_services_api_projectsapi",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "projectsapi"
     },
     {
@@ -5014,8 +5168,8 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "frontend_src_services_api_exportapi",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "exportapi"
     },
     {
@@ -5025,8 +5179,8 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "frontend_src_services_api_downloadprojectexcel",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "downloadprojectexcel()"
     },
     {
@@ -5036,8 +5190,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "frontend_src_services_api_rationale_13",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "note: do not set a default content-type header here."
     },
     {
@@ -5047,8 +5201,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_services_supabaseclient",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "supabaseclient.js"
     },
     {
@@ -5058,8 +5212,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "frontend_src_services_supabaseclient_supabase",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "supabase"
     },
     {
@@ -5069,8 +5223,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frontend_src_store_authstore",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "authstore.js"
     },
     {
@@ -5080,8 +5234,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "frontend_src_store_authstore_useauthstore",
-      "community": 17,
-      "community_name": "Lint Config",
+      "community": 3,
+      "community_name": "React App Shell & Valuation",
       "norm_label": "useauthstore"
     },
     {
@@ -5795,9 +5949,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
-      "community": 10,
+      "community": 8,
       "norm_label": "contract 3: compat key map single home",
-      "community_name": "Projects API Routes",
+      "community_name": "Shared Utils (Compat Map)",
       "id": "claude_compat_key_map_contract"
     },
     {
@@ -8174,6 +8328,18 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "backend/scripts/generate_templates.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_scripts_generate_templates",
+      "target": "backend_app_models_statement_templates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "backend/tests/test_templates_api.py",
       "source_location": "L8",
       "weight": 1.0,
@@ -8226,6 +8392,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_app_services_excel_parser",
+      "target": "backend_app_models_statement_templates_load_statement_templates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/scripts/generate_templates.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_scripts_generate_templates",
       "target": "backend_app_models_statement_templates_load_statement_templates",
       "confidence_score": 1.0
     },
@@ -9889,6 +10067,18 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/app/services/excel_export.py",
+      "source_location": "L1415",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_app_services_excel_export_build_workbook",
+      "target": "backend_app_services_excel_export_py_workbook",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -9922,18 +10112,6 @@
       "_origin": "ast",
       "source": "backend_app_services_excel_export_build_workbook",
       "target": "backend_app_services_shared_utils_parse_year",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "context": "return_type",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/app/services/excel_export.py",
-      "source_location": "L1415",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_app_services_excel_export_build_workbook",
-      "target": "workbook",
       "confidence_score": 1.0
     },
     {
@@ -10045,18 +10223,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "backend/scripts/generate_templates.py",
-      "source_location": "L53",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_scripts_generate_templates_create_excel",
-      "target": "workbook"
-    },
-    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -10133,6 +10299,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_tests_test_excel_parser",
+      "target": "backend_app_services_excel_parser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook",
       "target": "backend_app_services_excel_parser",
       "confidence_score": 1.0
     },
@@ -10360,6 +10538,54 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_tests_test_excel_parser_testparsetemplateupload_test_unknown_labels_reported_as_unmapped",
+      "target": "backend_app_services_excel_parser_parse_template_upload"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook",
+      "target": "backend_app_services_excel_parser_parse_template_upload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_every_template_row_is_addressable_after_upload",
+      "target": "backend_app_services_excel_parser_parse_template_upload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_upload_of_the_shipped_template_has_zero_unmapped_rows",
+      "target": "backend_app_services_excel_parser_parse_template_upload"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_year_headers_are_parseable",
       "target": "backend_app_services_excel_parser_parse_template_upload"
     },
     {
@@ -12111,22 +12337,34 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/scripts/generate_templates.py",
-      "source_location": "L52",
+      "source_location": "L41",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_scripts_generate_templates",
-      "target": "backend_scripts_generate_templates_create_excel",
+      "target": "backend_scripts_generate_templates_build_workbook",
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
+      "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "backend/scripts/generate_templates.py",
-      "source_location": "L5",
+      "source_location": "L1",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "backend_scripts_generate_templates",
-      "target": "backend_scripts_generate_templates_parse_markdown",
+      "source": "backend_scripts_generate_templates_rationale_1",
+      "target": "backend_scripts_generate_templates",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/scripts/generate_templates.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_scripts_generate_templates_build_workbook",
+      "target": "backend_scripts_generate_templates_py_workbook",
       "confidence_score": 1.0
     },
     {
@@ -13875,6 +14113,150 @@
       "_origin": "ast",
       "source": "backend_tests_test_shared_utils_testnoduplication",
       "target": "backend_tests_test_shared_utils_testnoduplication_test_forecasting_engine_uses_shared_parse_year",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook",
+      "target": "backend_tests_test_template_workbook_sheet_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook",
+      "target": "backend_tests_test_template_workbook_workbook_bytes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_rationale_1",
+      "target": "backend_tests_test_template_workbook",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_rationale_40",
+      "target": "backend_tests_test_template_workbook_sheet_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L59",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_labels_match_canonical_template_exactly",
+      "target": "backend_tests_test_template_workbook_sheet_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_every_template_row_is_addressable_after_upload",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_labels_match_canonical_template_exactly",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_sheet_names_are_strictly_recognised",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_upload_of_the_shipped_template_has_zero_unmapped_rows",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L81",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_testshippedtemplateworkbook",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_year_headers_are_parseable",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_rationale_69",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_upload_of_the_shipped_template_has_zero_unmapped_rows",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/tests/test_template_workbook.py",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_tests_test_template_workbook_rationale_82",
+      "target": "backend_tests_test_template_workbook_testshippedtemplateworkbook_test_year_headers_are_parseable",
       "confidence_score": 1.0
     },
     {
@@ -16541,7 +16923,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "frontend/src/pages/ProjectView/Valuation.jsx",
-      "source_location": "L649",
+      "source_location": "L651",
       "weight": 1.0,
       "_origin": "ast",
       "source": "frontend_src_pages_projectview_valuation",
@@ -17921,5 +18303,5 @@
       "source_file": "CLAUDE.md"
     }
   ],
-  "built_at_commit": "0de9cc193a1c122c67c122d7cfff278e59d55ca1"
+  "built_at_commit": "8aa276708964e08d0103c21a89927734046e7e4b"
 }
